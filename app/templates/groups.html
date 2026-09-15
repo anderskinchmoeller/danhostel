@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% set page = "groups" %}
+{% block title %}Grupper · Prismotor{% endblock %}
+{% block body %}
+
+<h1>Gruppetilbud</h1>
+<p class="sub">
+  Når en skoleklasse beder om 20 værelser, er svaret ikke en mavefornemmelse.
+  Prognosen ved, hvor mange værelser der alligevel ville være blevet solgt til
+  almindelig pris — de fortrængte værelser er gruppens reelle omkostning.
+</p>
+
+<div class="panel" style="margin-bottom:22px">
+  <form method="get" action="/grupper" style="display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end">
+    <div><label for="rooms">Antal værelser</label>
+      <input type="number" id="rooms" name="rooms" min="1" max="60" value="{{ rooms or 10 }}" style="width:120px"></div>
+    <div><label for="start">Første ankomstdato</label>
+      <input type="date" id="start" name="start" value="{{ start }}"></div>
+    <div><label for="nights">Antal nætter</label>
+      <input type="number" id="nights" name="nights" min="1" max="21" value="{{ nights or 2 }}" style="width:100px"></div>
+    <button class="primary" type="submit">Beregn minimumspris</button>
+  </form>
+</div>
+
+{% if error %}<div class="msg err">{{ error }}</div>{% endif %}
+
+{% if quotes %}
+  <div class="cards">
+    <div class="card"><div class="k">Minimum for hele gruppen</div>
+      <div class="v">{{ "%.0f"|format(total_min) }} kr.</div>
+      <div class="n">{{ rooms }} værelser × {{ quotes|length }} nætter</div></div>
+    <div class="card"><div class="k">Samme værelser til normalpris</div>
+      <div class="v">{{ "%.0f"|format(total_normal) }} kr.</div>
+      <div class="n">hvis de var solgt enkeltvis</div></div>
+    <div class="card"><div class="k">Rabatrum</div>
+      <div class="v">{{ "%.0f"|format(total_normal - total_min) }} kr.</div>
+      <div class="n">{% if total_normal %}{{ "%.0f"|format((total_normal - total_min) / total_normal * 100) }} % under normalpris{% endif %}</div></div>
+  </div>
+
+  <div class="wrapx">
+  <table>
+    <thead><tr>
+      <th>Dato</th><th>Dag</th>
+      <th class="num">Kapacitet</th><th class="num">Prognose</th><th class="num">Ledige</th>
+      <th class="num">Fortrængt</th><th class="num">Normalpris</th><th class="num">Minimumspris</th>
+      <th>Vurdering</th>
+    </tr></thead>
+    <tbody>
+    {% for q in quotes %}
+      <tr class="{% if q.day.weekday() in (4,5) %}we{% endif %}">
+        <td>{{ q.day.strftime("%d-%m-%Y") }}</td>
+        <td>{{ days_dk[q.day.weekday()] }}</td>
+        <td class="num">{{ q.room_capacity }}</td>
+        <td class="num">{{ "%.1f"|format(q.forecast_rooms) }}</td>
+        <td class="num">{{ "%.1f"|format(q.spare_rooms) }}</td>
+        <td class="num" {% if q.displaced_rooms > 0 %}style="color:var(--flag)"{% endif %}>{{ "%.1f"|format(q.displaced_rooms) }}</td>
+        <td class="num" style="color:var(--muted)">{{ "%.0f"|format(q.transient_price) }}</td>
+        <td class="num"><b>{{ "%.0f"|format(q.minimum_rate) }}</b></td>
+        <td>
+          {% if q.displaced_rooms <= 0 %}
+            <span class="tag approved">fri kapacitet</span>
+          {% elif q.displaced_rooms >= rooms * 0.8 %}
+            <span class="tag rejected">gruppen fortrænger næsten alt</span>
+          {% else %}
+            <span class="tag pending">delvis fortrængning</span>
+          {% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+
+  <p class="foot">
+    <b>Sådan læses tallet.</b> Minimumsprisen er hvad gruppen skal betale pr.
+    værelse pr. nat, for at I ikke taber på at tage den frem for almindelige
+    gæster. Ligger den tæt på normalprisen, er datoen ved at være fuld, og en
+    rabat koster rigtige penge. Er der fri kapacitet, er minimum kun de variable
+    omkostninger plus prisgulvet — der er reelt forhandlingsrum.
+    <br><br>
+    To forbehold. Tallet regner kun på værelser, ikke på de dormsenge et flex-rum
+    kunne have givet i stedet — så på datoer hvor sengene er ved at være fyldt, er
+    den reelle omkostning lidt højere end vist. Og gruppen bringer ofte morgenmad
+    og forbrug med sig, hvilket trækker den anden vej. Brug tallet som gulv, ikke
+    som tilbud.
+  </p>
+{% elif rooms %}
+  <div class="msg info">Ingen datoer at regne på. Tjek at startdatoen er udfyldt.</div>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+{% set page = "dashboard" %}
+{% block title %}Priser · Prismotor{% endblock %}
+{% block body %}
+
+<h1>Anbefalede priser</h1>
+{% if not inv.confirmed %}
+<div class="msg err"><b>Eksempellager — ikke klar til live brug.</b>
+Den offentligt oplyste kapacitet er 330 senge. Denne ubekræftede opdeling giver
+{{ inv.total_beds }}. Afstem rumtyper, private senge og flex-rum med Picasso.
+Prisforslag kan vurderes her; eksport og skrivning kræver bekræftet lager.</div>
+{% endif %}
+{% if run %}
+  <p class="sub">
+    Kørsel #{{ run.id }} · {{ run.started.strftime("%d-%m-%Y %H:%M") }} UTC · {{ run.n_days }} datoer
+    {% if run.status == "frozen" %} · <b style="color:var(--flag)">fastfrosset</b>{% endif %}
+    &nbsp;|&nbsp; Lager: {{ inv.private_rooms }} faste private + {{ inv.flex_rooms }} flex
+    + {{ inv.dorm_beds }} dormsenge = {{ inv.total_beds }} senge
+  </p>
+{% else %}
+  <p class="sub">Ingen kørsel endnu.</p>
+{% endif %}
+
+{% if run and run.status == "frozen" %}
+  <div class="msg err"><b>Dødmandsknap aktiv.</b> {{ run.note }}</div>
+{% elif run and run.note %}
+  <div class="msg info">{{ run.note }}</div>
+{% endif %}
+
+{% if not rows %}
+  <div class="msg info">
+    Ingen priser endnu. Upload belægning under <a href="/data">Data</a> og tryk
+    <b>Kør beregning</b>.
+  </div>
+{% endif %}
+
+<div class="cards">
+  <div class="card"><div class="k">RevPAB · prognose</div>
+    <div class="v">{{ "%.0f"|format(avg_revpab) }} kr.</div>
+    <div class="n">pr. seng · skøn ved manglende omsætning/typemiks</div></div>
+  <div class="card"><div class="k">Gns. værelsespris</div>
+    <div class="v">{{ "%.0f"|format(avg_room) }} kr.</div>
+    <div class="n">dobbelt uden bad</div></div>
+  <div class="card"><div class="k">Gns. sengepris</div>
+    <div class="v">{{ "%.0f"|format(avg_bed) }} kr.</div>
+    <div class="n">pr. dormseng</div></div>
+  <div class="card"><div class="k">Flex-forslag til private</div>
+    <div class="v">{{ "%.1f"|format(avg_flex) }}</div>
+    <div class="n">af {{ inv.flex_rooms }} i gennemsnit</div></div>
+  <div class="card"><div class="k">Afventer godkendelse</div>
+    <div class="v">{{ pending }}</div>
+    <div class="n">{{ flagged }} med bemærkning</div></div>
+</div>
+
+<div class="bar">
+  <form class="inline" method="post" action="/run">
+    <button class="primary" type="submit">Kør beregning</button>
+  </form>
+  <form class="inline" method="post" action="/decide">
+    <input type="hidden" name="action" value="approve">
+    <input type="hidden" name="scope" value="all">
+    <button type="submit">Godkend alle afventende ({{ pending }})</button>
+  </form>
+  <form class="inline" method="post" action="/publish">
+    <button type="submit">Skriv godkendte til Picasso</button>
+  </form>
+  <a class="btn" href="/export.csv">Hent godkendte som CSV</a>
+  <span style="margin-left:auto;font-size:13px;color:var(--muted)">
+    Vis: <a href="/?days=30">30</a> · <a href="/?days=60">60</a> · <a href="/?days=90">90</a> dage
+  </span>
+</div>
+
+<div class="wrapx">
+<table>
+  <thead>
+  <tr>
+    <th>Dato</th><th>Dag</th><th class="num">Lead</th>
+    <th class="num" title="Solgte værelser / solgte senge lige nu">Solgt nu</th>
+    <th class="num" title="Prognose for slutbelægning: værelser">Progn. vær.</th>
+    <th class="num" title="Prognose for slutbelægning: senge">Progn. senge</th>
+    <th class="num" title="Dagsforslag; kræver kontrol af konkrete rum og hele ophold">Flex</th>
+    <th class="num">Pace v/s</th><th class="num">Marked v/s</th><th class="num">Event</th>
+    <th class="num">Værelsespris</th><th class="num">Ændring</th>
+    <th class="num">Sengepris</th><th class="num">Familie</th>
+    <th class="num">RevPAB</th><th>Status</th><th>Handling</th><th>Bemærkning</th>
+  </tr>
+  </thead>
+  <tbody>
+  {% for row in rows %}
+    {% set r = row.r %}
+    <tr class="{% if row.is_weekend %}we{% endif %}">
+      <td>{{ r.day.strftime("%d-%m") }}</td>
+      <td>{{ row.weekday }}</td>
+      <td class="num">{{ r.lead_days }}</td>
+      <td class="num" style="color:var(--muted)">{{ r.rooms_otb }}v / {{ r.beds_otb }}s</td>
+      <td class="num"><b>{{ "%.0f"|format(r.room_forecast * 100) }} %</b>
+        <span style="color:var(--muted)">({{ "%.0f"|format(r.room_occ_now * 100) }})</span></td>
+      <td class="num"><b>{{ "%.0f"|format(r.bed_forecast * 100) }} %</b>
+        <span style="color:var(--muted)">({{ "%.0f"|format(r.bed_occ_now * 100) }})</span></td>
+      <td class="num">{{ r.flex_to_private }}</td>
+      <td class="num">{{ "%.2f"|format(r.f_pace_rooms) }} / {{ "%.2f"|format(r.f_pace_beds) }}</td>
+      <td class="num">{{ "%.2f"|format(r.f_market_rooms) }} / {{ "%.2f"|format(r.f_market_beds) }}</td>
+      <td class="num" {% if r.f_event != 1.0 %}title="{{ r.event_names }}" style="color:var(--accent)"{% endif %}>{{ "%.2f"|format(r.f_event) }}</td>
+      <td class="num"><b>{{ "%.0f"|format(r.room_price) }}</b></td>
+      <td class="num">
+        {% if row.room_delta is not none and row.room_delta != 0 %}
+          <span class="{% if row.room_delta > 0 %}up{% else %}down{% endif %}">
+            {{ "%+.0f"|format(row.room_delta) }}
+          </span>
+        {% else %}—{% endif %}
+      </td>
+      <td class="num"><b>{{ "%.0f"|format(r.bed_price) }}</b></td>
+      <td class="num" style="color:var(--muted)">{{ "%.0f"|format(row.room_types.get("familie_4", 0)) }}</td>
+      <td class="num">{{ "%.0f"|format(r.revpab) }}</td>
+      <td><span class="tag {{ r.status }}">{{ r.status }}</span></td>
+      <td>
+        {% if r.status == "pending" %}
+          <form class="inline" method="post" action="/decide">
+            <input type="hidden" name="action" value="approve">
+            <input type="hidden" name="scope" value="one">
+            <input type="hidden" name="day" value="{{ r.day.isoformat() }}">
+            <button class="small" type="submit">Godkend</button>
+          </form>
+        {% elif r.status == "locked" %}
+          <form class="inline" method="post" action="/lock">
+            <input type="hidden" name="day" value="{{ r.day.isoformat() }}">
+            <input type="hidden" name="unlock" value="1">
+            <button class="small" type="submit">Lås op</button>
+          </form>
+        {% else %}
+          <form class="inline" method="post" action="/lock">
+            <input type="hidden" name="day" value="{{ r.day.isoformat() }}">
+            <input type="text" name="room_price" size="4" placeholder="{{ "%.0f"|format(r.room_price) }}"
+                   style="padding:3px 5px;width:56px" aria-label="Fast værelsespris">
+            <input type="text" name="bed_price" size="4" placeholder="{{ "%.0f"|format(r.bed_price) }}"
+                   style="padding:3px 5px;width:52px" aria-label="Fast sengepris">
+            <button class="small" type="submit">Lås</button>
+          </form>
+        {% endif %}
+      </td>
+      <td>{% for w in row.warning_list %}<span class="warn">{{ w }}</span>{% endfor %}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+
+<p class="foot">
+  <b>Sådan læses en række.</b> Prognosekolonnerne er det vigtigste: det store tal er
+  hvor modellen forventer belægningen <i>lander</i>, og tallet i parentes er hvor
+  meget der er solgt lige nu. Er prognosen over målet, stiger prisen; er den under,
+  falder den. Derfor falder prisen ikke på en dato der er 20 % solgt 40 dage ude —
+  de 20 % er på vej til 85 %.
+  <br><br>
+  <b>Flex</b> er et dagsforslag. Kontrollér de konkrete rum og alle nætter i
+  eksisterende ophold, før lageret ændres i Picasso. Servicen flytter ikke gæster
+  og ændrer ikke værelsesallokeringer.
+  <br><br>
+  <b>RevPAB</b> er en prognose. Bogført omsætning anvendes, når den er importeret;
+  fremtidigt salg værdisættes med de foreslåede priser og det resterende typemiks.
+  Manglende data giver et tydeligt markeret skøn. Tallet dokumenterer ikke realiseret meromsætning.
+  {% if not settings.auto_publish %}
+  <br><br>Servicen kører i skyggedrift: intet skrives til Picasso før du godkender.
+  {% endif %}
+</p>
+
+{% endblock %}

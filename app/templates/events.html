@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% set page = "events" %}
+{% block title %}Events · Prismotor{% endblock %}
+{% block body %}
+
+<h1>Eventkalender</h1>
+<p class="sub">
+  Den eneste del af modellen der kræver et menneske hver måned. Sæt en halv time af
+  den første mandag i måneden.
+</p>
+
+<div class="grid2">
+  <div class="panel">
+    <h2 style="margin-top:0">Tilføj event</h2>
+    <form method="post" action="/events/add">
+      <div class="field"><label for="name">Navn</label>
+        <input type="text" id="name" name="name" required style="width:100%"
+               placeholder="Efterårsferie, uge 42"></div>
+      <div class="field" style="display:flex;gap:10px">
+        <div style="flex:1"><label for="start">Fra</label>
+          <input type="date" id="start" name="start" required style="width:100%"></div>
+        <div style="flex:1"><label for="end">Til</label>
+          <input type="date" id="end" name="end" required style="width:100%"></div>
+      </div>
+      <div class="field"><label for="uplift">Tillæg (0,10 = 10 %)</label>
+        <input type="text" id="uplift" name="uplift" value="0,10" style="width:100%"></div>
+      <div class="field"><label for="source">Kilde</label>
+        <input type="text" id="source" name="source" style="width:100%"
+               placeholder="visitaarhus.dk"></div>
+      <button class="primary" type="submit">Tilføj</button>
+    </form>
+  </div>
+
+  <div class="panel">
+    <h2 style="margin-top:0">Faste kilder</h2>
+    <ul style="font-size:13.5px;color:var(--ink-2);padding-left:18px;line-height:1.7">
+      <li><b>VisitAarhus' eventkalender</b> — regionens officielle kalender</li>
+      <li><b>Musikhuset og Scandinavian Congress Center</b> — kongresser fylder hverdagsnætter</li>
+      <li><b>Ceres Park &amp; Arena</b> — AGF-hjemmekampe og store koncerter</li>
+      <li><b>Aarhus Universitet</b> — studiestart og dimission trækker familier ind</li>
+      <li><b>Skoleferier</b> i Danmark, Norge, Sverige og Tyskland</li>
+    </ul>
+    <p style="font-size:12.5px;color:var(--muted)">
+      Overlappende events lægges sammen, og summen loftes af
+      <code>event_max</code> ({{ "%.2f"|format(settings.params.event_max) }}) — så en
+      tastefejl ikke sender prisen i vejret.
+    </p>
+  </div>
+</div>
+
+<h2>Kalender</h2>
+<div class="wrapx">
+<table>
+  <thead><tr><th>Fra</th><th>Til</th><th>Event</th><th class="num">Tillæg</th>
+    <th>Kilde</th><th></th></tr></thead>
+  <tbody>
+  {% for e in events %}
+    <tr>
+      <td>{{ e.start.strftime("%d-%m-%Y") }}</td>
+      <td>{{ e.end.strftime("%d-%m-%Y") }}</td>
+      <td>{{ e.name }}</td>
+      <td class="num">{{ "%.0f"|format(e.uplift * 100) }} %</td>
+      <td style="color:var(--muted)">{{ e.source }}</td>
+      <td>
+        <form class="inline" method="post" action="/events/delete">
+          <input type="hidden" name="event_id" value="{{ e.id }}">
+          <button class="small" type="submit">Slet</button>
+        </form>
+      </td>
+    </tr>
+  {% else %}
+    <tr><td colspan="6" style="color:var(--muted)">Ingen events endnu.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+
+{% endblock %}

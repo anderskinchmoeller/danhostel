@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% set page = "data" %}
+{% block title %}Data · Prismotor{% endblock %}
+{% block body %}
+
+<h1>Data ind</h1>
+<p class="sub">
+  To filer om dagen. Begge lagre skal med — leverer eksporten kun værelser, er
+  den halve model blind.
+</p>
+
+{% if message %}<div class="msg ok">{{ message }}</div>{% endif %}
+{% if error %}<div class="msg err">{{ error }}</div>{% endif %}
+
+<div class="grid2">
+  <div class="panel">
+    <h2 style="margin-top:0">Belægning fra Picasso</h2>
+    <p style="font-size:13.5px;color:var(--ink-2)">
+      Solgte private værelser og solgte dormsenge pr. ankomstdato. Kolonnenavne
+      genkendes på dansk og engelsk, med og uden æøå, og både semikolon og komma
+      virker som separator.
+    </p>
+    <pre>dato;solgte_vaerelser;solgte_senge;blokerede_vaerelser;blokerede_senge;vaerelsespris;sengepris
+2026-09-16;24;148;4;0;690;280
+2026-09-17;27;161;0;0;710;290</pre>
+    <p style="font-size:12.5px;color:var(--muted)">
+      Alt efter de tre første kolonner er valgfrit. Blokerede enheder trækkes fra
+      kapaciteten, så gruppebookinger ikke ser ud som tomme værelser og trækker
+      prisen ned. Kapaciteten selv står i config.yaml —
+      {{ inv.private_rooms }} faste private, {{ inv.flex_rooms }} flex à
+      {{ inv.beds_per_flex_room }} senge, {{ inv.dorm_beds }} dormsenge.
+    </p>
+    <form method="post" action="/data/upload" enctype="multipart/form-data">
+      <input type="hidden" name="kind" value="inventory">
+      <div class="field"><input type="file" name="file" accept=".csv,.txt" required></div>
+      <div class="field" style="display:flex;gap:7px;align-items:flex-start">
+        <input type="checkbox" name="override" value="1" id="override" style="margin-top:3px">
+        <label for="override" style="margin:0">
+          Importér selvom filen ser forkert ud. Brug den kun når du har læst
+          bemærkningen og ved at tallene passer — det bliver skrevet i loggen.
+        </label>
+      </div>
+      <button class="primary" type="submit">Importér belægning</button>
+    </form>
+    <p style="font-size:12.5px;color:var(--muted)">
+      Importen stoppes hvis filen ser plausibel men forkert ud: en kolonne der er
+      nul hele horisonten igennem, flere solgte enheder end huset har, spring på
+      over 40 procentpoint på ét døgn, priser uden for et forventeligt interval,
+      eller datoer der er læst med måned og dag byttet om.
+    </p>
+  </div>
+
+  <div class="panel">
+    <h2 style="margin-top:0">Konkurrentpriser</h2>
+    <p style="font-size:13.5px;color:var(--ink-2)">
+      To comp sets: private værelser mod budgethoteller, senge mod andre hostels.
+      Husk at udelade lukkede rater — en pris du ikke kan booke er ikke en lav pris.
+    </p>
+    <pre>dato;medianpris_vaerelse;medianpris_seng
+2026-09-16;640;285
+2026-09-17;660;295</pre>
+    <p style="font-size:12.5px;color:var(--muted)">
+      Mangler den ene kolonne, sætter modellen den tilhørende markedsfaktor til
+      1,000 og prissætter på prognosen alene. For et hostel er det mindre
+      alvorligt end for et hotel: rate shopping vejer kun 0,45 på værelser og
+      0,30 på senge her, fordi produkterne ikke er sammenlignelige på samme måde.
+    </p>
+    <form method="post" action="/data/upload" enctype="multipart/form-data">
+      <input type="hidden" name="kind" value="comp">
+      <div class="field"><input type="file" name="file" accept=".csv,.txt" required></div>
+      <button class="primary" type="submit">Importér konkurrentpriser</button>
+    </form>
+  </div>
+</div>
+
+<h2>Seneste 20 datoer i basen</h2>
+<div class="wrapx">
+<table>
+  <thead><tr>
+    <th>Dato</th><th class="num">Solgte vær.</th><th class="num">Solgte senge</th>
+    <th class="num">Blok. vær.</th><th class="num">Blok. senge</th>
+    <th class="num">Comp vær.</th><th class="num">Comp seng</th>
+    <th class="num">Nuv. vær.</th><th class="num">Nuv. seng</th>
+    <th>Belægning opdateret</th><th>Comp opdateret</th><th>Låst</th>
+  </tr></thead>
+  <tbody>
+  {% for s in states %}
+    <tr>
+      <td>{{ s.day.strftime("%d-%m-%Y") }}</td>
+      <td class="num">{{ s.rooms_otb }}</td>
+      <td class="num">{{ s.beds_otb }}</td>
+      <td class="num">{{ s.blocked_rooms }}</td>
+      <td class="num">{{ s.blocked_beds }}</td>
+      <td class="num">{% if s.comp_room %}{{ "%.0f"|format(s.comp_room) }}{% else %}—{% endif %}</td>
+      <td class="num">{% if s.comp_bed %}{{ "%.0f"|format(s.comp_bed) }}{% else %}—{% endif %}</td>
+      <td class="num">{% if s.current_room_price %}{{ "%.0f"|format(s.current_room_price) }}{% else %}—{% endif %}</td>
+      <td class="num">{% if s.current_bed_price %}{{ "%.0f"|format(s.current_bed_price) }}{% else %}—{% endif %}</td>
+      <td>{% if s.otb_updated %}{{ s.otb_updated.strftime("%d-%m %H:%M") }}{% else %}—{% endif %}</td>
+      <td>{% if s.comp_updated %}{{ s.comp_updated.strftime("%d-%m %H:%M") }}{% else %}—{% endif %}</td>
+      <td>{% if s.locked %}<span class="tag locked">låst</span>{% endif %}</td>
+    </tr>
+  {% else %}
+    <tr><td colspan="12" style="color:var(--muted)">Ingen data endnu.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+
+<p class="foot">
+  <b>Automatisk i stedet for upload.</b> Sæt <code>RMS_CSV_INBOX</code> til en mappe
+  hvor Picasso lægger sin natlige eksport, så henter servicen selv den nyeste fil
+  hver nat. Når AK Techotel har bekræftet API-adgang, skiftes
+  <code>adapters.pms</code> til <code>picasso_api</code> i config.yaml — og husk at
+  bede dem om sengetallene, ikke kun værelsestallene.
+</p>
+
+<div class="panel">
+<h2>Supplerende belægningsdata</h2>
+<p>Begge solgte antal skal være med, også ved nul salg. Én række pr. opholdsdato.</p>
+<p>Valgfrie kolonner: <code>booked_room_revenue</code> og <code>booked_bed_revenue</code>
+er allerede bogført overnatningsomsætning for datoen i DKK, inklusive samme afgifter
+som priserne, uden morgenmad og andre tillæg. <code>room_type_otb</code> er solgte rum pr. type,
+fx <code>{"dobbelt_med_bad": 5, "familie_4": 2}</code>.</p>
+<p><code>flex_private_min</code> og <code>flex_private_max</code> begrænser dagsforslaget.
+Grænserne skal komme fra konkrete værelsestildelinger og respektere hele ophold,
+ikke kun antal bookede senge. Uden disse oplysninger kræver flex-forslag manuel kontrol.</p>
+</div>
+{% endblock %}

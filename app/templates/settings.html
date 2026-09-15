@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% set page = "settings" %}
+{% block title %}Indstillinger · Prismotor{% endblock %}
+{% block body %}
+
+<h1>Indstillinger</h1>
+<p class="sub">
+  Comp set redigeres her og slår igennem ved næste kørsel. Prisparametre ligger i
+  <code>config/config.yaml</code> og kræver en genstart.
+</p>
+
+<h2>Comp set og kvalitetsindeks</h2>
+<div class="panel">
+  <form method="post" action="/settings/competitors">
+    <div class="wrapx" style="border:none">
+    <table>
+      <thead><tr><th>Udbyder</th><th class="num">Vægt</th><th class="num">Review-score</th><th>Note</th></tr></thead>
+      <tbody>
+        {% if own %}
+        <tr>
+          <td><b>Danhostel Aarhus City</b></td>
+          <td class="num" style="color:var(--muted)">egen</td>
+          <td class="num"><input type="text" name="score_{{ own.id }}"
+              value="{{ "%.1f"|format(own.review_score) }}" size="4" style="width:64px;text-align:right"></td>
+          <td style="color:var(--muted);white-space:normal">{{ own.note }}</td>
+        </tr>
+        {% endif %}
+        {% for c in comps %}
+        <tr>
+          <td><input type="text" name="name_{{ c.id }}" value="{{ c.name }}" style="width:190px"></td>
+          <td class="num"><input type="text" name="weight_{{ c.id }}"
+              value="{{ "%.2f"|format(c.weight) }}" size="4" style="width:64px;text-align:right"></td>
+          <td class="num"><input type="text" name="score_{{ c.id }}"
+              value="{{ "%.1f"|format(c.review_score) }}" size="4" style="width:64px;text-align:right"></td>
+          <td style="color:var(--muted);white-space:normal">{{ c.note }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </div>
+    <div style="margin-top:14px;display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+      <button class="primary" type="submit">Gem comp set</button>
+      <span style="font-size:13.5px;color:var(--ink-2)">
+        Beregnet målindeks: <b>{{ "%.3f"|format(quality_index) }}</b>
+        — modellen sigter {{ "%+.1f"|format((quality_index - 1) * 100) }} % mod markedets medianpris.
+      </span>
+    </div>
+  </form>
+  <p style="font-size:12.5px;color:var(--muted);margin-top:14px">
+    Indekset bygger på Cornell (Anderson 2012): ét point på et 100-punkts
+    review-indeks svarer til ca. 0,89 % i ADR. Vægtene skal summe til 1,00.
+  </p>
+</div>
+
+<h2>Aktive parametre</h2>
+<div class="grid2">
+  <div class="panel">
+    <h2 style="margin-top:0">Lager</h2>
+    <p>{% if inv.confirmed %}Bekræftet lager{% else %}<b>Ubekræftet eksempellager — eksport og skrivning blokeret</b>{% endif %}</p>
+    <table>
+      <tr><td>Faste private værelser</td><td class="num">{{ inv.private_rooms }}</td></tr>
+      <tr><td>Flex-rum (kan sælges begge veje)</td><td class="num">{{ inv.flex_rooms }} à {{ inv.beds_per_flex_room }} senge</td></tr>
+      <tr><td>Dormsenge i faste sovesale</td><td class="num">{{ inv.dorm_beds }}</td></tr>
+      <tr><td>Maks. private værelser</td><td class="num">{{ inv.max_room_capacity }}</td></tr>
+      <tr><td>Maks. senge</td><td class="num">{{ inv.max_bed_capacity }}</td></tr>
+      <tr><td><b>Senge i alt (nævner i RevPAB)</b></td><td class="num"><b>{{ inv.total_beds }}</b></td></tr>
+    </table>
+    <p style="font-size:12.5px;color:var(--muted);margin-top:12px">
+      Ret tallene i <code>config/config.yaml</code> til husets faktiske opdeling i
+      Picasso. Er de forkerte, er alt andet også forkert.
+    </p>
+  </div>
+  <div class="panel">
+    <h2 style="margin-top:0">Pris og guardrails</h2>
+    <table>
+      <tr><td>Grundpris værelse / seng</td><td class="num">{{ "%.0f"|format(params.bar_base) }} / {{ "%.0f"|format(params.bed_base) }} kr.</td></tr>
+      <tr><td>Målbelægning værelser / senge</td><td class="num">{{ "%.0f"|format(params.target_occupancy_rooms * 100) }} % / {{ "%.0f"|format(params.target_occupancy_beds * 100) }} %</td></tr>
+      <tr><td>k_forecast værelser / senge</td><td class="num">{{ params.k_forecast }} / {{ params.k_forecast_beds }}</td></tr>
+      <tr><td>k_marked værelser / senge</td><td class="num">{{ params.k_market }} / {{ params.k_market_bed }}</td></tr>
+      <tr><td>Prisgulv / loft, værelse</td><td class="num">{{ "%.0f"|format(params.price_floor) }} / {{ "%.0f"|format(params.price_ceiling) }} kr.</td></tr>
+      <tr><td>Prisgulv / loft, seng</td><td class="num">{{ "%.0f"|format(params.bed_floor) }} / {{ "%.0f"|format(params.bed_ceiling) }} kr.</td></tr>
+      <tr><td>Variabel omk. værelse / seng</td><td class="num">{{ "%.0f"|format(params.variable_cost) }} / {{ "%.0f"|format(params.variable_cost_bed) }} kr.</td></tr>
+      <tr><td>Kommission</td><td class="num">{{ "%.0f"|format(params.commission * 100) }} %</td></tr>
+      <tr><td>Netto ved prisgulv, værelse</td><td class="num">{{ "%.0f"|format(params.price_floor * (1 - params.commission) - params.variable_cost) }} kr.</td></tr>
+      <tr><td>Netto ved prisgulv, seng</td><td class="num">{{ "%.0f"|format(params.bed_floor * (1 - params.commission) - params.variable_cost_bed) }} kr.</td></tr>
+      <tr><td>Ændringsbremse</td><td class="num">±{{ "%.0f"|format(params.max_daily_change * 100) }} %</td></tr>
+      <tr><td>Horisont / natlig kørsel</td><td class="num">{{ settings.horizon_days }} dage · {{ "%02d"|format(settings.run_cron_hour) }}:{{ "%02d"|format(settings.run_cron_minute) }}</td></tr>
+      <tr><td>Drift</td><td class="num">{% if settings.auto_publish %}Fuldautomatisk{% else %}Skyggedrift{% endif %}</td></tr>
+    </table>
+  </div>
+</div>
+
+<h2>Seneste kørsler</h2>
+<div class="wrapx">
+  <table>
+    <thead><tr><th>#</th><th>Start</th><th>Status</th><th class="num">Datoer</th>
+      <th class="num">Gns. RevPAB</th><th>Udløst af</th></tr></thead>
+    <tbody>
+    {% for r in runs %}
+    <tr>
+      <td>#{{ r.id }}</td>
+      <td>{{ r.started.strftime("%d-%m %H:%M") }}</td>
+      <td><span class="tag {% if r.status == 'done' %}approved{% elif r.status == 'failed' %}rejected{% else %}pending{% endif %}">{{ r.status }}</span></td>
+      <td class="num">{{ r.n_days }}</td>
+      <td class="num">{{ "%.0f"|format(r.revpab) }} kr.</td>
+      <td style="color:var(--muted)">{{ r.trigger }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<h2>Log</h2>
+<div class="wrapx">
+<table>
+  <thead><tr><th>Tid (UTC)</th><th>Hvem</th><th>Handling</th><th>Dato</th>
+    <th class="num">Fra</th><th class="num">Til</th><th>Detalje</th></tr></thead>
+  <tbody>
+  {% for l in logs %}
+    <tr>
+      <td>{{ l.ts.strftime("%d-%m %H:%M:%S") }}</td>
+      <td>{{ l.actor }}</td>
+      <td>{{ l.action }}</td>
+      <td>{% if l.day %}{{ l.day.strftime("%d-%m-%Y") }}{% endif %}</td>
+      <td class="num">{{ l.old_value }}</td>
+      <td class="num">{{ l.new_value }}</td>
+      <td style="color:var(--muted);white-space:normal">{{ l.detail }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+
+<p class="foot">
+  Hver prisændring står i loggen med gammel værdi, ny værdi og hvem der besluttede
+  den. Det er ikke bureaukrati: den dag en pris ser forkert ud, er det forskellen
+  på fem minutter og en eftermiddag.
+</p>
+
+{% endblock %}

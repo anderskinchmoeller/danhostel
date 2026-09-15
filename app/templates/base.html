@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Prismotor{% endblock %}</title>
+<style>
+:root{
+  --ground:#F4F6F3; --surface:#fff; --surface-2:#EDF0EC;
+  --ink:#15222A; --ink-2:#3D4E55; --muted:#6E7F81;
+  --line:#D6DCD6; --line-strong:#B6C0B8;
+  --accent:#0E6E72; --accent-soft:#DCEBEA;
+  --flag:#A8481A; --flag-soft:#F6E6DC;
+  --good:#2F6B3C; --good-soft:#E2EFE4;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --ground:#0E1518; --surface:#151F23; --surface-2:#1B272B;
+    --ink:#E6EDE9; --ink-2:#B7C6C4; --muted:#8A9C9C;
+    --line:#27353A; --line-strong:#3A4C51;
+    --accent:#59B7B4; --accent-soft:#12312F;
+    --flag:#DE8B5C; --flag-soft:#2C1D14;
+    --good:#7BB98A; --good-soft:#16281B;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);
+  font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+a{color:var(--accent)}
+header.top{background:var(--surface);border-bottom:1px solid var(--line);
+  padding:0 20px;display:flex;align-items:center;gap:24px;flex-wrap:wrap;
+  position:sticky;top:0;z-index:20}
+.brand{font-weight:700;font-size:16px;padding:14px 0;letter-spacing:-.01em}
+.brand small{display:block;font-weight:400;font-size:11px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+nav{display:flex;gap:2px;flex-wrap:wrap}
+nav a{padding:14px 12px;text-decoration:none;color:var(--ink-2);font-size:14px;
+  border-bottom:2px solid transparent}
+nav a.on{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
+.mode{margin-left:auto;padding:14px 0;font-size:12px;color:var(--muted)}
+.mode b{color:var(--flag)}
+main{max-width:1280px;margin:0 auto;padding:22px 20px 64px}
+h1{font-size:22px;margin:0 0 4px;letter-spacing:-.01em}
+h2{font-size:16px;margin:28px 0 10px}
+.sub{color:var(--muted);font-size:13.5px;margin:0 0 18px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:16px 0 22px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:13px 15px}
+.card .k{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.card .v{font-size:23px;font-weight:600;font-variant-numeric:tabular-nums;margin-top:3px}
+.card .n{font-size:12px;color:var(--muted)}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 16px}
+button,.btn{font:inherit;font-size:13.5px;padding:8px 14px;border-radius:5px;
+  border:1px solid var(--line-strong);background:var(--surface);color:var(--ink);
+  cursor:pointer;text-decoration:none;display:inline-block}
+button:hover,.btn:hover{border-color:var(--accent);color:var(--accent)}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+button.primary:hover{opacity:.9;color:#fff}
+button.small{padding:4px 9px;font-size:12px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+form.inline{display:inline}
+.wrapx{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:6px}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th{position:sticky;top:0;background:var(--surface);text-align:left;
+  font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);
+  font-weight:600;padding:9px 10px;border-bottom:1px solid var(--line-strong);white-space:nowrap}
+td{padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr.we td{background:var(--surface-2)}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+.tag{display:inline-block;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;
+  padding:2px 7px;border-radius:100px;white-space:nowrap}
+.tag.pending{background:var(--surface-2);color:var(--muted)}
+.tag.approved{background:var(--good-soft);color:var(--good)}
+.tag.published{background:var(--accent-soft);color:var(--accent)}
+.tag.rejected,.tag.locked{background:var(--flag-soft);color:var(--flag)}
+.up{color:var(--good)} .down{color:var(--flag)}
+.warn{font-size:11.5px;color:var(--flag);white-space:normal;max-width:230px;display:block}
+.msg{padding:11px 14px;border-radius:5px;margin:0 0 16px;font-size:13.5px}
+.msg.ok{background:var(--good-soft);color:var(--good)}
+.msg.err{background:var(--flag-soft);color:var(--flag)}
+.msg.info{background:var(--accent-soft);color:var(--accent)}
+input[type=text],input[type=date],input[type=number],input[type=file],select{
+  font:inherit;font-size:13.5px;padding:7px 9px;border:1px solid var(--line-strong);
+  border-radius:5px;background:var(--surface);color:var(--ink);max-width:100%}
+label{font-size:12px;color:var(--muted);display:block;margin-bottom:3px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:18px}
+.field{margin-bottom:12px}
+code{background:var(--surface-2);padding:1px 5px;border-radius:3px;font-size:12.5px}
+pre{background:var(--surface-2);padding:12px;border-radius:5px;overflow-x:auto;font-size:12.5px}
+.foot{color:var(--muted);font-size:12px;margin-top:26px;line-height:1.7}
+.fresh{padding:13px 0;font-size:12px;color:var(--muted);text-align:right;line-height:1.3}
+.fresh .k{display:block;font-size:10px;letter-spacing:.08em;text-transform:uppercase}
+.fresh b{color:var(--ink);font-size:13px;font-weight:600}
+.fresh.stale b{color:var(--flag)}
+.stalebar{background:var(--flag-soft);color:var(--flag);border-bottom:1px solid var(--flag);
+  padding:10px 20px;font-size:13.5px}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand">Prismotor<small>Danhostel Aarhus City</small></div>
+  <nav>
+    <a href="/" class="{% if page=='dashboard' %}on{% endif %}">Priser</a>
+    <a href="/grupper" class="{% if page=='groups' %}on{% endif %}">Grupper</a>
+    <a href="/data" class="{% if page=='data' %}on{% endif %}">Data</a>
+    <a href="/events" class="{% if page=='events' %}on{% endif %}">Events</a>
+    <a href="/settings" class="{% if page=='settings' %}on{% endif %}">Indstillinger</a>
+  </nav>
+  <div class="mode">
+    {% if settings.auto_publish %}<b>Fuldautomatisk</b>{% else %}Skyggedrift{% endif %}
+    · {{ settings.pms_adapter }}
+  </div>
+  {% set fresh = freshness() %}
+  <div class="fresh{% if fresh.stale %} stale{% endif %}">
+    <span class="k">Sidst opdateret</span>
+    <b>{{ fresh.age_text }}</b>
+  </div>
+</header>
+{% if fresh.stale %}
+<div class="stalebar">
+  <b>Tallene på siden er ikke friske.</b>
+  {% if fresh.finished %}
+    Seneste gennemførte kørsel er {{ fresh.age_text }}, og grænsen er {{ fresh.limit }} timer.
+    Priserne her kan være forældede.
+  {% else %}
+    Der er ikke gennemført en beregning endnu. Upload belægning under
+    <a href="/data">Data</a> og kør beregningen.
+  {% endif %}
+</div>
+{% endif %}
+<main>
+{% block body %}{% endblock %}
+</main>
+</body>
+</html>

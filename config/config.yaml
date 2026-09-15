@@ -1,0 +1,155 @@
+# Prismotor – konfiguration
+#
+# Alle tal her kan ændres uden at røre kode. Genstart servicen efter en ændring.
+# Start med lageret nedenfor og med bar_base, bed_base, price_floor og bed_floor.
+# Resten kan vente til efter første måneds skyggedrift.
+
+database_url: "sqlite:///data/rms.db"
+
+adapters:
+  pms: csv          # csv | picasso_api   (picasso_api kræver endpoints fra AK Techotel)
+  rateshop: manual  # manual | lighthouse (lighthouse kræver abonnement og nøgle)
+
+# ---------------------------------------------------------------------------
+# Lageret — det vigtigste at få rigtigt
+# ---------------------------------------------------------------------------
+# Tallene herunder er et bud ud fra husets offentlige beskrivelse: 72 værelser,
+# heraf 20 med eget bad, og 330 senge i alt. Eksempelopdelingen nedenfor giver kun 320. Ret dem til jeres faktiske
+# opdeling i Picasso, før I bruger priserne til noget.
+#
+#   private_rooms      værelser der ALTID sælges som private (typisk dem med bad)
+#   flex_rooms         værelser der kan sælges som familieværelse ELLER som senge
+#   beds_per_flex_room senge i sådan et rum
+#   dorm_beds          senge i de faste sovesale
+#
+# Flex-rummene er hele pointen. Modellen regner hver dag ud, hvilken vej de
+# forventes at tjene mest. Forslaget kræver kontrol af konkrete rum og hele ophold.
+inventory:
+  confirmed: false        # først true efter afstemning med Picasso
+  private_beds: null      # faktisk samlet sengetal i de faste private værelser
+  private_room_types: {}  # antal faste private rum pr. priskode; skal summere til private_rooms
+  private_rooms: 20
+  flex_rooms: 16
+  beds_per_flex_room: 4
+  dorm_beds: 216
+
+operations:
+  horizon_days: 120        # hvor langt frem der prissættes
+  auto_publish: false      # false = skyggedrift. Sæt først til true når du stoler på modellen
+  stale_hours: 36          # ældre data end dette → dødmandsknap, priser fastfryses
+  run_cron_hour: 4         # natlig kørsel, lokal tid
+  run_cron_minute: 15
+  timezone: "Europe/Copenhagen"
+
+pricing:
+  # Grundpriser på referencedagen: onsdag i skuldersæson.
+  # Sæt dem til jeres medianpris på dage hvor belægningen landede 75-85 %.
+  bar_base: 645     # dobbeltværelse uden bad
+  bed_base: 270     # én dormseng
+
+  # Hvor fuldt huset skal være. Modellen prissætter mod prognosen for
+  # slutbelægning, ikke mod belægningen i dag.
+  #
+  # Sænk målet, hvis I hellere vil have høj pris end fuldt hus. Hæv det, hvis
+  # tomme senge gør mere ondt end lav pris — fx fordi caféen og morgenmaden
+  # tjener på hovederne.
+  target_occupancy_rooms: 0.85
+  target_occupancy_beds: 0.80
+
+  # Hvor hårdt afvigelsen fra målet slår igennem.
+  k_forecast: 0.90
+  k_forecast_beds: 0.80
+  pace_min: 0.85
+  pace_max: 1.20
+
+  # Rate shopping vejer mindre for et hostel end for et hotel: produkterne er
+  # ikke sammenlignelige på samme måde. En seng i et sekssengsrum med god
+  # stemning er ikke samme vare som en seng ti minutter væk. Derfor 0,45 og 0,30
+  # her mod 0,60 i en hotelmodel.
+  k_market: 0.45
+  k_market_bed: 0.30
+  market_min: 0.85
+  market_max: 1.15
+
+  event_max: 1.45          # loft over eventtillæg, så en tastefejl ikke løber løbsk
+  max_daily_change: 0.15   # ændringsbremse
+
+  # Økonomi og guardrails
+  variable_cost: 95        # pr. solgt privat værelse: rengøring, linned, forbrug
+  variable_cost_bed: 45    # pr. solgt seng
+  commission: 0.16         # vægtet gennemsnit over kanaler; direkte tæller som 0
+  price_floor: 375
+  price_ceiling: 1400
+  bed_floor: 165
+  bed_ceiling: 600
+  rounding: 10
+
+  # Værelsestyper afledes af grundprisen. Ét tal at forstå i stedet for tyve.
+  # Dormsenge står IKKE her — de har deres egen pris og egen prognose.
+  room_types:
+    enkelt_uden_bad: 0.80
+    dobbelt_uden_bad: 1.00
+    dobbelt_med_bad: 1.18
+    familie_4: 1.55
+
+  # Beregnes af /settings ud fra comp set og egne anmeldelser. Kan overstyres her.
+  quality_index: 1.00
+
+  # Ugedagsfaktorer. 0 = mandag ... 6 = søndag. Onsdag er 1,00, fordi
+  # grundpriserne er defineret på en onsdag.
+  weekday:
+    0: 0.95
+    1: 0.98
+    2: 1.00
+    3: 1.02
+    4: 1.08
+    5: 1.12
+    6: 0.90
+
+  # Senge er mindre weekendfølsomme: backpackere rejser hele ugen.
+  weekday_beds:
+    0: 0.97
+    1: 0.99
+    2: 1.00
+    3: 1.01
+    4: 1.05
+    5: 1.07
+    6: 0.94
+
+  weekend_days: [4, 5]
+
+  season:
+    1: 0.82
+    2: 0.85
+    3: 0.90
+    4: 0.95
+    5: 1.05
+    6: 1.15
+    7: 1.20
+    8: 1.15
+    9: 1.05
+    10: 0.95
+    11: 0.88
+    12: 0.85
+
+  # Hvor stor en andel der plejer at være solgt, X dage før ankomst.
+  # Erstattes af egne tal: python -m app.calibration reservationer.csv
+  booking_curve:
+    - {lead_days_from: 0,  weekday: 0.72, weekend: 0.80}
+    - {lead_days_from: 2,  weekday: 0.63, weekend: 0.72}
+    - {lead_days_from: 4,  weekday: 0.52, weekend: 0.62}
+    - {lead_days_from: 8,  weekday: 0.38, weekend: 0.48}
+    - {lead_days_from: 15, weekday: 0.24, weekend: 0.32}
+    - {lead_days_from: 31, weekday: 0.12, weekend: 0.18}
+    - {lead_days_from: 61, weekday: 0.05, weekend: 0.08}
+
+  # Senge bookes senere end værelser. Fladere langt ude, stejlere de sidste
+  # to uger. Det er derfor de to lagre ikke kan dele prognose.
+  booking_curve_beds:
+    - {lead_days_from: 0,  weekday: 0.70, weekend: 0.78}
+    - {lead_days_from: 2,  weekday: 0.58, weekend: 0.66}
+    - {lead_days_from: 4,  weekday: 0.44, weekend: 0.52}
+    - {lead_days_from: 8,  weekday: 0.28, weekend: 0.35}
+    - {lead_days_from: 15, weekday: 0.15, weekend: 0.20}
+    - {lead_days_from: 31, weekday: 0.07, weekend: 0.10}
+    - {lead_days_from: 61, weekday: 0.03, weekend: 0.04}
