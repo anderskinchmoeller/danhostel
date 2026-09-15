@@ -148,6 +148,66 @@ her, fordi produkterne ikke er sammenlignelige på samme måde.
 
 ---
 
+## Data ud af Picasso
+
+Der findes ingen offentlig dokumentation af Picassos eksportfunktioner. Det
+nedenstående er læst ud af brugermanualen til **version 8.3** (2022,
+techotel.se). I kører formentlig Picasso Digital, så menunavnene kan være
+andre — men rapporterne plejer at overleve versionsskift.
+
+**Rapportmodulet** åbnes med **F7** eller rapportikonet i Selector. Manualen
+beskriver det som modulet "du bruger til at udtrække diverse rapporter,
+arrangementslister, ankomstlister, navnelister og rapport til Danmarks
+statistik".
+
+Perioden vælges i kalenderen i højre side: klik datoerne for at markere et
+interval, brug `◄►` til at skifte måned, eller brug datointerval-ikonet og
+udfyld **Fra** og **Til**. Bekræft med **OK**. *DSL-knapperne* gemmer en
+rapportopsætning, så den ikke skal stilles op forfra hver gang.
+
+De rapporter der kommer tættest på det motoren skal bruge:
+
+| Rapport | Hvad den viser |
+|---|---|
+| **Belægning** | Belægningsoversigt for indeværende år |
+| **Rumtype statistik** | Solgte rum pr. værelsestype — svarer til `room_type_otb` |
+| **Belæg %** | "Time stat lokaler", belægningsstatistik pr. time |
+| **Hotelmanager** | Overordnet hotelstatistik |
+| **Leads** | Ugeoversigt med RevPAR, gennemsnitspriser og belægningsprocenter |
+
+### Tre ting manualen ikke nævner
+
+Og det er præcis de tre motoren har brug for.
+
+**Eksport til fil.** Rapportafsnittet handler om udskrivning. Hverken Excel,
+CSV eller "gem som" optræder. Der står "Digital rapporter" ét sted, uden
+forklaring. Om der findes en eksportknap i jeres version kan kun afgøres ved
+at åbne modulet.
+
+**Senge.** Ingen rapport i manualen opgør sovesale eller senge. Alt er pr.
+værelse — manualen er skrevet til et hotel. En eksport uden sengetal bliver
+afvist af rimelighedstjekket ved import, og det er den rigtige opførsel: uden
+sengetal er den halve model blind, og det er billigere at stoppe end at
+prissætte videre.
+
+**Fremad i tid.** Rapporterne beskrives som statistik over en valgt, afsluttet
+periode. Motoren skal bruge on-the-books **120 dage frem**.
+
+### Hvad det betyder i praksis
+
+Rapportmodulet kan sandsynligvis give et øjebliksbillede i hånden, men ikke
+den daglige fil. Den skal komme fra en planlagt eksport, som AK Techotel
+sætter op. Spørg dem konkret om: on-the-books pr. ankomstdato, pr.
+værelsestype **og pr. seng**, 120 dage frem, som CSV eller Excel, lagt i en
+mappe eller sendt på mail hver nat — plus de aktuelle værelses- og sengepriser
+pr. dato, så ændringslisten kan sammenligne med det der står i systemet nu.
+
+Kontakt: info@techotel.dk, +45 36 19 21 13.
+
+*Kilde: Picasso brugermanual version 8.3, techotel.se. Læst 15-09-2026.*
+
+---
+
 ## Kalibrering — gør det før du stoler på tallene
 
 Sæson-, ugedags- og bookingkurvetallene i `config/config.yaml` er

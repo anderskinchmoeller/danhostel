@@ -50,6 +50,12 @@ eller `16/09/2026`.
 Alt efter de tre første kolonner i belægningsfilen er valgfrit. Jo mere du
 sender med, jo mindre gætter modellen — men den kører på de tre.
 
+**Hvor kommer belægningsfilen fra?** Rapportmodulet i Picasso (**F7**) kan give
+et øjebliksbillede i hånden, men manualen dokumenterer hverken eksport til fil,
+sengetal eller tal fremad i tid. Den daglige fil skal derfor komme fra en
+planlagt eksport, som AK Techotel sætter op. `REFERENCE.md` har detaljerne og
+hvad du skal bede dem om.
+
 ---
 
 ## Til daglig
