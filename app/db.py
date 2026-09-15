@@ -6,7 +6,7 @@ det fylder nogle få megabyte om året, så der er ingen grund til noget tungere
 
 from __future__ import annotations
 
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from pathlib import Path
 
 from sqlalchemy import (
@@ -16,6 +16,19 @@ from sqlalchemy import (
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
 
 SCHEMA_VERSION = 3
+
+
+def utcnow() -> datetime:
+    """Naiv UTC — samme form som alt andet i basen.
+
+    `datetime.utcnow()` er udfaset i Python 3.12 og forsvinder. Men vi kan ikke
+    bare skifte til `datetime.now(timezone.utc)`: den returnerer et
+    tidszonebevidst tidspunkt, og hvert eneste tidsstempel der allerede ligger i
+    rms.db er naivt. En sammenligning mellem de to former kaster TypeError —
+    og først når koden kører, ikke ved import. Derfor beholder vi naiv UTC og
+    skifter kun kilden.
+    """
+    return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
 class Base(DeclarativeBase):
@@ -81,7 +94,7 @@ class Run(Base):
     __tablename__ = "run"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    started: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    started: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
     finished: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     status: Mapped[str] = mapped_column(String(32), default="running")
     trigger: Mapped[str] = mapped_column(String(32), default="manual")
@@ -146,7 +159,7 @@ class AuditLog(Base):
     __tablename__ = "audit_log"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    ts: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True)
+    ts: Mapped[datetime] = mapped_column(DateTime, default=utcnow, index=True)
     actor: Mapped[str] = mapped_column(String(80), default="system")
     action: Mapped[str] = mapped_column(String(60))
     day: Mapped[date | None] = mapped_column(Date, nullable=True)

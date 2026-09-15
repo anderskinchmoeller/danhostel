@@ -148,7 +148,7 @@ def database(tmp_path, monkeypatch):
 
 
 def test_one_fresh_day_does_not_refresh_other_dates(database):
-    now = datetime.utcnow()
+    now = db.utcnow()
     with db.get_session() as session:
         session.add_all([
             db.DayState(day=TODAY, rooms_otb=5, beds_otb=30, otb_updated=now),
@@ -166,7 +166,7 @@ def test_one_fresh_day_does_not_refresh_other_dates(database):
 
 
 def test_delivery_checks_freshness_again_and_inventory_confirmation(database):
-    now = datetime.utcnow()
+    now = db.utcnow()
     with db.get_session() as session:
         state = db.DayState(day=TODAY, otb_updated=now)
         run = db.Run(status="done", finished=now)

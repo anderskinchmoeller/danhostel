@@ -155,7 +155,7 @@ def freshness() -> dict:
             return {"finished": None, "age_text": "aldrig", "stale": True,
                     "limit": settings.stale_hours,
                     "status": run.status if run else None}
-        age = datetime.utcnow() - finished
+        age = db.utcnow() - finished
         return {
             "finished": finished,
             "age_text": age_text(age),
@@ -228,7 +228,7 @@ def decide(action: str = Form(...), day: str = Form(""), scope: str = Form("one"
         else:
             query = query.where(db.Recommendation.status == "pending")
         new_status = "approved" if action == "approve" else "rejected"
-        now = datetime.utcnow()
+        now = db.utcnow()
         for rec in session.scalars(query).all():
             if rec.status in ("locked", "published"):
                 continue
@@ -631,7 +631,7 @@ def health():
         run = latest_run(session)
         stale = True
         if run and run.finished:
-            stale = (datetime.utcnow() - run.finished) > timedelta(hours=36)
+            stale = (db.utcnow() - run.finished) > timedelta(hours=36)
         return {
             "status": "degraded" if stale else "ok",
             "last_run": run.finished.isoformat() if run and run.finished else None,

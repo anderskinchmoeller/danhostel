@@ -23,7 +23,7 @@ from .engine import DayInput, EventUplift, Params, price_day, quality_index
 # --------------------------------------------------------------------------
 
 def upsert_inventory(session, rows, actor="system") -> int:
-    now = datetime.utcnow()
+    now = db.utcnow()
     n = 0
     for row in rows:
         state = session.get(db.DayState, row.day)
@@ -56,7 +56,7 @@ def upsert_inventory(session, rows, actor="system") -> int:
 
 
 def upsert_comp(session, rows, actor="system") -> int:
-    now = datetime.utcnow()
+    now = db.utcnow()
     n = 0
     for row in rows:
         state = session.get(db.DayState, row.day)
@@ -101,10 +101,10 @@ def build_inputs(states, settings: Settings) -> list:
             comp_room=s.comp_room,
             comp_bed=s.comp_bed,
             current_room_price=(s.anchor_room_price if s.anchor_at and
-                datetime.utcnow() - s.anchor_at < timedelta(hours=24) and s.anchor_room_price
+                db.utcnow() - s.anchor_at < timedelta(hours=24) and s.anchor_room_price
                 else s.current_room_price),
             current_bed_price=(s.anchor_bed_price if s.anchor_at and
-                datetime.utcnow() - s.anchor_at < timedelta(hours=24) and s.anchor_bed_price
+                db.utcnow() - s.anchor_at < timedelta(hours=24) and s.anchor_bed_price
                 else s.current_bed_price),
             flex_private_min=s.flex_private_min, flex_private_max=s.flex_private_max,
             booked_room_revenue=s.booked_room_revenue, booked_bed_revenue=s.booked_bed_revenue,
@@ -179,7 +179,7 @@ def run_pricing(settings: Settings, trigger: str = "manual", actor: str = "syste
                 notes.append(f"Fastfrosset {item.day}: {exc}")
         if not recs:
             run.status = "frozen"
-            run.finished = datetime.utcnow()
+            run.finished = db.utcnow()
             run.note = " | ".join(notes)
             db.log(session, "freeze", actor=actor, detail=run.note)
             session.commit()
@@ -222,7 +222,7 @@ def run_pricing(settings: Settings, trigger: str = "manual", actor: str = "syste
         run.n_days = len(recs)
         run.revpab = revpab_total / len(recs) if recs else 0.0
         run.status = "done"
-        run.finished = datetime.utcnow()
+        run.finished = db.utcnow()
         run.note = " | ".join(notes)
         db.log(session, "run", actor=actor, new=len(recs), detail=run.note)
         session.commit()
@@ -237,7 +237,7 @@ def run_pricing(settings: Settings, trigger: str = "manual", actor: str = "syste
 
     except Exception as exc:  # noqa: BLE001 — en kørsel må aldrig vælte servicen
         run.status = "failed"
-        run.finished = datetime.utcnow()
+        run.finished = db.utcnow()
         run.note = f"{type(exc).__name__}: {exc}"
         db.log(session, "run_failed", actor=actor, detail=run.note)
         session.commit()
@@ -247,7 +247,7 @@ def run_pricing(settings: Settings, trigger: str = "manual", actor: str = "syste
 
 
 def inventory_is_fresh(state, settings):
-    return bool(state.otb_updated and timedelta(0) <= datetime.utcnow() - state.otb_updated
+    return bool(state.otb_updated and timedelta(0) <= db.utcnow() - state.otb_updated
                 <= timedelta(hours=settings.stale_hours))
 
 
@@ -303,7 +303,7 @@ def publish_run(settings: Settings, run_id: int, actor: str = "system",
             return {"ok": 0, "failed": [], "note": str(exc)}
 
         failed = set(outcome.get("failed", []))
-        now = datetime.utcnow()
+        now = db.utcnow()
         for rec in recs:
             if rec.day.isoformat() in failed:
                 continue
