@@ -7,8 +7,8 @@
 database_url: "sqlite:///data/rms.db"
 
 adapters:
-  pms: csv          # csv | picasso_api   (picasso_api kræver endpoints fra AK Techotel)
-  rateshop: manual  # manual | lighthouse (lighthouse kræver abonnement og nøgle)
+  pms: csv          # eneste værdi i dag: belægning uploades eller læses fra en mappe
+  rateshop: manual  # eneste værdi i dag: konkurrentpriser uploades i hånden
 
 # ---------------------------------------------------------------------------
 # Lageret — det vigtigste at få rigtigt

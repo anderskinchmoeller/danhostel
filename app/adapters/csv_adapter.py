@@ -251,8 +251,8 @@ class CsvPMSAdapter:
 
     def push_prices(self, prices: Sequence[PricePush]) -> dict:
         raise AdapterUnavailable(
-            "CSV-adapteren kan ikke skrive priser tilbage. "
-            "Hent /export.csv og importér i Picasso, eller skift til picasso_api."
+            "Servicen skriver ikke priser til Picasso. "
+            "Hent /export.csv, eller brug ændringerne på dashboardet."
         )
 
 

@@ -263,16 +263,30 @@ Servicen kender ikke Picasso. Den kender en grænseflade i
 `app/adapters/base.py`, og bag den kan der sidde en CSV-fil i dag og et REST-API
 i morgen, uden at prislogikken ændrer sig en linje.
 
-| Adapter | Status | Bruges til |
-|---|---|---|
-| `csv` | Virker | Upload i dashboardet eller mappe-indbakke |
-| `manual` | Virker | Konkurrentpriser uploadet i hånden |
-| `picasso_api` | **Placeholder** | Endpoints skal bekræftes af AK Techotel |
-| `lighthouse` | **Placeholder** | Kræver abonnement og API-nøgle |
+| Adapter | Bruges til |
+|---|---|
+| `csv` | Belægning: upload i dashboardet, eller nyeste fil i mappen `RMS_CSV_INBOX` |
+| `manual` | Konkurrentpriser uploadet i hånden |
 
-De to sidste er skrevet færdige på nær feltnavnene. Kommentarerne i
-`app/adapters/picasso_api.py` indeholder de præcise spørgsmål Techotel skal
-svare på — husk at bede om **sengetallene**, ikke kun værelsestallene.
+Det er de eneste to. Et andet navn i `config.yaml` giver en fejl ved opstart i
+stedet for stille at falde tilbage på CSV.
+
+Der lå tidligere to skrevne, men uafprøvede API-adaptere til Picasso og
+Lighthouse. De er fjernet: feltnavne og endpoints var gæt, og kode der ikke har
+været kørt mod en rigtig server er ikke et forspring — den ser bare ud som om
+arbejdet er gjort. Kommer der API-adgang, skrives adapteren mod den
+dokumentation der så findes.
+
+Den viden der var værd at beholde, er de tre spørgsmål AK Techotel skal svare
+på, før nogen skriver den kode:
+
+1. Findes der et dokumenteret API en tredjepart kan læse kapacitet og
+   on-the-books fra — **pr. værelsestype og pr. seng** — og hvad koster adgangen?
+2. Kan priser skrives via API, eller skal de sættes gennem en kanalstyring?
+   (Relevant først hvis I en dag vil skrive tilbage. I dag skriver servicen
+   ingenting.)
+3. Er priser modelleret som én BAR med afledte typepriser, eller uafhængigt pr.
+   værelsestype?
 
 ---
 
@@ -373,7 +387,7 @@ Fra roadmappen, i den rækkefølge det giver mening:
 app/engine.py             prismodellen: prognose, to lagre, flex-allokering, RevPAB
 app/service.py            kørslen: hent, beregn, gem, skriv tilbage
 app/calibration.py        begge bookingkurver og sæson fra egen historik
-app/adapters/             CSV i dag, Picasso og Lighthouse når de er klar
+app/adapters/             CSV ind; ingen skrivning tilbage til Picasso
 app/main.py               FastAPI: dashboard, grupper, upload, godkendelse, API
 app/sanity.py             rimelighedstjek på uploadet belægning
 config/config.yaml        lager og alle parametre, ingen kode
