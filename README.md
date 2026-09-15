@@ -18,6 +18,14 @@ cp .env.example .env              # sæt RMS_USER og RMS_PASSWORD
 uvicorn app.main:app --reload
 ```
 
+Kørt og testet på Python 3.10 til 3.13. Python 3.14 er ikke afprøvet, og flere
+af afhængighederne har endnu ikke færdigbyggede pakker til den — vælg en 3.13
+hvis `python3` på din maskine peger på noget nyere:
+
+```bash
+/Library/Frameworks/Python.framework/Versions/3.13/bin/python3 -m venv .venv
+```
+
 Åbn http://127.0.0.1:8000 og gør tre ting:
 
 1. **Data** → upload `samples/belaegning_eksempel.csv` og
