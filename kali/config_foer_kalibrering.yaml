@@ -24,22 +24,14 @@ adapters:
 #
 # Flex-rummene er hele pointen. Modellen regner hver dag ud, hvilken vej de
 # forventes at tjene mest. Forslaget kræver kontrol af konkrete rum og hele ophold.
-# Opdateret 21-09-2026 fra Picassos rumtyper (Occupancy pr. rumtype) og
-# reservationshistorik 2024-2025. Se projektdokumentet picasso-kalibreringseksport.md.
-#   Private: D1 1, D2 14, D4 8, F1 17, F3 11 (D2 = 14 bekræftet i Picasso 21-09). Sengekoderne BD*/BF* findes, men
-#            bruges næsten aldrig (<1 % af salget), så rummene regnes som private.
-#   Flex:    sovesalene V6 (7 x 6), V8 (6 x 8), V10 (6 x 10), FS (1 x 8) = 20 rum,
-#            158 senge. Sælges både samlet og pr. seng. Modellen kan kun have én
-#            rumstørrelse, så 8 senge pr. rum er et gennemsnit (160 mod reelt 158).
-#   Dorm:    SK4 (rum 527), 4 senge, sælges kun pr. seng.
 inventory:
-  confirmed: true         # afstemt med Picasso 21-09-2026
-  private_beds: 150       # F1 64 + F3 40 + D4 16 fra Picasso; D2 28 + D1 2 (aldrig over 2 gæster i 2024-2025)
-  private_room_types: {D1: 1, D2: 14, D4: 8, F1: 17, F3: 11}
-  private_rooms: 51
-  flex_rooms: 20
-  beds_per_flex_room: 8
-  dorm_beds: 4
+  confirmed: false        # først true efter afstemning med Picasso
+  private_beds: null      # faktisk samlet sengetal i de faste private værelser
+  private_room_types: {}  # antal faste private rum pr. priskode; skal summere til private_rooms
+  private_rooms: 20
+  flex_rooms: 16
+  beds_per_flex_room: 4
+  dorm_beds: 216
 
 operations:
   horizon_days: 120        # hvor langt frem der prissættes
@@ -61,8 +53,8 @@ pricing:
   # Sænk målet, hvis I hellere vil have høj pris end fuldt hus. Hæv det, hvis
   # tomme senge gør mere ondt end lav pris — fx fordi caféen og morgenmaden
   # tjener på hovederne.
-  target_occupancy_rooms: 0.55   # 21-09-2026: historisk ~0.45 (hverdag 0.39, weekend 0.61)
-  target_occupancy_beds: 0.12    # 21-09-2026: historisk ~0.08 (hverdag 0.06, weekend 0.12)
+  target_occupancy_rooms: 0.85
+  target_occupancy_beds: 0.80
 
   # Hvor hårdt afvigelsen fra målet slår igennem.
   k_forecast: 0.90
@@ -98,14 +90,7 @@ pricing:
     enkelt_uden_bad: 0.80
     dobbelt_uden_bad: 1.00
     dobbelt_med_bad: 1.18
-    familie_4: 2.5     # helt sovesal solgt samlet; 645 x 2,5 = ~1.610 kr. (historisk V8 1.600)
-    # Picassos rumtyper. Faktor = medianpris pr. nat 2024-2025 i forhold til D2
-    # (D2 503 kr.). Historisk niveau, ikke en anbefaling.
-    D1: 0.94
-    D2: 1.00
-    D4: 1.19
-    F1: 1.44
-    F3: 1.56
+    familie_4: 1.55
 
   # Beregnes af /settings ud fra comp set og egne anmeldelser. Kan overstyres her.
   quality_index: 1.00
@@ -113,63 +98,58 @@ pricing:
   # Ugedagsfaktorer. 0 = mandag ... 6 = søndag. Onsdag er 1,00, fordi
   # grundpriserne er defineret på en onsdag.
   weekday:
-    # Kalibreret 21-09-2026 på 2024-2025 (jan-mar 2025 udeladt: renovering)
-    0: 0.838
-    1: 0.968
-    2: 1.0
-    3: 0.98
-    4: 1.061
-    5: 1.086
-    6: 0.71
+    0: 0.95
+    1: 0.98
+    2: 1.00
+    3: 1.02
+    4: 1.08
+    5: 1.12
+    6: 0.90
 
   # Senge er mindre weekendfølsomme: backpackere rejser hele ugen.
   weekday_beds:
-    # Kalibreret 21-09-2026 på 2024-2025 (jan-mar 2025 udeladt: renovering)
-    0: 0.963
-    1: 0.989
-    2: 1.0
-    3: 1.056
-    4: 1.295
-    5: 1.413
-    6: 0.991
+    0: 0.97
+    1: 0.99
+    2: 1.00
+    3: 1.01
+    4: 1.05
+    5: 1.07
+    6: 0.94
 
   weekend_days: [4, 5]
 
   season:
-    # Kalibreret 21-09-2026 på 2024-2025 (jan-mar 2025 udeladt: renovering)
-    1: 0.75
-    2: 0.75
-    3: 0.845
-    4: 1.0
-    5: 1.083
-    6: 1.027
-    7: 1.136
-    8: 1.204
-    9: 1.215
-    10: 0.999
-    11: 0.892
-    12: 0.821
+    1: 0.82
+    2: 0.85
+    3: 0.90
+    4: 0.95
+    5: 1.05
+    6: 1.15
+    7: 1.20
+    8: 1.15
+    9: 1.05
+    10: 0.95
+    11: 0.88
+    12: 0.85
 
   # Hvor stor en andel der plejer at være solgt, X dage før ankomst.
   # Erstattes af egne tal: python -m app.calibration reservationer.csv
   booking_curve:
-    # Kalibreret 21-09-2026 på 2024-2025 (jan-mar 2025 udeladt: renovering)
-    - {lead_days_from: 0, weekday: 0.386, weekend: 0.614}
-    - {lead_days_from: 2, weekday: 0.3, weekend: 0.529}
-    - {lead_days_from: 4, weekday: 0.257, weekend: 0.479}
-    - {lead_days_from: 8, weekday: 0.186, weekend: 0.386}
-    - {lead_days_from: 15, weekday: 0.143, weekend: 0.286}
-    - {lead_days_from: 31, weekday: 0.086, weekend: 0.186}
-    - {lead_days_from: 61, weekday: 0.071, weekend: 0.114}
+    - {lead_days_from: 0,  weekday: 0.72, weekend: 0.80}
+    - {lead_days_from: 2,  weekday: 0.63, weekend: 0.72}
+    - {lead_days_from: 4,  weekday: 0.52, weekend: 0.62}
+    - {lead_days_from: 8,  weekday: 0.38, weekend: 0.48}
+    - {lead_days_from: 15, weekday: 0.24, weekend: 0.32}
+    - {lead_days_from: 31, weekday: 0.12, weekend: 0.18}
+    - {lead_days_from: 61, weekday: 0.05, weekend: 0.08}
 
   # Senge bookes senere end værelser. Fladere langt ude, stejlere de sidste
   # to uger. Det er derfor de to lagre ikke kan dele prognose.
   booking_curve_beds:
-    # Kalibreret 21-09-2026 på 2024-2025 (jan-mar 2025 udeladt: renovering)
-    - {lead_days_from: 0, weekday: 0.061, weekend: 0.116}
-    - {lead_days_from: 2, weekday: 0.037, weekend: 0.073}
-    - {lead_days_from: 4, weekday: 0.03, weekend: 0.049}
-    - {lead_days_from: 8, weekday: 0.024, weekend: 0.03}
-    - {lead_days_from: 15, weekday: 0.018, weekend: 0.024}
-    - {lead_days_from: 31, weekday: 0.012, weekend: 0.012}
-    - {lead_days_from: 61, weekday: 0.006, weekend: 0.006}
+    - {lead_days_from: 0,  weekday: 0.70, weekend: 0.78}
+    - {lead_days_from: 2,  weekday: 0.58, weekend: 0.66}
+    - {lead_days_from: 4,  weekday: 0.44, weekend: 0.52}
+    - {lead_days_from: 8,  weekday: 0.28, weekend: 0.35}
+    - {lead_days_from: 15, weekday: 0.15, weekend: 0.20}
+    - {lead_days_from: 31, weekday: 0.07, weekend: 0.10}
+    - {lead_days_from: 61, weekday: 0.03, weekend: 0.04}

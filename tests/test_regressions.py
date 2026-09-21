@@ -172,6 +172,8 @@ def test_delivery_checks_freshness_again_and_inventory_confirmation(database):
         run = db.Run(status="done", finished=now)
         rec = db.Recommendation(day=TODAY, run_id=1, status="approved")
         session.add_all([state, run, rec]); session.commit()
+        database.params = replace(database.params, inventory=replace(
+            database.params.inventory, confirmed=False))
         assert "ikke bekræftet" in service.delivery_error(session, database, run, [rec])
         database.params = replace(database.params, inventory=Inventory(
             confirmed=True, private_beds=40, private_room_types={"dobbelt_uden_bad": 20}))

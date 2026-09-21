@@ -53,7 +53,8 @@ def test_upload_run_and_approve(client):
     payload = client.get("/api/prices?days=30").json()
     assert payload["run"]["status"] == "done"
     assert payload["run"]["avg_revpab"] > 0
-    assert payload["inventory"]["total_beds"] == 320
+    from app import main
+    assert payload["inventory"]["total_beds"] == main.settings.params.inventory.total_beds
     assert len(payload["prices"]) >= 25
 
     first = payload["prices"][0]
@@ -69,14 +70,21 @@ def test_upload_run_and_approve(client):
     after = client.get("/api/prices?days=30").json()
     assert all(p["status"] == "approved" for p in after["prices"])
 
-    # Example inventory may be reviewed, but cannot be delivered as live prices.
-    assert client.get("/export.csv").status_code == 409
-    assert client.get("/export.csv?only_approved=false").status_code == 409
+    # An unconfirmed inventory may be reviewed, but cannot be delivered as live prices.
     from app import main
-    from app.engine import Inventory
     original = main.settings.params
-    main.settings.params = replace(original, inventory=Inventory(
-        confirmed=True, private_beds=40, private_room_types={"dobbelt_uden_bad": 20}))
+    main.settings.params = replace(original, inventory=replace(
+        original.inventory, confirmed=False))
+    try:
+        assert client.get("/export.csv").status_code == 409
+        assert client.get("/export.csv?only_approved=false").status_code == 409
+    finally:
+        main.settings.params = original
+    main.settings.params = replace(original, inventory=replace(
+        original.inventory, confirmed=True,
+        private_beds=original.inventory.private_beds or 2 * original.inventory.private_rooms,
+        private_room_types=dict(original.inventory.private_room_types)
+        or {"dobbelt_uden_bad": original.inventory.private_rooms}))
     try:
         export = client.get("/export.csv")
         assert export.status_code == 200
@@ -91,10 +99,12 @@ def test_both_pools_are_priced_and_allocated(client):
     # flex-allokeringen skal variere over horisonten, ellers træffer den ingen beslutning
     allocations = {p["allocation"]["flex_to_private"] for p in prices}
     assert len(allocations) > 1
+    from app import main
+    inv = main.settings.params.inventory
     for p in prices:
-        assert 0 <= p["allocation"]["flex_to_private"] <= 16
-        assert p["allocation"]["room_capacity"] <= 36
-        assert p["allocation"]["bed_capacity"] <= 280
+        assert 0 <= p["allocation"]["flex_to_private"] <= inv.flex_rooms
+        assert p["allocation"]["room_capacity"] <= inv.private_rooms + inv.flex_rooms
+        assert p["allocation"]["bed_capacity"] <= inv.max_bed_capacity
 
 
 def test_forecast_beats_naive_occupancy_far_out(client):

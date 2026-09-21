@@ -19,7 +19,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import date
 
-MAX_OCC_JUMP = 0.40          # procentpoint på ét døgn
+MAX_OCC_JUMP = 0.40          # procentpoint på ét døgn (senge)
+# Værelser: gruppeankomster giver ægte spring på 50-75 procentpoint (fx 13 -> 52
+# af 70 rum 21.-22.9. og 13 -> 65 den 27.-28.9.2026). Kun spring over 80 stoppes.
+MAX_OCC_JUMP_ROOMS = 0.80
 MIN_ROWS_FOR_ZERO_CHECK = 7  # under en uge kan sagtens være nul hele vejen
 PAST_DAYS_ALLOWED = 2        # eksporten må gerne indeholde i går
 FUTURE_DAYS_ALLOWED = 730
@@ -98,17 +101,18 @@ def check_inventory(rows, params, today: date | None = None) -> list[Finding]:
                         - _occ(prev.rooms_otb, prev.blocked_rooms, inv.max_room_capacity))
         bed_jump = abs(_occ(cur.beds_otb, cur.blocked_beds, inv.max_bed_capacity)
                        - _occ(prev.beds_otb, prev.blocked_beds, inv.max_bed_capacity))
-        if room_jump > MAX_OCC_JUMP:
+        if room_jump > MAX_OCC_JUMP_ROOMS:
             jumps_rooms.append(cur.day)
         if bed_jump > MAX_OCC_JUMP:
             jumps_beds.append(cur.day)
-    for days, label, code in ((jumps_rooms, "værelsesbelægningen", "jump_rooms"),
-                              (jumps_beds, "sengebelægningen", "jump_beds")):
+    for days, label, code, limit in (
+            (jumps_rooms, "værelsesbelægningen", "jump_rooms", MAX_OCC_JUMP_ROOMS),
+            (jumps_beds, "sengebelægningen", "jump_beds", MAX_OCC_JUMP)):
         if days:
             findings.append(Finding(
                 code,
                 f"{label.capitalize()} springer mere end "
-                f"{MAX_OCC_JUMP * 100:.0f} procentpoint på ét døgn ved {_dates(days)}. "
+                f"{limit * 100:.0f} procentpoint på ét døgn ved {_dates(days)}. "
                 "Det kan være en gruppeankomst — eller en fil med forskubbede rækker.",
             ))
 

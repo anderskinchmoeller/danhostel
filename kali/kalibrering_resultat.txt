@@ -1,0 +1,53 @@
+# Kalibreret på 34010 reservationer, 01-01-2024 til 31-12-2025
+# Kurver beskriver historisk pickup, ikke valideret priselasticitet.
+# Kapacitet skal være konstant; udelad lukkede perioder og adskil kapacitetsændringer.
+# Kapacitet brugt: 70 værelser, 164 senge
+# Udeladt: 01-01-2025 til 31-03-2025
+# Datoer brugt: 641 af 731
+bar_base: 650
+# bed_base kunne ikke beregnes
+season:
+  1: 0.75
+  2: 0.75
+  3: 0.845
+  4: 1.0
+  5: 1.083
+  6: 1.027
+  7: 1.136
+  8: 1.204
+  9: 1.215
+  10: 0.999
+  11: 0.892
+  12: 0.821
+weekday:
+  0: 0.838
+  1: 0.968
+  2: 1.0
+  3: 0.98
+  4: 1.061
+  5: 1.086
+  6: 0.71
+weekday_beds:
+  0: 0.963
+  1: 0.989
+  2: 1.0
+  3: 1.056
+  4: 1.295
+  5: 1.413
+  6: 0.991
+booking_curve:
+  - {lead_days_from: 0, weekday: 0.386, weekend: 0.614}
+  - {lead_days_from: 2, weekday: 0.3, weekend: 0.529}
+  - {lead_days_from: 4, weekday: 0.257, weekend: 0.479}
+  - {lead_days_from: 8, weekday: 0.186, weekend: 0.386}
+  - {lead_days_from: 15, weekday: 0.143, weekend: 0.286}
+  - {lead_days_from: 31, weekday: 0.086, weekend: 0.186}
+  - {lead_days_from: 61, weekday: 0.071, weekend: 0.114}
+booking_curve_beds:
+  - {lead_days_from: 0, weekday: 0.061, weekend: 0.116}
+  - {lead_days_from: 2, weekday: 0.037, weekend: 0.073}
+  - {lead_days_from: 4, weekday: 0.03, weekend: 0.049}
+  - {lead_days_from: 8, weekday: 0.024, weekend: 0.03}
+  - {lead_days_from: 15, weekday: 0.018, weekend: 0.024}
+  - {lead_days_from: 31, weekday: 0.012, weekend: 0.012}
+  - {lead_days_from: 61, weekday: 0.006, weekend: 0.006}

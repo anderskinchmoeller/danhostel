@@ -10,6 +10,7 @@ import csv
 import io
 import os
 import tempfile
+from dataclasses import replace
 from datetime import date, timedelta
 from pathlib import Path
 
@@ -63,7 +64,11 @@ def test_normal_file_passes(params):
 
 def test_real_sample_passes(params):
     text = (ROOT / "samples" / "belaegning_eksempel.csv").read_text(encoding="utf-8-sig")
-    assert check_inventory(parse_inventory(text), params) == []
+    rows = parse_inventory(text)
+    # Samme datoforskydning som test_app, så testen ikke afhænger af dagens dato.
+    offset = date.today() - date(2026, 9, 15)
+    rows = [replace(r, day=r.day + offset) for r in rows]
+    assert check_inventory(rows, params) == []
 
 
 def test_missing_bed_column_is_stopped(params):
