@@ -1,7 +1,11 @@
 """Kalibrér bookingkurver fra en komplet, afsluttet reservationshistorik.
 
 python -m app.calibration reservationer.csv --rooms 36 --beds 280 \
-    --start 2024-01-01 --end 2025-12-31
+    --start 2024-01-01 --end 2025-12-31 --exclude 2025-01:2025-03
+
+--exclude kan gentages og udelader datoer med kendt årsag (renovering,
+lukning). Formater: 2025-01 (én måned), 2025-01:2025-03 (måneder) eller
+2025-01-06:2025-03-09 (datoer). Udelad ikke måneder blot fordi tallene er lave.
 
 Kræver bookingdato, ankomstdato, enhed (room/bed). Valgfrie naetter,
 quantity, pris (pr. enhed pr. nat), status og cancelled_at. Annulleringer
@@ -132,6 +136,34 @@ def build_units_by_day(reservations, unit: str, start=None, end=None) -> dict:
     return by_day
 
 
+def parse_period(text: str) -> tuple:
+    """'2025-01', '2025-01:2025-03' eller '2025-01-06:2025-03-09' -> (fra, til)."""
+    def one(value, end):
+        value = value.strip()
+        if len(value) == 7:  # YYYY-MM
+            first = date.fromisoformat(value + "-01")
+            if not end:
+                return first
+            nxt = date(first.year + first.month // 12, first.month % 12 + 1, 1)
+            return nxt - timedelta(days=1)
+        return date.fromisoformat(value)
+    try:
+        lo, _, hi = text.partition(":")
+        start, stop = one(lo, False), one(hi or lo, True)
+    except ValueError:
+        raise ValueError(f"Ugyldig periode {text!r}; brug fx 2025-01:2025-03") from None
+    if start > stop:
+        raise ValueError(f"Periode {text!r} slutter før den starter")
+    return start, stop
+
+
+def exclude_days(by_day: dict, periods) -> dict:
+    """Fjern datoer i de angivne perioder helt, så de hverken tæller som salg
+    eller som nul-salg i kurver, sæson og grundpris."""
+    return {d: e for d, e in by_day.items()
+            if not any(lo <= d <= hi for lo, hi in periods)}
+
+
 def _active(entries, cutoff):
     return [(booked, price) for booked, price, cancelled in entries
             if booked <= cutoff and (cancelled is None or cancelled > cutoff)]
@@ -212,11 +244,20 @@ def main(argv=None):
                     help="første dato i en komplet historisk eksport (YYYY-MM-DD)")
     ap.add_argument("--end", type=date.fromisoformat, required=True,
                     help="sidste afsluttede driftsdato (YYYY-MM-DD)")
+    ap.add_argument("--exclude", action="append", default=[], metavar="PERIODE",
+                    help="udelad periode med kendt årsag, fx 2025-01:2025-03 (kan gentages)")
     args = ap.parse_args(argv)
     if args.rooms <= 0 or args.beds <= 0:
         ap.error("--rooms og --beds skal være positive")
     if args.start > args.end or args.end >= date.today():
         ap.error("Perioden skal være afsluttet og start skal være før/lig slut")
+    try:
+        excluded = [parse_period(p) for p in args.exclude]
+    except ValueError as exc:
+        ap.error(str(exc))
+    for lo, hi in excluded:
+        if hi < args.start or lo > args.end:
+            ap.error(f"Udeladt periode {lo}–{hi} ligger uden for --start/--end")
 
     with open(args.csv, encoding="utf-8-sig") as fh:
         try:
@@ -226,8 +267,13 @@ def main(argv=None):
     if not reservations:
         raise SystemExit("Ingen brugbare rækker i filen")
 
-    rooms_by_day = build_units_by_day(reservations, "room", args.start, args.end)
-    beds_by_day = build_units_by_day(reservations, "bed", args.start, args.end)
+    total_days = (args.end - args.start).days + 1
+    rooms_by_day = exclude_days(
+        build_units_by_day(reservations, "room", args.start, args.end), excluded)
+    beds_by_day = exclude_days(
+        build_units_by_day(reservations, "bed", args.start, args.end), excluded)
+    if not rooms_by_day:
+        raise SystemExit("Alle datoer er udeladt")
     if not any(rooms_by_day.values()) and not any(beds_by_day.values()):
         raise SystemExit("Ingen reservationer i den valgte periode")
 
@@ -236,6 +282,12 @@ def main(argv=None):
     print("# Kurver beskriver historisk pickup, ikke valideret priselasticitet.")
     print("# Kapacitet skal være konstant; udelad lukkede perioder og adskil kapacitetsændringer.")
     print(f"# Kapacitet brugt: {args.rooms} værelser, {args.beds} senge")
+    for lo, hi in excluded:
+        print(f"# Udeladt: {lo:%d-%m-%Y} til {hi:%d-%m-%Y}")
+    if excluded:
+        print(f"# Datoer brugt: {len(rooms_by_day)} af {total_days}")
+    covered = {d.month for d in rooms_by_day}
+    missing = [m for m in range(1, 13) if m not in covered]
     room_base = suggest_base(rooms_by_day, args.rooms)
     print(f"bar_base: {room_base:.0f}" if room_base
           else "# bar_base: ingen prisdata på datoer med 75–85 % belægning")
@@ -247,7 +299,10 @@ def main(argv=None):
     season, weekday = demand_factors(rooms_by_day, args.rooms)
     print("season:")
     for m in range(1, 13):
-        print(f"  {m}: {season[m]}")
+        if m in missing:
+            print(f"  # {m}: ingen data efter udeladelse, behold nuværende værdi")
+        else:
+            print(f"  {m}: {season[m]}")
     print("weekday:")
     for d in range(7):
         print(f"  {d}: {weekday[d]}")

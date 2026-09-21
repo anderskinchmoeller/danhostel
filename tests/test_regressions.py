@@ -259,3 +259,26 @@ def test_price_anchor_initializes_when_rates_first_become_available(database):
         service.upsert_inventory(session, [InventoryRow(TODAY, current_room_price=690)])
         session.commit()
         assert service.build_inputs([session.get(db.DayState, TODAY)], database)[0].current_room_price == 600
+
+
+def test_calibration_period_parsing():
+    from app.calibration import parse_period
+    assert parse_period("2025-02") == (date(2025, 2, 1), date(2025, 2, 28))
+    assert parse_period("2025-01:2025-03") == (date(2025, 1, 1), date(2025, 3, 31))
+    assert parse_period("2024-12-30:2025-01-02") == (date(2024, 12, 30), date(2025, 1, 2))
+    with pytest.raises(ValueError):
+        parse_period("2025-03:2025-01")
+    with pytest.raises(ValueError):
+        parse_period("marts")
+
+
+def test_calibration_excluded_dates_count_neither_as_sales_nor_zero():
+    from app.calibration import exclude_days, parse_period
+    rows, _ = read_reservations('bookingdato;ankomstdato;naetter;pris;enhed;quantity\n'
+                                '2025-01-01;2025-01-10;1;500;room;8\n'
+                                '2025-03-01;2025-04-10;1;700;room;8\n')
+    days = build_units_by_day(rows, "room", date(2025, 1, 10), date(2025, 4, 10))
+    kept = exclude_days(days, [parse_period("2025-01:2025-03")])
+    assert min(kept) == date(2025, 4, 1) and len(kept) == 10
+    assert suggest_base(kept, 10) == 700  # januar-prisen er væk
+    assert booking_curve(kept, 10)[0]["weekday"] == 0  # 9 nul-dage + 1 salg, median 0
