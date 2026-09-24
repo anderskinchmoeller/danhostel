@@ -63,11 +63,17 @@ eller `16/09/2026`.
 Alt efter de tre første kolonner i belægningsfilen er valgfrit. Jo mere du
 sender med, jo mindre gætter modellen — men den kører på de tre.
 
-**Hvor kommer belægningsfilen fra?** Rapportmodulet i Picasso (**F7**) kan give
-et øjebliksbillede i hånden, men manualen dokumenterer hverken eksport til fil,
-sengetal eller tal fremad i tid. Den daglige fil skal derfor komme fra en
-planlagt eksport, som AK Techotel sætter op. `REFERENCE.md` har detaljerne og
-hvad du skal bede dem om.
+**Hvor kommer belægningsfilen fra?** Du behøver ikke lave CSV'en selv. Tag
+Picassos **Arrivals**-rapport (Rooms spec.) fra ca. 30 dage tilbage til 120
+dage frem, med alle reservationstyper og statusser inkl. In-House, og mail
+PDF'en til dig selv. Upload den som den er under **Data**. Servicen tæller
+solgte værelser og senge pr. nat og springer tentative, foreløbige og
+venteliste over. Samme konvertering fra terminalen:
+`python -m app.picasso_belaegning <pdf>`.
+
+PDF'en giver kun de tre første kolonner. Blokeringer og nuværende priser skal
+stadig komme fra en planlagt eksport, som AK Techotel sætter op — se
+`REFERENCE.md`.
 
 ---
 

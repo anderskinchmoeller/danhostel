@@ -195,8 +195,12 @@ periode. Motoren skal bruge on-the-books **120 dage frem**.
 
 ### Hvad det betyder i praksis
 
-Rapportmodulet kan sandsynligvis give et øjebliksbillede i hånden, men ikke
-den daglige fil. Den skal komme fra en planlagt eksport, som AK Techotel
+Den daglige belægning kan tages i hånden fra **Arrivals**-rapporten (Rooms
+spec.) som PDF og uploades direkte under **Data** (`app/picasso_belaegning.py`).
+In-house-gæster læses i forhold til rapportens udskriftsdato i sidehovedet, så
+en rapport kan uploades en dag senere uden at afrejser ruller et år frem. Den
+giver solgte værelser og senge, men ikke blokeringer eller nuværende priser.
+En fuldt automatisk fil kræver stadig en planlagt eksport. Den skal komme fra en planlagt eksport, som AK Techotel
 sætter op. Spørg dem konkret om: on-the-books pr. ankomstdato, pr.
 værelsestype **og pr. seng**, 120 dage frem, som CSV eller Excel, lagt i en
 mappe eller sendt på mail hver nat — plus de aktuelle værelses- og sengepriser

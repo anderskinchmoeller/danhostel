@@ -16,7 +16,14 @@
   <div class="panel">
     <h2 style="margin-top:0">Belægning fra Picasso</h2>
     <p style="font-size:13.5px;color:var(--ink-2)">
-      Solgte private værelser og solgte dormsenge pr. ankomstdato. Kolonnenavne
+      <b>Nemmest:</b> upload Picassos Arrivals-rapport (Rooms spec.) som PDF, som
+      den er. Periode fra ca. 30 dage tilbage til 120 dage frem, alle
+      reservationstyper og statusser med, også In-House. Servicen tæller selv
+      solgte værelser og senge pr. nat og springer tentative, foreløbige og
+      venteliste over.
+    </p>
+    <p style="font-size:13.5px;color:var(--ink-2)">
+      Eller en CSV: solgte private værelser og solgte dormsenge pr. dato. Kolonnenavne
       genkendes på dansk og engelsk, med og uden æøå, og både semikolon og komma
       virker som separator.
     </p>
@@ -32,7 +39,7 @@
     </p>
     <form method="post" action="/data/upload" enctype="multipart/form-data">
       <input type="hidden" name="kind" value="inventory">
-      <div class="field"><input type="file" name="file" accept=".csv,.txt" required></div>
+      <div class="field"><input type="file" name="file" accept=".pdf,.csv,.txt" required></div>
       <div class="field" style="display:flex;gap:7px;align-items:flex-start">
         <input type="checkbox" name="override" value="1" id="override" style="margin-top:3px">
         <label for="override" style="margin:0">

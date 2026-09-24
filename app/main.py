@@ -20,7 +20,7 @@ from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import desc, select
 
-from . import db, service
+from . import db, picasso_belaegning, service
 from .adapters import parse_comp, parse_inventory
 from .config import load_settings
 from .sanity import check_inventory
@@ -372,9 +372,15 @@ def data_page(request: Request, message: str = "", error: str = "",
 @app.post("/data/upload")
 async def upload(kind: str = Form(...), file: UploadFile = File(...),
                  override: str = Form(""), user: str = Depends(current_user)):
-    raw = (await file.read()).decode("utf-8-sig", errors="replace")
+    data = await file.read()
+    notes: list[str] = []
     session = db.get_session()
     try:
+        if kind == "inventory" and data.startswith(b"%PDF"):
+            # Picassos Arrivals-rapport (Rooms spec.) direkte, uden CSV-mellemtrin.
+            raw, notes = picasso_belaegning.csv_from_pdf(data)
+        else:
+            raw = data.decode("utf-8-sig", errors="replace")
         if kind == "inventory":
             rows = parse_inventory(raw)
             findings = check_inventory(rows, settings.params)
@@ -394,6 +400,8 @@ async def upload(kind: str = Form(...), file: UploadFile = File(...),
                 msg += (f" — trumfet igennem trods {len(findings)} "
                         f"{'bemærkning' if len(findings) == 1 else 'bemærkninger'}. "
                         "Det står i loggen.")
+            if notes:
+                msg += " — " + " ".join(notes)
         else:
             rows = parse_comp(raw)
             n = service.upsert_comp(session, rows, actor=user)

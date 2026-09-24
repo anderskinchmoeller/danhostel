@@ -2,6 +2,8 @@
 
 python -m app.picasso_belaegning kali/Arrivals_on_21-09-2026_to_19-01-202710.pdf
 
+PDF'en kan også uploades direkte under Data i dashboardet.
+
 Skriver dato;solgte_vaerelser;solgte_senge for hver dato i rapportens periode.
 Rumtyper der starter med B er enkeltsenge; alle andre er hele rum (også
 sovesale solgt samlet). Kun Confirmed, Guaranteed og In-House tælles.
@@ -14,6 +16,7 @@ start den ca. 30 dage tilbage og slå In-House til.
 from __future__ import annotations
 
 import argparse
+import io
 import logging
 import re
 import sys
@@ -27,6 +30,8 @@ ROW = re.compile(
     r"(?P<days>\d+)\s+(?P<pcs>\d+)\s+(?P<pax>\d+)"
 )
 PERIOD = re.compile(r"Arrivals on period:\s*(\d\d-\d\d-\d{4})\s*to\s*(\d\d-\d\d-\d{4})")
+# Udskriftstidspunktet i sidehovedet, fx "LENE 21-09-2026 kl. 21:41".
+PRINTED = re.compile(r"(\d\d-\d\d-\d{4}) kl\. \d\d:\d\d")
 # Kun bindende bookinger tæller: Confirmed, Guaranteed, In-House. Tentative,
 # Provisional og WaitingList er optioner; medregnet giver de overbooking (fx
 # 77 af 70 rum den 20-11-2026). Annulleret, no-show og afrejst tæller aldrig.
@@ -38,14 +43,23 @@ def _dmy(text: str) -> date:
     return date(y, m, d)
 
 
-def pdf_text(path: Path) -> str:
+def pdf_text(source: Path | bytes) -> str:
     from pypdf import PdfReader
     logging.getLogger("pypdf").setLevel(logging.ERROR)
-    return "\n".join(p.extract_text(extraction_mode="layout") for p in PdfReader(path).pages)
+    if isinstance(source, bytes):
+        source = io.BytesIO(source)
+    return "\n".join(p.extract_text(extraction_mode="layout") for p in PdfReader(source).pages)
+
+
+def printed_on(text: str) -> date | None:
+    m = PRINTED.search(text)
+    return _dmy(m.group(1)) if m else None
 
 
 def parse(text: str, today: date | None = None) -> tuple[date, date, list[dict]]:
-    today = today or date.today()
+    # In-house-gæster læses i forhold til den dag rapporten blev taget, ikke den
+    # dag den behandles: ellers ruller en afrejse der er sket i mellemtiden et år frem.
+    today = today or printed_on(text) or date.today()
     m = PERIOD.search(text)
     if not m:
         raise ValueError("Fandt ikke 'Arrivals on period' – er det en Rooms spec.-rapport?")
@@ -66,14 +80,15 @@ def parse(text: str, today: date | None = None) -> tuple[date, date, list[dict]]
             # rapportperioden (fx 365 nætter fra et tidligere år).
             while arrival > today:
                 arrival = date(arrival.year - 1, mo, d)
+        days = int(r["days"])
+        if r["st"] == "I" and days >= 365:
             # Days er loftet ved 365 i rapporten; afrejsedatoen er den sikre.
+            # Afrejse i dag betyder at gæsten rejser i dag, ikke om et år.
             dd_, dm_ = map(int, r["dep"].split("-"))
             depart = date(today.year, dm_, dd_)
-            if depart <= today:
+            if depart < today:
                 depart = date(today.year + 1, dm_, dd_)
             days = (depart - arrival).days
-        else:
-            days = int(r["days"])
         rows.append({"type": r["type"], "st": r["st"], "ref": r["ref"], "arrival": arrival,
                      "days": days, "pcs": int(r["pcs"])})
     if not rows:
@@ -94,6 +109,40 @@ def on_the_books(start: date, end: date, rows: list[dict]) -> dict:
             for n in range(days)}
 
 
+def to_csv(otb: dict, today: date) -> str:
+    lines = ["dato;solgte_vaerelser;solgte_senge"]
+    lines += [f"{d.isoformat()};{r};{b}" for d, (r, b) in otb.items() if d >= today]
+    return "\n".join(lines) + "\n"
+
+
+def notes(start: date, rows: list[dict], today: date, printed: date | None = None) -> list[str]:
+    out = []
+    if printed and printed < today:
+        age = (today - printed).days
+        out.append(f"Rapporten er fra {printed:%d-%m-%Y} ({age} {'dag' if age == 1 else 'dage'} gammel); "
+                   "bookinger siden da er ikke med.")
+    if start > today - timedelta(days=14):
+        out.append("Perioden starter mindre end 14 dage tilbage; gæster der ankom "
+                   "før og stadig bor der, mangler i de første nætter.")
+    options = sum(r["pcs"] for r in rows if r["st"] in {"T", "P", "W"})
+    if options:
+        out.append(f"Ikke medregnet: {options} enheder på tentative/foreløbige/venteliste-bookinger.")
+    return out
+
+
+def csv_from_pdf(data: bytes, today: date | None = None) -> tuple[str, list[str]]:
+    """PDF-bytes fra Picasso → belægnings-CSV og bemærkninger til brugeren."""
+    from pypdf.errors import PyPdfError
+    today = today or date.today()
+    try:
+        text = pdf_text(data)
+    except PyPdfError as exc:
+        raise ValueError(f"PDF'en kunne ikke læses ({exc}). Gem rapporten igen fra Picasso.") from exc
+    start, end, rows = parse(text)
+    return (to_csv(on_the_books(start, end, rows), today),
+            notes(start, rows, today, printed_on(text)))
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description="Belægningsfil fra Picasso Rooms spec. (PDF)")
     ap.add_argument("pdf")
@@ -101,26 +150,19 @@ def main(argv=None):
     args = ap.parse_args(argv)
     src = Path(args.pdf)
     try:
-        start, end, rows = parse(pdf_text(src))
+        text = pdf_text(src)
+        start, end, rows = parse(text)
     except ValueError as exc:
         ap.error(str(exc))
     otb = on_the_books(start, end, rows)
     today = date.today()
     out = Path(args.out) if args.out else src.with_name(f"belaegning_{today:%Y-%m-%d}.csv")
-    with open(out, "w", encoding="utf-8") as fh:
-        fh.write("dato;solgte_vaerelser;solgte_senge\n")
-        for d, (r, b) in otb.items():
-            if d >= today:
-                fh.write(f"{d.isoformat()};{r};{b}\n")
+    out.write_text(to_csv(otb, today), encoding="utf-8")
     kept = [v for d, v in otb.items() if d >= today]
     status = Counter(r["st"] for r in rows)
     print(f"{len(rows)} linjer læst ({dict(status)}), periode {start} til {end}")
-    if start > today - timedelta(days=14):
-        print("ADVARSEL: perioden starter mindre end 14 dage tilbage; gæster der ankom "
-              "før og stadig bor der, mangler i de første nætter.")
-    options = sum(r["pcs"] for r in rows if r["st"] in {"T", "P", "W"})
-    if options:
-        print(f"Ikke medregnet: {options} enheder på tentative/foreløbige/venteliste-bookinger")
+    for note in notes(start, rows, today, printed_on(text)):
+        print(note)
     print(f"Skrev {len(kept)} datoer til {out}")
     return 0
 

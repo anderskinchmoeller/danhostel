@@ -45,3 +45,20 @@ def test_two_letter_room_type_is_not_split():
 """
     _, _, rows = parse(text, today=date(2026, 9, 21))
     assert [(r["type"], r["st"]) for r in rows] == [("FS", "C"), ("BV10", "G")]
+
+
+def test_in_house_is_read_as_of_the_report_date_not_processing_date():
+    """En rapport fra 21-09 behandlet 24-09: afrejser 22-09 må ikke rulle et år frem."""
+    text = """   Status: Confirmed, In-House                                      LENE 21-09-2026 kl. 21:41
+   Arrivals on period: 22-08-2026 to 19-01-2027
+       D2   I Hansen, Anna                121000        19-09  15:00  22-09    3     1    2  YP   900,00
+       F1   I Berg, Ole                   121001        20-09  15:00  21-09    1     1    2  YP   500,00
+       BV8  I Dahlstrøm, Thor             121673        03-09  19:42  09-09    6     1    1  ROOM 1.080,00
+       D1   I Sørensen/033, Henrik        084894        30-09  15:00  30-09  365     1    1       0,00
+"""
+    start, end, rows = parse(text)                       # ingen today: rapportens dato bruges
+    otb = on_the_books(start, end, rows)
+    assert otb[date(2026, 9, 21)] == (2, 0)              # D2 + D1; F1 rejser 21-09
+    assert otb[date(2026, 9, 22)] == (1, 0)              # kun langtidsgæsten D1 tilbage
+    assert otb[date(2026, 9, 30)] == (0, 0)              # D1 rejser 30-09
+    assert otb[date(2026, 10, 15)] == (0, 0)             # ingen rullet et år frem

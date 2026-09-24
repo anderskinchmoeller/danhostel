@@ -168,6 +168,43 @@ def test_malformed_csv_is_rejected_with_a_useful_message(client):
     assert "Mangler datokolonne" in unquote(resp.headers["location"])
 
 
+def test_picasso_pdf_upload_counts_rooms_and_beds(client, monkeypatch):
+    """Arrivals-PDF'en fra Picasso kan uploades direkte, uden CSV-mellemtrin."""
+    from app import db, picasso_belaegning
+
+    today = date.today()
+    start, arrive = today - timedelta(days=30), today + timedelta(days=3)
+    dm = lambda d: d.strftime("%d-%m")
+    text = f"""   Arrivals on period: {start:%d-%m-%Y} to {today + timedelta(days=60):%d-%m-%Y}
+51001 D2  C Hansen, Anna              121315       {dm(arrive)} 15:00 {dm(arrive + timedelta(days=2))}     2    3    6 YP   800,00
+      BV8 G Frey, Elias               120456       {dm(arrive)} 15:00 {dm(arrive + timedelta(days=1))}     1    2    2 YP   400,00
+      D2  T Copenhagen Cheerleaders   113981       {dm(arrive)} 15:00 {dm(arrive + timedelta(days=1))}     1   12   24 ROOM 0,00
+"""
+    monkeypatch.setattr(picasso_belaegning, "pdf_text", lambda source: text)
+    resp = client.post("/data/upload", data={"kind": "inventory", "override": "1"},
+        files={"file": ("Arrivals.pdf", b"%PDF-1.4 stub", "application/pdf")},
+        follow_redirects=False)
+    location = unquote(resp.headers["location"])
+    assert "message=" in location and "importeret fra Arrivals.pdf" in location
+    assert "Ikke medregnet: 12 enheder" in location   # tentativ gruppe tæller ikke
+
+    session = db.get_session()
+    try:
+        state = session.get(db.DayState, arrive)
+        assert (state.rooms_otb, state.beds_otb) == (3, 2)
+        assert session.get(db.DayState, arrive + timedelta(days=1)).rooms_otb == 3
+    finally:
+        session.close()
+
+
+def test_unreadable_pdf_gives_a_message_not_a_crash(client):
+    resp = client.post("/data/upload", data={"kind": "inventory"},
+        files={"file": ("Arrivals.pdf", b"%PDF-1.4 not really", "application/pdf")},
+        follow_redirects=False)
+    assert resp.status_code == 303
+    assert "PDF'en kunne ikke læses" in unquote(resp.headers["location"])
+
+
 def test_v1_database_is_refused_clearly(tmp_path):
     """En gammel base skal fejle med en forklaring, ikke med en stacktrace."""
     import sqlite3
