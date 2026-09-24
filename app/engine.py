@@ -29,6 +29,8 @@ from dataclasses import asdict, dataclass, field
 from datetime import date
 from typing import Iterable, Sequence
 
+from .ladder import LadderConfig, ladder_step
+
 
 def clamp(value: float, low: float, high: float) -> float:
     return max(low, min(high, value))
@@ -145,6 +147,27 @@ class BookingCurve:
                 break
         return chosen.weekend if is_weekend else chosen.weekday
 
+    def interpolated(self, lead_days: int, is_weekend: bool) -> float:
+        """Som reference(), men lineært mellem punkterne.
+
+        Kurven er en trappe. Til prognosen er det fint; til at måle tempo over
+        en uge er det ikke — så svinger forventet pickup mellem nul og meget,
+        alt efter om ugen krydser et trappetrin.
+        """
+        lead = max(0, lead_days)
+        pts = list(self.points)
+        val = (lambda p: p.weekend if is_weekend else p.weekday)
+        for a, b in zip(pts, pts[1:]):
+            if a.lead_days_from <= lead < b.lead_days_from:
+                w = (lead - a.lead_days_from) / (b.lead_days_from - a.lead_days_from)
+                return val(a) + w * (val(b) - val(a))
+        last = pts[-1]
+        if lead >= last.lead_days_from:
+            # Hale: lineært mod nul ved dobbelt så langt ude som sidste punkt
+            span = max(1, last.lead_days_from)
+            return max(0.0, val(last) * (1 - (lead - last.lead_days_from) / span))
+        return val(pts[0])
+
     def final(self, is_weekend: bool) -> float:
         """Referencebelægningen ved ankomst — det kurven ender på."""
         return self.reference(0, is_weekend)
@@ -191,7 +214,9 @@ def forecast_occupancy(occ_now: float, lead_days: int, is_weekend: bool,
     voldsom: to bookinger for meget bliver til tyve for meget. Derfor vægtes
     den ind i takt med at referencen vokser.
     """
-    ref_now = curve.reference(lead_days, is_weekend)
+    # Lineært mellem kurvens punkter: med trappen hoppede prognosen hver gang
+    # lead time krydsede et punkt (fx 60 -> 61 dage), og prisen hoppede med.
+    ref_now = curve.interpolated(lead_days, is_weekend)
     ref_final = curve.final(is_weekend)
     if ref_final <= 0:
         return occ_now
@@ -268,6 +293,10 @@ class Params:
     booking_curve: BookingCurve = field(default_factory=BookingCurve.rooms)
     booking_curve_beds: BookingCurve = field(default_factory=BookingCurve.beds)
 
+    # Prisstige. None = den kontinuerlige faktormodel (version 2). Sat = prisen
+    # står på faste trin og flytter sig kun når triggerne siger det tydeligt.
+    ladder: LadderConfig | None = None
+
     def is_weekend(self, day: date) -> bool:
         return day.weekday() in self.weekend_days
 
@@ -302,6 +331,14 @@ class DayInput:
     room_type_otb: dict = field(default_factory=dict)
     locked_room_price: float | None = None
     locked_bed_price: float | None = None
+    # Til prisstigen: gårsdagens trin og belægningen for ca. en uge siden
+    prev_room_rung: int | None = None
+    prev_bed_rung: int | None = None
+    prev_room_position: float | None = None
+    prev_bed_position: float | None = None
+    rooms_otb_prior: int | None = None
+    beds_otb_prior: int | None = None
+    prior_days: int | None = None
 
 
 @dataclass
@@ -345,6 +382,16 @@ class Recommendation:
     revpab: float
     warnings: list
     revenue_basis: str = "estimated"
+    room_ladder: dict | None = None
+    bed_ladder: dict | None = None
+
+    @property
+    def room_rung(self) -> int | None:
+        return self.room_ladder["rung"] if self.room_ladder else None
+
+    @property
+    def bed_rung(self) -> int | None:
+        return self.bed_ladder["rung"] if self.bed_ladder else None
 
     def as_dict(self) -> dict:
         out = asdict(self)
@@ -352,6 +399,14 @@ class Recommendation:
         return out
 
     def explain(self) -> str:
+        if self.room_ladder:
+            return (
+                f"værelse trin {self.room_ladder['label']} ({self.room_price:.0f} kr., "
+                f"tryk {self.room_ladder['score']:+.2f}) · seng trin "
+                f"{self.bed_ladder['label']} ({self.bed_price:.0f} kr.) · "
+                f"prognose {self.room_forecast:.0%} værelser / {self.bed_forecast:.0%} senge · "
+                f"RevPAB {self.revpab:.0f} kr."
+            )
         return (
             f"værelse {self.base_room:.0f} x pace {self.f_pace_rooms:.3f} "
             f"x marked {self.f_market_rooms:.3f} x event {self.f_event:.2f} "
@@ -483,6 +538,20 @@ def price_day(item: DayInput, params: Params, events: Iterable[EventUplift] = ()
     raw_room = base_room * f_pace_rooms * f_market_rooms * f_event
     raw_bed = base_bed * f_pace_beds * f_market_beds * f_event
 
+    room_ladder = bed_ladder = None
+    if params.ladder is not None:
+        room_ladder, bed_ladder = _ladder(
+            item, params, lead, weekend, base_room, base_bed, f_event,
+            room_forecast, bed_forecast, room_occ_now, bed_occ_now,
+            forecast_rooms, forecast_beds, max_rooms, max_beds)
+        raw_room, raw_bed = room_ladder.price, bed_ladder.price
+        warnings.extend(f"Stige værelse: {r}" for r in room_ladder.reasons
+                        if not r.startswith("Intet tempo"))
+        warnings.extend(f"Stige seng: {r}" for r in bed_ladder.reasons
+                        if not r.startswith("Intet tempo"))
+        if any(r.startswith("Intet tempo") for r in room_ladder.reasons):
+            warnings.append("Stige: intet tempo-signal endnu (kræver en kørsel fra ca. en uge siden)")
+
     room_price = round_within(raw_room, params.price_floor, params.price_ceiling, params.rounding)
     bed_price = round_within(raw_bed, params.bed_floor, params.bed_ceiling, params.rounding)
 
@@ -490,10 +559,22 @@ def price_day(item: DayInput, params: Params, events: Iterable[EventUplift] = ()
     # Apply all hard price bounds last; never override the daily brake afterwards.
     room_price = (item.locked_room_price if item.locked_room_price is not None else
                   _brake(room_price, item.current_room_price, params, warnings,
-                         "værelsespris", params.price_floor, params.price_ceiling))
+                         "værelsespris", params.price_floor, params.price_ceiling,
+                         room_ladder.rung_prices if room_ladder else None))
     bed_price = (item.locked_bed_price if item.locked_bed_price is not None else
                  _brake(bed_price, item.current_bed_price, params, warnings,
-                        "sengepris", params.bed_floor, params.bed_ceiling))
+                        "sengepris", params.bed_floor, params.bed_ceiling,
+                        bed_ladder.rung_prices if bed_ladder else None))
+    # Stigen skal huske det trin prisen faktisk endte på — efter bremse og lås —
+    # ellers starter morgendagens hysterese fra et trin der aldrig blev brugt.
+    for ladder, final in ((room_ladder, room_price), (bed_ladder, bed_price)):
+        if ladder is not None:
+            nearest = min(range(ladder.n_rungs),
+                          key=lambda i: (abs(ladder.rung_prices[i] - final), -i))
+            ladder.off_ladder = abs(ladder.rung_prices[nearest] - final) > 0.01
+            if nearest != ladder.rung:
+                ladder.reasons.append(f"Endte på trin {nearest + 1} efter bremse/lås")
+            ladder.rung, ladder.price = nearest, final
     if any(not math.isfinite(p) or p <= 0 for p in (room_price, bed_price)):
         raise ValueError("Priser skal være endelige positive beløb")
     room_prices = {
@@ -567,18 +648,66 @@ def price_day(item: DayInput, params: Params, events: Iterable[EventUplift] = ()
         room_price=room_price, bed_price=bed_price, room_types=room_prices,
         net_room=net_room, net_bed=net_bed,
         revpab=revpab, warnings=warnings, revenue_basis=revenue_basis,
+        room_ladder=room_ladder.as_dict() if room_ladder else None,
+        bed_ladder=bed_ladder.as_dict() if bed_ladder else None,
     )
 
 
+def _ladder(item, params, lead, weekend, base_room, base_bed, f_event,
+            room_forecast, bed_forecast, room_occ_now, bed_occ_now,
+            forecast_rooms, forecast_beds, max_rooms, max_beds):
+    """Kør prisstigen for værelser og senge.
+
+    Tempo = belægning booket siden forrige snapshot mod det kurven forventede
+    i samme vindue. Begge i andel af huset, så værelser og senge kan sammenlignes.
+    """
+    cfg = params.ladder
+
+    def pickup(otb_now, otb_prior, capacity, curve):
+        if otb_prior is None or not item.prior_days or item.prior_days <= 0 or not capacity:
+            return None, None
+        actual = (otb_now - otb_prior) / capacity
+        expected = max(0.0, curve.interpolated(lead, weekend) -
+                       curve.interpolated(lead + item.prior_days, weekend))
+        return actual, expected
+
+    rp, re_ = pickup(item.rooms_otb, item.rooms_otb_prior, max_rooms, params.booking_curve)
+    bp, be = pickup(item.beds_otb, item.beds_otb_prior, max_beds, params.booking_curve_beds)
+    room = ladder_step(
+        base=base_room, rungs=cfg.rungs_rooms, cfg=cfg,
+        rounder=lambda v: round_within(v, params.price_floor, params.price_ceiling, params.rounding),
+        forecast=room_forecast, target=params.target_occupancy_rooms, occ_now=room_occ_now,
+        lead_days=lead, pickup=rp, expected_pickup=re_, comp_price=item.comp_room,
+        quality_index=params.quality_index, event_factor=f_event,
+        capacity=max_rooms, forecast_units=forecast_rooms, previous_rung=item.prev_room_rung,
+        previous_position=item.prev_room_position)
+    bed = ladder_step(
+        base=base_bed, rungs=cfg.rungs_beds, cfg=cfg,
+        rounder=lambda v: round_within(v, params.bed_floor, params.bed_ceiling, params.rounding),
+        forecast=bed_forecast, target=params.target_occupancy_beds, occ_now=bed_occ_now,
+        lead_days=lead, pickup=bp, expected_pickup=be, comp_price=item.comp_bed,
+        quality_index=params.quality_index, event_factor=f_event,
+        capacity=max_beds, forecast_units=forecast_beds, previous_rung=item.prev_bed_rung,
+        previous_position=item.prev_bed_position)
+    return room, bed
+
+
 def _brake(new_price: float, current: float | None, params: Params,
-           warnings: list, label: str, floor: float, ceiling: float) -> float:
+           warnings: list, label: str, floor: float, ceiling: float,
+           rungs: Sequence[float] | None = None) -> float:
     if not current:
         return round_within(new_price, floor, ceiling, params.rounding)
     low = max(floor, current * (1 - params.max_daily_change))
     high = min(ceiling, current * (1 + params.max_daily_change))
     if low > high:
         raise ValueError(f"{label}: prisgulv/-loft og ændringsbremse kan ikke overholdes samtidigt")
-    braked = round_within(new_price, low, high, params.rounding)
+    # På stigen bremses til det nærmeste trin inden for bremsen, så prisen
+    # bliver på stigen. Kun hvis intet trin ligger i vinduet, forlades den.
+    allowed = [p for p in (rungs or ()) if low <= p <= high]
+    if allowed:
+        braked = min(allowed, key=lambda p: abs(p - new_price))
+    else:
+        braked = round_within(new_price, low, high, params.rounding)
     if abs(braked - new_price) > 0.01:
         warnings.append(f"Ændringsbremse på {label}: {new_price:.0f} → {braked:.0f} kr.")
     return braked

@@ -79,6 +79,9 @@ Prisforslag kan vurderes her; eksport og skrivning kræver bekræftet lager.</di
     <th class="num" title="Prognose for slutbelægning: værelser">Progn. vær.</th>
     <th class="num" title="Prognose for slutbelægning: senge">Progn. senge</th>
     <th class="num" title="Dagsforslag; kræver kontrol af konkrete rum og hele ophold">Flex</th>
+    {% if settings.params.ladder %}
+    <th class="num" title="Trin på prisstigen, værelse / seng. Hold musen over for triggere og begrundelse">Trin v/s</th>
+    {% endif %}
     <th class="num">Pace v/s</th><th class="num">Marked v/s</th><th class="num">Event</th>
     <th class="num">Værelsespris</th><th class="num">Ændring</th>
     <th class="num">Sengepris</th><th class="num">Familie</th>
@@ -98,6 +101,16 @@ Prisforslag kan vurderes her; eksport og skrivning kræver bekræftet lager.</di
       <td class="num"><b>{{ "%.0f"|format(r.bed_forecast * 100) }} %</b>
         <span style="color:var(--muted)">({{ "%.0f"|format(r.bed_occ_now * 100) }})</span></td>
       <td class="num">{{ r.flex_to_private }}</td>
+      {% if settings.params.ladder %}
+      {% set L = row.ladder %}
+      <td class="num" {% if L %}title="{% for k, lad in [('Værelse', L.rooms), ('Seng', L.beds)] %}{{ k }}: trin {{ lad.label }} · tryk {{ '%+.2f'|format(lad.score) }} · prognose {{ '%+.2f'|format(lad.triggers.prognose) }} · tempo {{ '%+.2f'|format(lad.triggers.tempo) }} · marked {{ '%+.2f'|format(lad.triggers.marked) }} · lead {{ '%+.2f'|format(lad.triggers.lead) }} · udsolgt {{ '%.0f'|format(lad.p_sellout * 100) }} % · trin: {{ lad.rung_prices|map('int')|join(' / ') }}&#10;{% endfor %}"{% endif %}>
+        {% if L %}
+          {% for lad in [L.rooms, L.beds] %}
+            <b>{{ lad.label }}</b>{% if lad.previous_rung is not none and lad.rung != lad.previous_rung %}<span class="{% if lad.rung > lad.previous_rung %}up{% else %}down{% endif %}">{% if lad.rung > lad.previous_rung %}▲{% else %}▼{% endif %}</span>{% endif %}{% if loop.first %} / {% endif %}
+          {% endfor %}
+        {% else %}—{% endif %}
+      </td>
+      {% endif %}
       <td class="num">{{ "%.2f"|format(r.f_pace_rooms) }} / {{ "%.2f"|format(r.f_pace_beds) }}</td>
       <td class="num">{{ "%.2f"|format(r.f_market_rooms) }} / {{ "%.2f"|format(r.f_market_beds) }}</td>
       <td class="num" {% if r.f_event != 1.0 %}title="{{ r.event_names }}" style="color:var(--accent)"{% endif %}>{{ "%.2f"|format(r.f_event) }}</td>

@@ -179,6 +179,7 @@ def decorate(rec):
         "room_delta_pct": (room_delta / rec.current_room_price * 100) if room_delta is not None else None,
         "bed_delta": bed_delta,
         "warning_list": [w for w in (rec.warnings or "").split(" · ") if w],
+        "ladder": json.loads(rec.ladder) if rec.ladder else None,
     }
 
 
@@ -580,6 +581,7 @@ def api_prices(days: int = 90, user: str = Depends(current_user)):
                         "market_rooms": r.f_market_rooms, "market_beds": r.f_market_beds,
                         "event": r.f_event,
                     },
+                    "ladder": json.loads(r.ladder) if r.ladder else None,
                     "revpab": round(r.revpab, 2),
                     "revenue_basis": r.revenue_basis or "estimated",
                     "warnings": [w for w in (r.warnings or "").split(" · ") if w],

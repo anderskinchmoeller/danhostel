@@ -13,6 +13,7 @@ from pathlib import Path
 import yaml
 
 from .engine import BookingCurve, CurvePoint, Inventory, Params
+from .ladder import LadderConfig
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 DEFAULT_CONFIG = BASE_DIR / "config" / "config.yaml"
@@ -42,6 +43,30 @@ def _curve(raw: list) -> BookingCurve:
     ]
     points.sort(key=lambda p: p.lead_days_from)
     return BookingCurve(points)
+
+
+def _ladder(raw: dict | None) -> LadderConfig | None:
+    """pricing.ladder i config.yaml. Mangler afsnittet, eller er enabled
+    false, kører den kontinuerlige faktormodel."""
+    if not raw or not raw.get("enabled", False):
+        return None
+    kw = {}
+    for key, default in LadderConfig.__dataclass_fields__.items():
+        if key not in raw:
+            continue
+        value = raw[key]
+        if key in ("rungs_rooms", "rungs_beds"):
+            value = tuple(float(v) for v in value)
+        elif key == "sellout_protect":
+            value = tuple((float(p), int(o)) for p, o in value)
+        elif isinstance(default.default, bool):
+            value = bool(value)
+        elif isinstance(default.default, int):
+            value = int(value)
+        elif isinstance(default.default, float):
+            value = float(value)
+        kw[key] = value
+    return LadderConfig(**kw)
 
 
 def load_settings(path: str | Path | None = None) -> Settings:
@@ -92,6 +117,7 @@ def load_settings(path: str | Path | None = None) -> Settings:
         quality_index=float(p.get("quality_index", 1.0)),
         booking_curve=_curve(p["booking_curve"]),
         booking_curve_beds=_curve(p["booking_curve_beds"]),
+        ladder=_ladder(p.get("ladder")),
     )
 
     if any(t not in params.room_types for t in inventory.private_room_types):

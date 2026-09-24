@@ -2,7 +2,12 @@
 
 Foreslår en værelsespris og en sengepris for hver dato 120 dage frem, ud fra
 hvor fyldt huset er på vej til at blive, hvad markedet tager, og hvad der sker i
-byen. Du læser forslagene i browseren og taster dem selv ind i Picasso.
+byen.
+
+Priserne står på en **prisstige**: ni faste trin fra gulv til top pr. dato.
+Prisen flytter sig kun ét eller to trin ad gangen, når prognose, bookingtempo,
+marked og lead time samlet siger det tydeligt nok. Se `REFERENCE.md` →
+*Prisstigen*. Du læser forslagene i browseren og taster dem selv ind i Picasso.
 
 **Servicen skriver ingenting til Picasso.** Den kan ikke og skal ikke. Den
 regner, og du beslutter.
@@ -128,6 +133,7 @@ server, og hvad der endnu ikke er bygget.
 
 ```
 app/engine.py       prismodellen: prognose, to lagre, flex-allokering, RevPAB
+app/ladder.py       prisstigen: trin, triggere, hysterese, knaphedsbeskyttelse
 app/service.py      kørslen: hent, beregn, gem
 app/sanity.py       rimelighedstjek på uploadet belægning
 app/main.py         FastAPI: dashboard, grupper, upload, godkendelse

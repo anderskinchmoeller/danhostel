@@ -149,6 +149,11 @@ class Recommendation(Base):
 
     revenue_basis: Mapped[str | None] = mapped_column(String(32), nullable=True)
 
+    # prisstige (None i faktormodellen)
+    room_rung: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    bed_rung: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    ladder: Mapped[str | None] = mapped_column(Text, nullable=True)
+
     warnings: Mapped[str] = mapped_column(Text, default="")
     status: Mapped[str] = mapped_column(String(24), default="pending")
     decided_by: Mapped[str] = mapped_column(String(80), default="")
@@ -208,7 +213,8 @@ def init_db(database_url: str):
                       "booked_room_revenue": "FLOAT", "booked_bed_revenue": "FLOAT",
                       "room_type_otb": "TEXT", "anchor_room_price": "FLOAT",
                       "anchor_bed_price": "FLOAT", "anchor_at": "DATETIME"},
-        "recommendation": {"revenue_basis": "VARCHAR(32)"},
+        "recommendation": {"revenue_basis": "VARCHAR(32)", "room_rung": "INTEGER",
+                           "bed_rung": "INTEGER", "ladder": "TEXT"},
     }
     inspector = inspect(_engine)
     with _engine.begin() as connection:

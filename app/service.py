@@ -171,8 +171,11 @@ def run_pricing(settings: Settings, trigger: str = "manual", actor: str = "syste
 
         params = effective_params(session, settings)
         events = load_events(session)
+        inputs = build_inputs(fresh_states, settings)
+        if params.ladder is not None:
+            inputs = with_ladder_history(session, inputs, today, run.id)
         recs = []
-        for item in build_inputs(fresh_states, settings):
+        for item in inputs:
             try:
                 recs.append(price_day(item, params, events, today=today))
             except ValueError as exc:
@@ -216,6 +219,9 @@ def run_pricing(settings: Settings, trigger: str = "manual", actor: str = "syste
                 room_types=json.dumps(rec.room_types),
                 net_room=rec.net_room, net_bed=rec.net_bed, revpab=rec.revpab,
                 revenue_basis=rec.revenue_basis,
+                room_rung=rec.room_rung, bed_rung=rec.bed_rung,
+                ladder=json.dumps({"rooms": rec.room_ladder, "beds": rec.bed_ladder},
+                                  ensure_ascii=False) if rec.room_ladder else None,
                 warnings=" · ".join(warnings), status=status,
             ))
 
@@ -244,6 +250,52 @@ def run_pricing(settings: Settings, trigger: str = "manual", actor: str = "syste
         return {"status": "failed", "run_id": run.id, "error": run.note}
     finally:
         session.close()
+
+
+def with_ladder_history(session, inputs, today: date, current_run_id: int,
+                        pace_window: int = 7) -> list:
+    """Giv stigen hukommelse: forrige trin og belægningen for ca. en uge siden.
+
+    Forrige trin er det seneste færdige forslag for datoen. Tempo-snapshottet er
+    det forslag der ligger tættest på `pace_window` dage tilbage, inden for
+    5-10 dage. Ældre eller nyere snapshots giver et for støjende vindue.
+    """
+    if not inputs:
+        return inputs
+    days = [i.day for i in inputs]
+    rows = session.execute(
+        select(db.Recommendation, db.Run.started)
+        .join(db.Run, db.Run.id == db.Recommendation.run_id)
+        .where(db.Run.status == "done", db.Run.id != current_run_id,
+               db.Recommendation.day >= min(days), db.Recommendation.day <= max(days))
+        .order_by(db.Recommendation.run_id.desc())
+    ).all()
+    latest: dict = {}
+    prior: dict = {}
+    for rec, started in rows:
+        latest.setdefault(rec.day, rec)
+        age = (today - started.date()).days
+        if 5 <= age <= 10:
+            best = prior.get(rec.day)
+            if best is None or abs(age - pace_window) < abs(best[1] - pace_window):
+                prior[rec.day] = (rec, age)
+    out = []
+    for item in inputs:
+        prev = latest.get(item.day)
+        snap = prior.get(item.day)
+        lad = json.loads(prev.ladder) if prev and prev.ladder else {}
+        rooms, beds = lad.get("rooms") or {}, lad.get("beds") or {}
+        out.append(replace(
+            item,
+            prev_room_rung=prev.room_rung if prev else None,
+            prev_bed_rung=prev.bed_rung if prev else None,
+            prev_room_position=rooms.get("smoothed_position"),
+            prev_bed_position=beds.get("smoothed_position"),
+            rooms_otb_prior=snap[0].rooms_otb if snap else None,
+            beds_otb_prior=snap[0].beds_otb if snap else None,
+            prior_days=snap[1] if snap else None,
+        ))
+    return out
 
 
 def inventory_is_fresh(state, settings):

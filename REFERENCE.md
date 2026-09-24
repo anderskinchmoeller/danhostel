@@ -290,6 +290,71 @@ på, før nogen skriver den kode:
 
 ---
 
+## Prisstigen (version 3)
+
+Slås til og fra under `pricing.ladder.enabled` i `config.yaml`. Slået fra kører
+den kontinuerlige faktormodel fra version 2 uændret.
+
+**Idéen.** I stedet for en ny pris hver dag står prisen på ét af ni faste trin
+fra 0,80 til 1,48 gange dagens grundpris (sæson x ugedag). Trin 4 er 1,00 —
+referencetrinnet. Prisen flytter sig kun, når triggerne samlet siger det
+tydeligt nok. I en simulering over 45 dage skiftede faktormodellen pris 15-30
+gange pr. dato; stigen 2-5 gange, og altid i den retning efterspørgslen pegede.
+
+**Triggerne**, hver skaleret til [-1; 1]:
+
+| Trigger | Vægt | Hvad den måler | Fuldt tryk ved |
+|---|---|---|---|
+| Prognose | 0,40 | Forventet slutbelægning mod målbelægning | 20 pp fra målet |
+| Tempo | 0,25 | Bookinger siden snapshot for ca. en uge siden, mod hvad kurven forventede i samme vindue — som Poisson-z-score | 2,5 standardafvigelser |
+| Marked | 0,20 | Konkurrentmedian x kvalitetsindeks mod vores referencetrin | 20 % over/under |
+| Lead time | 0,15 | De sidste 3 dage forstærkes prognosesignalet: ledige senge er værdiløse i morgen | — |
+
+```
+tryk     = sum(vægt x trigger)                          i [-1; 1]
+position = referencetrin + tryk / 0,15 + eventtrin      (0,15 tryk = ét trin)
+position udglattes 50/50 med gårsdagens (ikke de sidste 3 dage)
+```
+
+**Regler oven på positionen**, i denne rækkefølge:
+
+1. **Hysterese.** Stigen skifter først når positionen er 0,75 trin fra det
+   nuværende, ikke 0,5. Ellers hopper prisen frem og tilbage om den samme grænse.
+2. **Trinbegrænsning.** Højst to trin op og ét ned pr. kørsel (to ned de sidste
+   tre dage). Op er billigt at fortryde; en for lav pris er solgt.
+3. **Skralde.** Ingen prisfald på en dato hvor prognosen er på eller over målet.
+4. **Knaphedsbeskyttelse.** Prognosen behandles som en normalfordeling hvis
+   spredning vokser med lead time (10 % ved ankomst, 35 % 60+ dage ude).
+   Risiko for udsolgt over 25 / 50 / 75 % lukker trinene under
+   reference+1 / +2 / +3. En seng solgt billigt i dag kan ikke sælges dyrt i
+   morgen — Littlewoods regel i forenklet form.
+5. **Ingen dyb rabat langt ude.** Over 60 dage ude aldrig under
+   referencetrin - 1. Uden signal er et prisfald et gæt.
+6. **Event.** Hver 10 % eventtillæg er ét trin op, og en eventdato går aldrig
+   under referencetrinnet.
+7. **Ændringsbremsen** (15 %) gælder stadig, men bremser til det nærmeste trin
+   inden for vinduet, så prisen bliver på stigen. En låst pris respekteres og
+   markeres som uden for stigen.
+
+**Hvad stigen husker.** Forrige trin og udglattet position læses fra seneste
+kørsel; tempo-snapshottet fra en kørsel 5-10 dage gammel. De første dage efter
+opstart er der intet tempo-signal, og dashboardet siger det.
+
+**På dashboardet.** Kolonnen **Trin v/s** viser værelsestrin / sengetrin, med ▲▼
+ved skift. Hold musen over for triggernes tryk, risiko for udsolgt og alle
+trinpriser. Begrundelsen for hvert skift står under **Bemærkning**, og
+`/api/prices` har det hele som JSON under `ladder`.
+
+**Hvad den ikke ved.** Stigen er ikke klogere end prognosen under den.
+Målbelægningen på 55 % ligger over hverdagshistorikken (39 %), så hverdage
+starter typisk et til to trin under reference. Det er en beslutning om mål,
+ikke en fejl i stigen — sænk `target_occupancy_rooms`, eller sæt forskellige
+mål for hverdag og weekend, hvis det ikke er meningen. Trinenes afstand og
+triggervægtene er kvalificerede gæt ligesom `k_forecast`; elasticitetsmålingen
+i roadmappens punkt 3 er det der gør dem til jeres egne tal.
+
+---
+
 ## Guardrails
 
 - **Rimelighedstjek på import.** En uploadet belægningsfil afvises hvis den er
