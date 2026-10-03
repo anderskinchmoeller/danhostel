@@ -41,6 +41,7 @@ Ren beregning: ingen database, intet netværk, ingen sideeffekter.
 
 from __future__ import annotations
 
+import hashlib
 import math
 from dataclasses import asdict, dataclass, field
 from typing import Sequence
@@ -53,6 +54,17 @@ def _clip(value: float, low: float = -1.0, high: float = 1.0) -> float:
 def _normal_sf(z: float) -> float:
     """P(Z > z) for en standardnormalfordeling."""
     return 0.5 * math.erfc(z / math.sqrt(2))
+
+
+def _coin(seed: str) -> bool:
+    """Deterministisk mønt.
+
+    Eksplorationen skal være tilfældig på tværs af datoer, men den samme dato
+    skal give det samme svar hver gang kørslen gentages. Ellers flytter prisen
+    sig, hver gang nogen trykker på knappen, og eksperimentet bliver til støj.
+    """
+    digest = hashlib.blake2b(seed.encode("utf-8"), digest_size=8).digest()
+    return int.from_bytes(digest, "big") % 2 == 1
 
 
 @dataclass(frozen=True)
@@ -94,6 +106,15 @@ class LadderConfig:
     ratchet: bool = True           # aldrig ned på en dato der er på vej mod målet
     smoothing: float = 0.5         # vægt på dagens tryk; resten er gårsdagens (EWMA)
 
+    # Bundet eksploration (version 4). Står to nabotrin omtrent lige godt, så
+    # vælg tilfældigt mellem dem og log valget. Risikoen er loftet ved ét trin
+    # — mindre end den uro modellen laver i forvejen — og til gengæld bliver
+    # hver dato et eksperiment. Over en sæson giver det hundredvis af
+    # observationer at måle elasticitet på i stedet for fyrre.
+    explore: bool = False
+    explore_band: float = 0.35     # hvor tæt på vippepunktet et valg skal være
+    explore_max_lead: int = 60     # ikke så langt ude at valget alligevel bliver skrevet om
+
     def __post_init__(self):
         for name in ("rungs_rooms", "rungs_beds"):
             rungs = getattr(self, name)
@@ -125,6 +146,8 @@ class LadderResult:
     previous_rung: int | None
     reasons: list = field(default_factory=list)
     off_ladder: bool = False  # sand hvis bremse/lås gav en pris mellem trinene
+    explored: bool = False    # sand hvis trinnet blev valgt tilfældigt mellem to lige gode
+    bid: dict | None = None   # bid price-beregningen bag trinnet (version 4)
 
     @property
     def label(self) -> str:
@@ -168,8 +191,21 @@ def ladder_step(*, base: float, rungs: Sequence[float], rounder, cfg: LadderConf
                 comp_price: float | None, quality_index: float,
                 event_factor: float, capacity: float, forecast_units: float,
                 previous_rung: int | None,
-                previous_position: float | None = None) -> LadderResult:
-    """Vælg trin for ét produkt på én dato."""
+                previous_position: float | None = None,
+                position_override: float | None = None,
+                scarcity_protect: bool = True,
+                use_ratchet: bool | None = None,
+                explore_seed: str | None = None,
+                bid: dict | None = None) -> LadderResult:
+    """Vælg trin for ét produkt på én dato.
+
+    `position_override` er version 4: bid price har allerede valgt trinnet ud
+    fra forventet omsætning over hele efterspørgselsfordelingen, og stigen
+    bruges kun til det den er god til — træghed, trinbegrænsning og en
+    forklaring. Så er knaphedsbeskyttelsen og ratchet'en overflødige: begge
+    forsøger at gætte det bid price regner ud, og de ville lægge et ekstra
+    gulv oven på et tal der allerede indeholder knapheden.
+    """
     n = len(rungs)
     ref = list(rungs).index(1.0)
     prices = rung_prices(base, rungs, rounder)
@@ -205,7 +241,12 @@ def ladder_step(*, base: float, rungs: Sequence[float], rounder, cfg: LadderConf
     score = (cfg.w_forecast * t_forecast + cfg.w_pace * t_pace +
              cfg.w_market * t_market + cfg.w_lead * t_lead)
     event_rungs = round(max(0.0, event_factor - 1.0) / cfg.event_rung_step)
-    raw_position = ref + score / cfg.score_per_rung
+    if position_override is None:
+        raw_position = ref + score / cfg.score_per_rung
+    else:
+        # Bid price har valgt trinnet. Markedet får lov at nudge det med sin
+        # egen vægt: rate shopping er svagt for et hostel, men ikke nul.
+        raw_position = position_override + cfg.w_market * t_market / cfg.score_per_rung
     # Udglatning: én dags tryk kan ikke alene vælte et trin. Tæt på ankomst er
     # der ikke tid til at vente, så der bruges dagens tryk alene.
     if previous_position is not None and lead_days > cfg.close_in_days:
@@ -230,7 +271,8 @@ def ladder_step(*, base: float, rungs: Sequence[float], rounder, cfg: LadderConf
             rung = min(target_rung, previous_rung + cfg.max_up)
         elif position <= previous_rung - band:
             rung = max(target_rung, previous_rung - max_down)
-            if cfg.ratchet and forecast >= target and rung < previous_rung:
+            ratchet = cfg.ratchet if use_ratchet is None else use_ratchet
+            if ratchet and forecast >= target and rung < previous_rung:
                 rung = previous_rung
                 reasons.append("Holdt: prognosen er på vej mod målet, prisen sænkes ikke")
 
@@ -241,9 +283,10 @@ def ladder_step(*, base: float, rungs: Sequence[float], rounder, cfg: LadderConf
     if event_rungs:
         min_rung = max(min_rung, ref)
     p_sellout = sellout_probability(forecast_units, capacity, lead_days, cfg)
-    for threshold, offset in cfg.sellout_protect:
-        if p_sellout >= threshold:
-            min_rung = max(min_rung, ref + offset)
+    if scarcity_protect:
+        for threshold, offset in cfg.sellout_protect:
+            if p_sellout >= threshold:
+                min_rung = max(min_rung, ref + offset)
     min_rung = min(min_rung, n - 1)
     rung = max(0, min(n - 1, rung))
     if rung < min_rung:
@@ -254,6 +297,20 @@ def ladder_step(*, base: float, rungs: Sequence[float], rounder, cfg: LadderConf
         elif lead_days >= cfg.far_out_days:
             reasons.append(f"Over {cfg.far_out_days} dage ude: ingen dyb rabat endnu")
         rung = min_rung
+
+    # -- bundet eksploration ----------------------------------------------
+    explored = False
+    if (cfg.explore and explore_seed is not None
+            and 0 <= lead_days <= cfg.explore_max_lead):
+        distance = abs(position - rung)
+        if distance <= cfg.explore_band:
+            direction = 1 if position >= rung else -1
+            other = rung + direction
+            if min_rung <= other <= n - 1 and other >= 0 and _coin(explore_seed):
+                rung, explored = other, True
+                reasons.append(
+                    f"Eksploration: trin {rung + 1} valgt tilfældigt mellem to "
+                    f"lige gode trin — bidrager til elasticitetsmålingen")
 
     # -- begrundelse ------------------------------------------------------
     if previous_rung is not None and rung != previous_rung:
@@ -280,6 +337,7 @@ def ladder_step(*, base: float, rungs: Sequence[float], rounder, cfg: LadderConf
         smoothed_position=round(smoothed, 4),
         triggers=triggers, p_sellout=round(p_sellout, 4), min_rung=min_rung,
         previous_rung=previous_rung, reasons=reasons,
+        explored=explored, bid=bid,
     )
 
 

@@ -40,7 +40,7 @@ Prisforslag kan vurderes her; eksport og skrivning kræver bekræftet lager.</di
     <div class="n">pr. seng · skøn ved manglende omsætning/typemiks</div></div>
   <div class="card"><div class="k">Gns. værelsespris</div>
     <div class="v">{{ "%.0f"|format(avg_room) }} kr.</div>
-    <div class="n">dobbelt uden bad</div></div>
+    <div class="n">D2 · dobbeltværelse</div></div>
   <div class="card"><div class="k">Gns. sengepris</div>
     <div class="v">{{ "%.0f"|format(avg_bed) }} kr.</div>
     <div class="n">pr. dormseng</div></div>
@@ -84,7 +84,7 @@ Prisforslag kan vurderes her; eksport og skrivning kræver bekræftet lager.</di
     {% endif %}
     <th class="num">Pace v/s</th><th class="num">Marked v/s</th><th class="num">Event</th>
     <th class="num">Værelsespris</th><th class="num">Ændring</th>
-    <th class="num">Sengepris</th><th class="num">Familie</th>
+    <th class="num">Sengepris</th><th class="num" title="Sovesal V8 solgt samlet. Hele prislisten pr. rumtype ligger i CSV-eksporten">V8 samlet</th>
     <th class="num">RevPAB</th><th>Status</th><th>Handling</th><th>Bemærkning</th>
   </tr>
   </thead>
@@ -123,7 +123,7 @@ Prisforslag kan vurderes her; eksport og skrivning kræver bekræftet lager.</di
         {% else %}—{% endif %}
       </td>
       <td class="num"><b>{{ "%.0f"|format(r.bed_price) }}</b></td>
-      <td class="num" style="color:var(--muted)">{{ "%.0f"|format(row.room_types.get("familie_4", 0)) }}</td>
+      <td class="num" style="color:var(--muted)">{{ "%.0f"|format(row.room_types.get("V8", row.room_types.get("familie_4", 0))) }}</td>
       <td class="num">{{ "%.0f"|format(r.revpab) }}</td>
       <td><span class="tag {{ r.status }}">{{ r.status }}</span></td>
       <td>

@@ -36,6 +36,7 @@ inventory:
   private_room_types: {}   # antal faste private værelser pr. priskode
   private_rooms: 20        # altid private (typisk dem med eget bad)
   flex_rooms: 16           # kan sælges som familieværelse ELLER som senge
+  flex_room_types: {}      # flex-rum pr. Picasso-kode, fx {V6: 7, V8: 6}
   beds_per_flex_room: 4
   dorm_beds: 216           # faste sovesale
 ```
@@ -46,6 +47,18 @@ og **330 senge**, mens eksemplet giver **320**. De manglende 10 senge må ikke b
 lægges i en vilkårlig kategori. `private_beds` erstatter antagelsen om to senge
 i hvert fast privat værelse. `private_room_types` skal summere til `private_rooms`. **Ret dem til den faktiske opdeling i Picasso, før
 du bruger priserne til noget.** Er lageret forkert, er alt andet også forkert.
+
+`flex_room_types` skal summere til `flex_rooms`. Er den tom, regnes alle flex-rum
+som én type, `familie_4`. Er den udfyldt, får hver sovesalstype sin egen pris,
+og et flex-rum solgt privat regnes til gennemsnittet af typerne, vægtet med antal.
+
+### Prislisten
+
+Prislisten (`/export.csv` og `room_types` i `/api/prices`) har én kolonne pr. kode
+i `pricing.room_types` og `pricing.bed_types`, i den rækkefølge de står i config.
+Rumkoder = værelsesprisen × faktor; sengekoder (Picassos B-typer) = sengeprisen ×
+faktor. Skal prislisten passe til Picasso, skal de to lister have præcis Picassos
+rumtyper — hverken flere eller færre.
 
 Sæt først `confirmed: true`, når opdelingen er afstemt med Picasso. Indtil da
 kan forslag vurderes i dashboardet, men priser kan hverken eksporteres til live
@@ -119,7 +132,7 @@ Supplerende kolonner:
 - `booked_room_revenue`, `booked_bed_revenue`: bogført overnatningsomsætning
   for opholdsdatoen i DKK. Samme afgiftsgrundlag som priserne; uden morgenmad/tillæg.
 - `room_type_otb`: JSON-objekt med solgte private rum pr. priskode, fx
-  `{"dobbelt_med_bad": 5, "familie_4": 2}`. Summen skal matche `solgte_vaerelser`.
+  `{"D2": 5, "V8": 2}`. Summen skal matche `solgte_vaerelser`.
 - `flex_private_min`, `flex_private_max`: grænser fra konkrete værelsestildelinger.
 
 RevPAB bruger bogført omsætning på allerede solgte enheder og foreslåede priser
@@ -359,6 +372,297 @@ i roadmappens punkt 3 er det der gør dem til jeres egne tal.
 
 ---
 
+## Version 4 — bid price i stedet for målbelægning
+
+Slås til med `pricing.v4.enabled` i `config.yaml`. Kræver prisstigen tændt og en
+estimeret efterspørgselsfordeling. Mangler modelfilen, falder prissætningen
+tilbage på version 3 og siger det i `/health`.
+
+### Hvorfor
+
+Version 3 styrer mod `target_occupancy_rooms: 0.55`. Det tal vejer 0,40 i
+stigens samlede tryk og er et gæt: historikken for hverdage er 0,39, så hverdage
+starter 1-2 trin under reference per konstruktion. Version 4 har ingen
+målbelægning. For hvert trin beregnes
+
+    forventet omsætning = nettopris x E[min(efterspørgsel, ledig kapacitet)]
+
+over hele fordelingen af resterende efterspørgsel, og det bedste trin vinder.
+Belægningen bliver et resultat, ikke et input.
+
+Stigen bliver: træghed, trinbegrænsning, eventtrin, ændringsbremse og
+forklaring er uændret. Knaphedsbeskyttelsen og ratchet'en slås derimod fra, når
+version 4 er aktiv — begge forsøger at gætte det bid price regner ud, og de
+ville lægge et ekstra gulv oven på et tal der allerede indeholder knapheden.
+
+### Sådan bygges grundlaget
+
+```
+python -m app.cube        # kali/cube.csv  — OTB(dato, lead) for hele historikken
+python -m app.demand      # config/demand_model.json — fordelingen af netto pickup
+python -m app.backtest --ud-af-stikproeve   # version 3 mod version 4
+```
+
+`app/cube.py` rekonstruerer hvad der stod på bøgerne enhver historisk dag:
+oprettelsesdato og annulleringsdato er begge i reservationshistorikken, så
+tilstanden kan regnes eksakt. 731 datoer x 121 lead times. To forbehold står i
+modulets dokumentation og gælder hver gang kuben bruges: **ændringer fanges
+ikke** (en flyttet reservation ser ud som om den altid lå på den nye dato), og
+**udsolgte datoer er censurerede** (den sande efterspørgsel var højere; de er
+flaget og udelades).
+
+`app/demand.py` estimerer fordelingen, ikke kun middelværdien:
+
+    netto pickup  ~  middelværdi(lead, ugedag) x sæson(måned) x niveau x form
+
+Formen er den empiriske fordeling af forholdet mellem faktisk og forventet
+pickup, poolet pr. lead-interval. Den rummer gruppespring, skæve haler og
+negativ pickup (annulleringer der overstiger nysalg, 2 % af observationerne).
+
+### Krympning mod kalenderen
+
+Målingen (`python -m app.evaluate`) viste noget ingen af versionerne kom godt ud
+af: fra 60 dage ude slog det rå gennemsnit for ugedagen i måneden begge modeller.
+Bookingerne på bøgerne så langt ude tilførte støj frem for information — 43 % af
+alle reservationslinjer ender annulleret, og en dato der ser stærk ud fordi en
+skoleklasse har booket tre måneder frem, er ikke stærk.
+
+Prognosen krympes derfor mod sæsongennemsnittet:
+
+    prognose = w(lead) x (bøger + forventet pickup) + (1 - w(lead)) x sæsongennemsnit
+
+Vægten er ikke valgt, den er estimeret pr. lead time ved mindste kvadraters
+metode på historikken, og bundet til [0; 1]:
+
+| lead | rum | senge |
+|---|---|---|
+| 3 | 0,87 | 1,00 |
+| 14 | 0,62 | 1,00 |
+| 30 | 0,49 | 1,00 |
+| 60 | 0,29 | 1,00 |
+| 120 | 0,21 | 0,11 |
+
+Senge holder vægten længere, fordi sengesalget er så sent, at bøgerne langt ude
+alligevel er næsten tomme — der er intet at krympe.
+
+Krympningen afhænger af belægningen på bøgerne, så modellen bindes til datoens
+OTB med `model.bind(otb)` før bid price-beregningen. Effekten på prognosefejlen
+står i afsnittet om backtesten.
+
+**Tallet der afviser Poisson.** Stigens tempo-trigger bruger en Poisson-z, som
+antager at variansen er lig middelværdien. På egne data er forholdet 6-11:
+
+| lead | rum | senge |
+|---|---|---|
+| 7 | 7,9 | 9,5 |
+| 30 | 9,2 | 10,8 |
+| 90 | 10,5 | 11,1 |
+
+Nævneren i z-scoren er derfor 2,5-3,5 gange for lille, og triggeren slår ud på
+støj. Grunden er grupper: sovesalene sælges samlet, og én skoleklasse flytter
+tyve enheder på én dag.
+
+### Hvad backtesten viste
+
+Fordelingen estimeret på 2024 alene og målt på 2025, som den aldrig har set.
+Gennemsnitlig absolut fejl i prognosen for antal solgte værelser, med
+klyngebootstrap over datoer (`python -m app.evaluate`). "historik" er det rå
+gennemsnit for ugedagen i måneden — referencen enhver model skal slå:
+
+| lead | historik | version 3 | version 4 | forskel v3 − v4 | 95 %-interval |
+|---|---|---|---|---|---|
+| 3 | 10,3 | 4,9 | 4,8 | +0,09 | [−0,39; +0,56] |
+| 7 | 10,3 | 7,8 | 6,8 | +0,96 | [+0,21; +1,68] |
+| 14 | 10,3 | 10,4 | 7,9 | +2,54 | [+1,71; +3,39] |
+| 30 | 10,3 | 12,1 | 9,0 | +3,15 | [+2,10; +4,18] |
+| 60 | 10,3 | 13,0 | 9,8 | +3,25 | [+2,07; +4,41] |
+| 120 | 10,3 | 15,2 | 9,9 | +5,23 | [+3,93; +6,60] |
+
+Tre dage ude er det uafgjort — intervallet rummer nul, og det er som det skal
+være, for der er ikke meget tilbage at forudsige. Fra en uge og ud vinder
+version 4 hele vejen. Med krympningen slår version 4 også historik-referencen på
+alle lead times; uden den tabte den fra 60 dage og ud.
+
+Kalibreringen, altså om fordelingen har den bredde den lover:
+
+| Lovet | Faktisk |
+|---|---|
+| 50 % | 49 % |
+| 80 % | 79 % |
+| 90 % | 89 % |
+
+Det er forudsætningen for bid price. Var fordelingen for smal, ville modellen se
+knaphed der ikke er der.
+
+**Om omsætning siger backtesten ingenting.** Historikken indeholder kun de
+priser der faktisk blev taget, så enhver sammenligning af omsætning hviler på en
+antagelse om hvordan gæsterne ville have reageret på en anden pris. Tallet
+beregnes og printes, men det er antagelsen der driver det. Det rigtige svar
+kommer fra eksplorationen.
+
+### Hvorfor elasticiteten ikke kan hentes fra historikken
+
+Det nærliggende spørgsmål er, om elasticiteten ikke bare kan estimeres på de to
+års historik i stedet for at vente en sæson på eksplorationen. Svaret er nej, og
+`python -m app.evaluate` afsnit 4 viser hvorfor frem for at påstå det:
+
+| Metode | Estimat | Standardfejl |
+|---|---|---|
+| Naiv regression af log salg på log pris | **+1,97** | 0,11 |
+| Med kontrol for ugedag × måned | **+1,42** | 0,08 |
+
+Begge har forkert fortegn. Taget for pålydende siger det første, at 10 % højere
+pris giver 20 % **flere** solgte værelser. Grunden er, at priserne i historikken
+ikke blev sat tilfældigt: et menneske eller den gamle model hævede prisen netop
+når efterspørgslen var høj, så pris og salg bevæger sig sammen (korrelation
++0,57). Regressionen måler den sammenhæng, ikke gæsternes prisfølsomhed.
+
+Kontrollen for ugedag og måned hjælper ikke nok, og det er pointen: selv på en
+bestemt lørdag i juli vidste den der satte prisen, om netop den lørdag var travl.
+Præcis den information står ikke i data og kan derfor ikke trækkes fra.
+
+Bemærk standardfejlene. De er små, så estimatet er ikke støjende — det er
+sikkert forkert. Mere historik gør det kun mere sikkert. Det er forskellen på et
+datamængdeproblem og et identifikationsproblem, og kun det første løses med tid.
+
+Eksplorationen flytter prisen af en grund der intet har med efterspørgslen at
+gøre — et møntkast mellem to trin der står lige godt. Først der er udsvinget
+rent. Prisen varierer til gengæld mindre (spredning 0,035 i log mod historikkens
+0,225), og det er derfor der skal en sæson til.
+
+### Den ene antagelse
+
+    efterspørgselsfaktor(trin) = (pris(trin) / pris(reference)) ^ (-elasticitet)
+
+Elasticiteten er ikke målt. Den er det eneste ukendte tal tilbage i
+prisbeslutningen, og det er med vilje: version 3 havde fire triggervægte, to
+målbelægninger og en trinafstand, som alle var gæt. Standardværdierne (rum 1,6,
+senge 2,0) er litteraturniveau.
+
+**Derfor er rabatten bundet.** Med en konstant elasticitet over 1 og en lav
+variabel omkostning ligger det ubegrænsede optimum under prisgulvet: modellen
+vil stå på nederste trin på enhver dato hvor kapaciteten ikke binder. Det er en
+ekstrapolation langt væk fra de priser der er observeret, og den rammer den
+svageste delscore, værdi for pengene (7,1 mod 8,9). Indtil
+`elasticity_measured: true` må version 4 derfor ikke gå dybere end
+`max_discount_rungs` under referencetrinnet. Klemmes trinnet, står det i
+begrundelsen.
+
+### Bundet eksploration
+
+`pricing.ladder.explore`. Står to nabotrin omtrent lige godt — inden for
+`explore_band` af vippepunktet — vælges der tilfældigt mellem dem, og valget
+logges. Risikoen er loftet ved ét trin, mindre end den uro modellen laver i
+forvejen. Mønten er deterministisk pr. dato, så den samme dato giver det samme
+svar hver gang kørslen gentages; ellers flytter prisen sig hver gang nogen
+trykker på knappen, og eksperimentet bliver til støj.
+
+Det er roadmap punkt 3 gjort billigt: hundredvis af observationer pr. sæson i
+stedet for fyrre, og prisen er valgt tilfældigt, så målingen holder.
+
+### Tre mekanismer bliver til én beregning
+
+**Flex-allokering.** Et flex-rum solgt privat koster otte sengepladser. Sælg det
+som rum hvis
+
+    nettopris_rum x P(efterspørgsel_rum >= ledige_rum + 1)
+      >= sum over de otte senge af nettopris_seng x P(efterspørgsel_seng >= den seng)
+
+Summen er aftagende, fordi den ottende seng er mindre værd end den første.
+Det nuværende RevPAB-check sammenligner gennemsnit og fanger ikke den del.
+`flex_min_gain` (25 kr.) er der af driftshensyn, ikke af matematiske: uden den
+flytter modellen sovesale på datoer hvor begge lagre er tomme, fordi to en halv
+krone er mere end nul. Anbefalinger man lærer at ignorere er værre end ingen.
+
+**Gruppeforskydning.** Gulvet er summen af bid price for hver enkelt enhed over
+hver dato. De første værelser er næsten gratis, hvis der er rigeligt tilbage; de
+sidste er dyre. Et gennemsnit rammer ingen af delene.
+
+To ting er anderledes her end i trinvalget, og begge skyldes at **afgivne
+gruppetilbud er bindende**:
+
+*Ingen elasticitetsdæmpning.* Fortrængningen regnes på den udæmpede
+efterspørgsel, så længe `elasticity_measured: false`. Dæmper man med en
+antagelse ingen har målt, bliver gulvet lavere end det burde være. Et for højt
+gulv koster en forespørgsel; et for lavt gulv er bindende i et år.
+(`group_undamped_until_measured`.)
+
+*To tal, ikke ét.* `minimum_rate` er den forventede fortrængning over hele
+fordelingen — nogle gange fyldes datoen, nogle gange ikke. `minimum_rate_certain`
+er hvad gruppen koster, hvis punktprognosen rammer plet. For ti værelser den
+20. november 2026 er det 530 mod 730 kr. Det første er rigtigt i forventning;
+det andet viser downsiden. Tabet ved at forære en udsolgt dato væk er større end
+gevinsten ved at tage en gruppe med på en halvtom, så mennesket der afgiver
+tilbuddet skal se spændet og ikke et gennemsnit af to verdener.
+
+Værktøjet giver et gulv, ikke et tilbud.
+
+**Opholdslængde.** Værdien af et ophold er summen af nætternes bid price
+(`bidprice.stay_value`). En enkelt lørdag der blokerer tre nætter afvises af sig
+selv, når lørdagens bid price er høj og søndagens er lav. Minimumsophold holder
+op med at være en regel nogen skal vedligeholde. Bemærk: funktionen findes, men
+er endnu ikke koblet på bookingmotoren.
+
+### Adaptivt efterspørgselsniveau
+
+`app/level.py`, gemt i `data/demand_level.json`. Efter hver kørsel sammenlignes
+den pickup der faktisk kom med den fordelingen forventede:
+
+    niveau_ny = niveau_gammel x (faktisk / forventet) ^ 0,07,  bundet til [0,6 ; 1,6]
+
+Det fanger et strukturelt skift som efteråret 2025 (august −21 %, oktober −25 %,
+november −35 %) uden at nogen skal finde årsagen. Lille eksponent og hårde
+grænser, så en manglende kolonne i Picasso-eksporten ikke kan trække niveauet i
+bund. Niveauet erstatter ikke undersøgelsen af hvorfor efteråret faldt.
+
+### Rækkefølge i drift
+
+1. Byg kube og fordeling, kør backtesten og se på dækningen.
+2. Kør med `enabled: true` i skyggedrift ved siden af version 3 i mindst fire
+   uger, og før log over de datoer hvor I var uenige. `python -m app.skyggedrift`
+   viser begge versioners forslag side om side på dagens belægning og skriver
+   dem til CSV med `--csv`.
+3. Slå `explore: true` til, så elasticitetsmålingen begynder at samle data.
+4. Efter en sæson: mål elasticiteten, sæt `elasticity_measured: true`, og
+   løft `max_discount_rungs`.
+
+`/health` viser hvilken version der faktisk kører (`pricing_version`), om v4 var
+ønsket (`v4_requested`), hvorfor den eventuelt ikke kører (`v4_notes`), og hvor
+det adaptive niveau står. Uden den linje kan man tro man kører v4 i ugevis uden
+at gøre det.
+
+**Forvent en mærkbar forskel.** På belægningen pr. 21. september 2026 var de to
+versioner uenige på 43 af 46 datoer, og version 4 lå i snit 74 kr. lavere pr.
+værelse. Det er ikke en finjustering. Ændringsbremsen på 15 % om dagen betyder
+at prisen bevæger sig derhen over to-tre døgn og ikke på én nat, men retningen
+er tydelig: version 4 holder igen med prisen på datoer, hvor version 3 så en
+prognose over målet.
+
+Risikovurderingens punkt 7 gælder uændret. Ingen modelforbedring erstatter
+rimelighedstjek, alarm på `/health`, skyggedrift og en aftale om hvem der kigger.
+
+
+## Rimelighedstjek og eksportformat
+
+Uploadet belægning gennemgår `app/sanity.py` før import. Tjekkene vurderer ikke
+om tallene er rigtige — det kan ingen maskine afgøre — men om de overhovedet kan
+passe: en kolonne der er nul hele vejen, mere solgt end huset har, spring over 80
+procentpoint på et døgn, priser i forkert enhed, datoer uden for horisonten, og
+**huller i datoserien**.
+
+Hullet er det nyeste tjek, hentet fra en gennemgang af en ekstern prototype
+(`claude/hotel-pricing-sammenligning.md`). Mangler der datoer mellem filens
+første og sidste dato, bliver de datoer aldrig prissat — rækkerne står bare ikke
+der, og motoren mærker intet. Det er værre end en tom kolonne, fordi der ikke er
+noget forkert tal at opdage. At filen slutter før horisontens ende er derimod
+normalt og håndteres af dødmandsknappen.
+
+`/export.csv` skriver dansk Excel-format: semikolon som feltseparator,
+decimalkomma og UTF-8 med BOM. Uden kommaet læser Excel `900.00` som 90.000,
+fordi punktum er tusindtalsseparator på dansk — og det opdages først, når prisen
+er tastet ind i Picasso. Uden BOM bliver æ, ø og å forvansket i kolonnenavne og
+bemærkninger.
+
 ## Guardrails
 
 - **Rimelighedstjek på import.** En uploadet belægningsfil afvises hvis den er
@@ -384,7 +688,7 @@ i roadmappens punkt 3 er det der gør dem til jeres egne tal.
 - **Modstridende prisgrænser** fastfryser datoen. Afrunding kan ikke bryde grænserne;
   hvis intervallet ikke indeholder et helt afrundingstrin, beholdes et beløb indenfor intervallet.
 - Prisgulv, prisloft og ændringsbremse gælder basis-værelsesprisen og sengeprisen.
-  Afledte rumtyper følger de konfigurerede faktorer.
+  Afledte rum- og sengetyper følger de konfigurerede faktorer.
 
 ---
 
@@ -454,6 +758,14 @@ Fra roadmappen, i den rækkefølge det giver mening:
 
 ```
 app/engine.py             prismodellen: prognose, to lagre, flex-allokering, RevPAB
+app/ladder.py             prisstigen: trin, træghed, eksploration
+app/cube.py               bookingkuben: OTB(dato, lead) fra reservationshistorikken
+app/demand.py             fordelingen af resterende efterspørgsel
+app/bidprice.py           bid price: trinvalg, flex, gruppegulv, opholdsværdi
+app/level.py              adaptivt efterspørgselsniveau
+app/backtest.py           version 3 mod version 4 på historikken
+app/evaluate.py           afgør hvilken version der er bedst, med usikkerhed
+app/skyggedrift.py        begge versioner side om side på dagens belægning
 app/service.py            kørslen: hent, beregn, gem, skriv tilbage
 app/calibration.py        begge bookingkurver og sæson fra egen historik
 app/adapters/             CSV ind; ingen skrivning tilbage til Picasso

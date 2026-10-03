@@ -1,0 +1,42 @@
+OPSÆTNING
+  Estimeret på 2024: 366 datoer
+  Bedømt på 2025 efter renoveringen: 299 datoer
+  Modellen har aldrig set testperioden.
+
+1. PROGNOSEPRÆCISION — gennemsnitlig absolut fejl i antal værelser
+ lead      nu  historik      v3      v4   v4 bedre end v3       95 %-interval  v4 vinder
+    3     6.6      10.3     4.9     4.8             +0.09      [-0.39; +0.56]        51%
+    7    12.1      10.3     7.8     6.8             +0.96      [+0.21; +1.68]        57%
+   14    18.1      10.3    10.4     7.9             +2.54      [+1.71; +3.39]        65%
+   30    22.2      10.3    12.1     9.0             +3.15      [+2.10; +4.18]        60%
+   60    24.6      10.3    13.0     9.8             +3.25      [+2.07; +4.41]        63%
+   90    25.8      10.3    14.4     9.9             +4.51      [+3.30; +5.81]        67%
+  120    27.2      10.3    15.2     9.9             +5.23      [+3.93; +6.60]        68%
+  'nu' = antag at der ikke kommer flere. 'historik' = gennemsnittet for
+  den ugedag i den måned. Et interval der ikke rummer 0 betyder at
+  forskellen ville holde på et andet år med samme slags datoer.
+
+2. KALIBRERING — holder fordelingen det den lover?
+   lovet   faktisk        n
+     50%       49%     2065
+     80%       79%     2065
+     90%       89%     2065
+
+3. OMSÆTNING — 70 datoer, 35 dage ned mod ankomst
+   Prisskift pr. dato: v3 2.5, v4 1.3
+ elasticitet        v3        v4   forskel       95 %-interval
+         0.8     19806     19502     -1.5%      [-2.1%; -0.9%]
+         1.0     19941     19929     -0.1%      [-0.1%; +0.0%]
+         1.3     20202     20468     +1.3%      [+0.3%; +2.4%]
+         1.6     20535     20983     +2.2%      [+0.5%; +4.1%]
+         2.0     21159     21733     +2.7%      [+0.1%; +5.6%]
+         2.5     21968     22588     +2.8%      [-0.8%; +7.1%]
+  Dette er IKKE et bevis. Hver række er en antagelse om gæsterne.
+  Tabellen viser hvilken antagelse der skal holde, for at hver version vinder.
+
+4. HVOR MEGET DATA SKAL DER TIL?
+   Spredning på log pickup: 0.83
+   Prisvariation fra eksplorationen: 0.035 i log
+   Datoer for en standardfejl på 0.20: 14075
+   Ved 120 datoer i horisonten: 117 kørselsdage, altså under en måned hvis eksplorationen rammer alle datoer.
+   Realistisk rammer den en mindre del, så regn med en sæson.

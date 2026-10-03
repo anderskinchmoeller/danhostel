@@ -20,7 +20,7 @@ from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import desc, select
 
-from . import db, picasso_belaegning, service
+from . import config, db, picasso_belaegning, service
 from .adapters import parse_comp, parse_inventory
 from .config import load_settings
 from .sanity import check_inventory
@@ -300,7 +300,7 @@ def publish(user: str = Depends(current_user)):
 def groups_page(request: Request, rooms: int = 0, start: str = "", nights: int = 1,
                 user: str = Depends(current_user)):
     session = db.get_session()
-    quotes, total_min, total_normal = [], 0.0, 0.0
+    quotes, total_min, total_normal, total_certain = [], 0.0, 0.0, 0.0
     error = ""
     try:
         if rooms and start:
@@ -333,6 +333,7 @@ def groups_page(request: Request, rooms: int = 0, start: str = "", nights: int =
                 recs = price_range(inputs, params, events)
                 quotes = group_quote(recs, rooms, params)
                 total_min = sum(q.minimum_rate for q in quotes) * rooms
+                total_certain = sum(q.minimum_rate_certain for q in quotes) * rooms
                 total_normal = sum(q.transient_price for q in quotes) * rooms
                 missing = [d for d in days if d not in states]
                 if missing:
@@ -344,6 +345,10 @@ def groups_page(request: Request, rooms: int = 0, start: str = "", nights: int =
     return templates.TemplateResponse(request, "groups.html", {
         "settings": settings, "quotes": quotes, "rooms": rooms, "start": start,
         "nights": nights, "total_min": total_min, "total_normal": total_normal,
+        "total_certain": total_certain,
+        # Uden version 4 er de to gulve samme formel og samme tal. Så er en
+        # ekstra kolonne kun støj, og den vises ikke.
+        "show_certain": any(q.minimum_rate_certain - q.minimum_rate > 1 for q in quotes),
         "error": error, "days_dk": DK_DAYS, "user": user,
     })
 
@@ -510,9 +515,23 @@ async def update_competitors(request: Request, user: str = Depends(current_user)
 # Eksport og API
 # --------------------------------------------------------------------------
 
+def _kr(value: float) -> str:
+    """Beløb med decimalkomma.
+
+    Filen åbnes i dansk Excel, hvor punktum er tusindtalsseparator. Uden
+    ombytningen bliver 900.00 til 90000, og det opdager man først når prisen
+    er tastet ind. Semikolon som feltseparator gør kommaet utvetydigt.
+    """
+    return f"{value:.2f}".replace(".", ",")
+
+
 @app.get("/export.csv")
 def export_csv(only_approved: bool = True, user: str = Depends(current_user)):
-    """Priser til manuel import i Picasso, indtil API'et er på plads."""
+    """Priser til manuel import i Picasso, indtil API'et er på plads.
+
+    Formatet er dansk Excel: semikolon, decimalkomma og UTF-8 med BOM. Uden
+    BOM læser Excel æ, ø og å forkert i kolonnenavne og bemærkninger.
+    """
     session = db.get_session()
     try:
         run = latest_run(session)
@@ -527,20 +546,21 @@ def export_csv(only_approved: bool = True, user: str = Depends(current_user)):
             raise HTTPException(409, error)
         buffer = io.StringIO()
         writer = csv.writer(buffer, delimiter=";")
-        types = list(settings.params.room_types)
+        # Én kolonne pr. Picasso-kode: rumtyper, derefter sengekoder (B-typer)
+        types = list(settings.params.room_types) + list(settings.params.bed_types)
         writer.writerow(["dato", "vaerelsespris", "sengepris"] + types
                         + ["flex_forslag_til_private", "status", "bemaerkning"])
         for rec in recs:
             prices = json.loads(rec.room_types or "{}")
             writer.writerow(
-                [rec.day.isoformat(), f"{rec.room_price:.2f}", f"{rec.bed_price:.2f}"]
-                + [f"{prices.get(t, 0):.2f}" for t in types]
+                [rec.day.isoformat(), _kr(rec.room_price), _kr(rec.bed_price)]
+                + [_kr(prices.get(t, 0)) for t in types]
                 + [rec.flex_to_private, rec.status, rec.warnings]
             )
-        buffer.seek(0)
         filename = f"priser_{date.today().isoformat()}.csv"
         return StreamingResponse(
-            iter([buffer.getvalue()]), media_type="text/csv",
+            iter([buffer.getvalue().encode("utf-8-sig")]),
+            media_type="text/csv; charset=utf-8",
             headers={"Content-Disposition": f'attachment; filename="{filename}"'},
         )
     finally:
@@ -627,6 +647,8 @@ def api_group_quote(rooms: int, start: str, nights: int = 1,
             "rooms": rooms,
             "nights": len(days),
             "minimum_total": round(sum(q.minimum_rate for q in quotes) * rooms, 2),
+            "minimum_total_certain": round(
+                sum(q.minimum_rate_certain for q in quotes) * rooms, 2),
             "transient_total": round(sum(q.transient_price for q in quotes) * rooms, 2),
             "dates": [q.as_dict() for q in quotes],
         }
@@ -642,11 +664,22 @@ def health():
         stale = True
         if run and run.finished:
             stale = (db.utcnow() - run.finished) > timedelta(hours=36)
+        params = settings.params
+        # Version 4 falder stille tilbage til version 3, hvis modelfilen mangler.
+        # Det er det rigtige valg i driften, men det må ikke være usynligt:
+        # uden linjen her kan man tro man kører v4 i ugevis uden at gøre det.
         return {
             "status": "degraded" if stale else "ok",
             "last_run": run.finished.isoformat() if run and run.finished else None,
             "last_run_status": run.status if run else None,
             "auto_publish": settings.auto_publish,
+            "pricing_version": 4 if params.v4_active else (3 if params.ladder else 2),
+            "v4_requested": bool(params.v4 and params.v4.enabled),
+            "v4_notes": list(config.V4_NOTES),
+            "exploration": bool(params.ladder and params.ladder.explore),
+            "elasticity_measured": bool(params.v4 and params.v4.elasticity_measured),
+            "demand_level": {"rum": round(params.demand_level[0], 3),
+                             "senge": round(params.demand_level[1], 3)},
         }
     finally:
         session.close()

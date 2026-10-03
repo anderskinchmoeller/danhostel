@@ -26,7 +26,8 @@ adapters:
 # forventes at tjene mest. Forslaget kræver kontrol af konkrete rum og hele ophold.
 # Opdateret 21-09-2026 fra Picassos rumtyper (Occupancy pr. rumtype) og
 # reservationshistorik 2024-2025. Se projektdokumentet picasso-kalibreringseksport.md.
-#   Private: D1 1, D2 14, D4 8, F1 17, F3 11 (D2 = 14 bekræftet i Picasso 21-09). Sengekoderne BD*/BF* findes, men
+# Opdateret 28-09-2026 fra rumlisten (filen rooms): D2 = 13 (var 14).
+#   Private: D1 1, D2 13, D4 8, F1 17, F3 11. Sengekoderne BD*/BF* findes, men
 #            bruges næsten aldrig (<1 % af salget), så rummene regnes som private.
 #   Flex:    sovesalene V6 (7 x 6), V8 (6 x 8), V10 (6 x 10), FS (1 x 8) = 20 rum,
 #            158 senge. Sælges både samlet og pr. seng. Modellen kan kun have én
@@ -34,10 +35,11 @@ adapters:
 #   Dorm:    SK4 (rum 527), 4 senge, sælges kun pr. seng.
 inventory:
   confirmed: true         # afstemt med Picasso 21-09-2026
-  private_beds: 150       # F1 64 + F3 40 + D4 16 fra Picasso; D2 28 + D1 2 (aldrig over 2 gæster i 2024-2025)
-  private_room_types: {D1: 1, D2: 14, D4: 8, F1: 17, F3: 11}
-  private_rooms: 51
+  private_beds: 148       # F1 64 + F3 40 + D4 16 fra Picasso; D2 26 + D1 2 (aldrig over 2 gæster i 2024-2025)
+  private_room_types: {D1: 1, D2: 13, D4: 8, F1: 17, F3: 11}
+  private_rooms: 50
   flex_rooms: 20 # man sœlger altid vœrelser og aldrig en seng.
+  flex_room_types: {FS: 1, V8: 6, V6: 7, V10: 6}   # skal summere til flex_rooms
   beds_per_flex_room: 8
   dorm_beds: 4
 
@@ -95,17 +97,37 @@ pricing:
   # Værelsestyper afledes af grundprisen. Ét tal at forstå i stedet for tyve.
   # Dormsenge står IKKE her — de har deres egen pris og egen prognose.
   room_types:
-    enkelt_uden_bad: 0.80
-    dobbelt_uden_bad: 1.00
-    dobbelt_med_bad: 1.18
-    familie_4: 2.5     # helt sovesal solgt samlet; 645 x 2,5 = ~1.610 kr. (historisk V8 1.600)
-    # Picassos rumtyper. Faktor = medianpris pr. nat 2024-2025 i forhold til D2
-    # (D2 503 kr.). Historisk niveau, ikke en anbefaling.
+    # Prislisten følger Picassos rumtyper (filen rooms, 28-09-2026).
+    # Faktor = medianpris pr. nat 2024-2025 i forhold til D2 (503 kr.).
+    # Historisk niveau, ikke en anbefaling.
     D1: 0.94
     D2: 1.00
     D4: 1.19
     F1: 1.44
     F3: 1.56
+    # Sovesale solgt samlet. V8 = 2,5 som den tidligere familie_4 (besluttet
+    # 21-09: ~1.610 kr., historisk V8 1.600); de andre skaleret efter deres
+    # historiske median i forhold til V8: V6 1.200, V10 1.985, FS 1.691 kr.
+    FS: 2.64
+    V8: 2.50
+    V6: 1.88
+    V10: 3.10
+
+  # Sengekoder (Picassos B-typer). Faktor på sengeprisen. Medianpris pr. seng
+  # pr. nat 2024-2025 i forhold til 208 kr. (median for alle sovesalssenge).
+  # Koder med under 40 salg på to år står på 1,00.
+  bed_types:
+    BD1: 1.00
+    BD2: 1.00
+    BD3: 1.00
+    BD4: 1.00
+    BF1: 1.05   # 219 kr., 42 salg
+    BF3: 1.00
+    BFS: 1.00
+    BSK4: 1.11  # 230 kr.
+    BV6: 1.05   # 219 kr.
+    BV8: 0.98   # 204 kr.
+    BV10: 0.95  # 198 kr.
 
   # Beregnes af /settings ud fra comp set og egne anmeldelser. Kan overstyres her.
   quality_index: 1.00
@@ -226,3 +248,83 @@ pricing:
     forecast_cv_far: 0.35  # ... 60+ dage ude
 
     event_rung_step: 0.10  # 10 % eventtillæg = ét trin op, og aldrig under reference
+
+    # Bundet eksploration (kræver pricing.v4.enabled). Står to nabotrin omtrent
+    # lige godt, vælges der tilfældigt mellem dem, og valget logges. Risikoen er
+    # loftet ved ét trin — mindre end den uro modellen laver i forvejen — og
+    # til gengæld bliver hver dato et eksperiment. Det er den billige vej til
+    # elasticiteten (roadmap punkt 3): hundredvis af observationer pr. sæson i
+    # stedet for fyrre, og prisen er valgt tilfældigt, så målingen holder.
+    explore: true
+    explore_band: 0.35
+    explore_max_lead: 60
+
+  # ---------------------------------------------------------------------------
+  # Version 4 — bid price i stedet for målbelægning
+  # ---------------------------------------------------------------------------
+  # Version 3 styrer mod target_occupancy_rooms, som vejer 0,40 i stigens tryk
+  # og er et gæt: historikken for hverdage er 0,39, så hverdage starter 1-2 trin
+  # under reference per konstruktion.
+  #
+  # Version 4 har ingen målbelægning. For hvert trin på stigen beregnes
+  #
+  #     forventet omsætning = nettopris x E[min(efterspørgsel, ledig kapacitet)]
+  #
+  # over hele fordelingen af resterende efterspørgsel (app/demand.py), og det
+  # bedste trin vinder. Stigen bruges stadig til træghed, trinbegrænsning og
+  # forklaring — men knaphedsbeskyttelsen og ratchet'en slås fra, fordi bid
+  # price allerede indeholder knapheden.
+  #
+  # Før den kan slås til:
+  #     python -m app.cube        # bygger kali/cube.csv af reservationshistorikken
+  #     python -m app.demand      # estimerer config/demand_model.json
+  #     python -m app.backtest    # sammenligner version 3 og 4 på historikken
+  #
+  # Mangler modelfilen, falder prissætningen tilbage på version 3 og siger det
+  # i /health. Den må ikke stoppe en natlig kørsel.
+  v4:
+    enabled: true              # skyggedrift først — se risikovurderingen, punkt 4
+    model_path: config/demand_model.json
+    level_path: data/demand_level.json
+
+    # Egenpriselasticitet. Det ENESTE ukendte tal tilbage i prisbeslutningen,
+    # og det er med vilje: version 3 havde fire triggervægte, to målbelægninger
+    # og en trinafstand, som alle var gæt. Tallene her er litteraturniveau, ikke
+    # jeres gæster. De erstattes af eksplorationens målinger efter en sæson.
+    # Sættes de til 0, bliver den højeste pris altid den bedste.
+    elasticity_rooms: 1.6
+    elasticity_beds: 2.0
+
+    # Adaptivt niveau: fanger et strukturelt skift som efteråret 2025
+    # (august -21 %, oktober -25 %, november -35 %) uden at nogen skal finde
+    # årsagen. Lille eksponent og hårde grænser, så en fejl i inputdata ikke
+    # kan trække niveauet i bund.
+    level_alpha: 0.07
+    level_min: 0.6
+    level_max: 1.6
+
+    use_for_flex: true          # marginal flex-allokering i stedet for gennemsnit
+    use_for_groups: true        # gruppegulv som sum af bid price pr. enhed
+
+    # Med en konstant elasticitet over 1 og en lav variabel omkostning ligger
+    # det ubegrænsede optimum under prisgulvet. Modellen vil derfor stå på
+    # nederste trin på enhver dato hvor kapaciteten ikke binder — en
+    # ekstrapolation langt væk fra de priser der faktisk er observeret, og en
+    # der rammer den svageste delscore, værdi for pengene (7,1 mod 8,9).
+    # Indtil eksplorationen har målt elasticiteten, må version 4 ikke rabattere
+    # dybere end ét trin under reference.
+    elasticity_measured: false
+    max_discount_rungs: 1
+
+    # Mindste forskel i kroner før et flex-rum anbefales flyttet til private.
+    # Uden den flytter modellen sovesale på datoer hvor begge lagre er tomme,
+    # fordi to en halv krone er mere end nul. Anbefalinger man lærer at
+    # ignorere er værre end ingen anbefalinger.
+    flex_min_gain: 25
+
+    # Gruppegulvet regnes uden elasticitetsdæmpning, indtil elasticiteten er
+    # målt. Fortrængningen afhænger af hvor mange værelser der ellers ville
+    # være solgt, og dæmper man efterspørgslen med en antagelse ingen har målt,
+    # bliver gulvet lavere end det burde være. Et for højt gulv koster en
+    # forespørgsel; et for lavt gulv er bindende i et år.
+    group_undamped_until_measured: true

@@ -226,9 +226,9 @@ def test_booked_family_types_reserve_flex_even_when_fixed_rooms_are_empty():
 def test_uploaded_booked_revenue_reaches_stored_forecast(database):
     database.params = replace(database.params, inventory=Inventory(
         private_rooms=2, flex_rooms=0, dorm_beds=4, private_beds=6,
-        private_room_types={"dobbelt_med_bad": 1, "familie_4": 1}, confirmed=True))
+        private_room_types={"D2": 1, "F1": 1}, confirmed=True))
     rows = parse_inventory('dato;solgte_vaerelser;solgte_senge;booked_room_revenue;booked_bed_revenue;room_type_otb\n'
-                           '2026-09-15;1;2;500;300;{"dobbelt_med_bad":1}\n')
+                           '2026-09-15;1;2;500;300;{"D2":1}\n')
     with db.get_session() as session:
         service.upsert_inventory(session, rows)
         session.commit()

@@ -104,6 +104,21 @@ def test_swapped_day_and_month_is_flagged(params):
     assert "date_range" in codes(check_inventory(_rows(records), params))
 
 
+def test_gaps_in_the_date_series_are_stopped(params):
+    """Manglende datoer midt i serien bliver aldrig prissat, og motoren mærker
+    intet — rækkerne står der bare ikke i filen."""
+    records = _normal(14)
+    gapped = _rows(records[:4] + records[6:])
+    assert "date_gaps" in codes(check_inventory(gapped, params))
+    assert "date_gaps" not in codes(check_inventory(_rows(records), params))
+
+
+def test_a_file_that_simply_ends_early_is_fine(params):
+    """At eksporten stopper før horisontens ende er normalt; dødmandsknappen
+    håndterer det. Kun huller MELLEM første og sidste dato er et fund."""
+    assert "date_gaps" not in codes(check_inventory(_rows(_normal(5)), params))
+
+
 def test_empty_file(params):
     assert codes(check_inventory([], params)) == {"empty"}
 

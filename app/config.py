@@ -12,11 +12,30 @@ from pathlib import Path
 
 import yaml
 
+from . import demand as demand_module
+from . import level as level_module
+from .bidprice import V4Config
 from .engine import BookingCurve, CurvePoint, Inventory, Params
 from .ladder import LadderConfig
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 DEFAULT_CONFIG = BASE_DIR / "config" / "config.yaml"
+
+
+def _v4_params(pricing: dict, config_path: Path) -> tuple:
+    cfg = _v4(pricing.get("v4"))
+    models, level, notes = _v4_state(cfg, config_path.resolve().parent.parent)
+    for note in notes:
+        V4_NOTES.append(note)
+    return cfg, models, level
+
+
+V4_NOTES: list = []
+"""Beskeder fra indlæsningen af version 4, fx at modelfilen mangler.
+
+De vises i /health og i dashboardet. En stille nedgradering til version 3 er
+det rigtige valg i driften, men den må ikke være usynlig.
+"""
 
 
 @dataclass
@@ -69,6 +88,56 @@ def _ladder(raw: dict | None) -> LadderConfig | None:
     return LadderConfig(**kw)
 
 
+def _v4(raw: dict | None) -> V4Config | None:
+    """pricing.v4 i config.yaml. Mangler afsnittet, kører version 3."""
+    if not raw:
+        return None
+    kw = {}
+    for key, field_ in V4Config.__dataclass_fields__.items():
+        if key not in raw:
+            continue
+        value = raw[key]
+        if isinstance(field_.default, bool):
+            value = bool(value)
+        elif isinstance(field_.default, float):
+            value = float(value)
+        elif isinstance(field_.default, str):
+            value = str(value)
+        kw[key] = value
+    return V4Config(**kw)
+
+
+def _v4_state(cfg: V4Config | None, base: Path) -> tuple:
+    """Hent efterspørgselsfordelingen og det adaptive niveau fra disk.
+
+    Mangler modelfilen, slås version 4 fra i stedet for at stoppe kørslen.
+    Prissætningen falder tilbage på version 3, som virker. En prismotor der
+    ikke starter, er værre end en der er en version bagud.
+    """
+    if cfg is None or not cfg.enabled:
+        return {}, (1.0, 1.0), []
+    path = Path(cfg.model_path)
+    if not path.is_absolute():
+        path = base / path
+    if not path.exists():
+        return {}, (1.0, 1.0), [
+            f"pricing.v4 er slået til, men {cfg.model_path} findes ikke — "
+            f"kører version 3. Byg den med: python -m app.cube && python -m app.demand"]
+    try:
+        models = demand_module.load(path)
+    except (ValueError, KeyError, OSError) as exc:
+        return {}, (1.0, 1.0), [f"Kunne ikke læse {cfg.model_path} ({exc}) — kører version 3"]
+    level_path = Path(cfg.level_path)
+    if not level_path.is_absolute():
+        level_path = base / level_path
+    state = level_module.load(level_path)
+    notes = []
+    if abs(state.rooms - 1.0) > 0.25 or abs(state.beds - 1.0) > 0.25:
+        notes.append(f"Efterspørgselsniveauet står på rum {state.rooms:.2f} / "
+                     f"senge {state.beds:.2f} — kontrollér at det er et reelt skift")
+    return models, (state.rooms, state.beds), notes
+
+
 def load_settings(path: str | Path | None = None) -> Settings:
     path = Path(path or os.getenv("RMS_CONFIG", DEFAULT_CONFIG))
     raw = yaml.safe_load(path.read_text(encoding="utf-8"))
@@ -81,6 +150,7 @@ def load_settings(path: str | Path | None = None) -> Settings:
         dorm_beds=int(inv_raw.get("dorm_beds", 216)),
         private_beds=inv_raw.get("private_beds"),
         private_room_types=inv_raw.get("private_room_types", {}),
+        flex_room_types=inv_raw.get("flex_room_types", {}),
         confirmed=bool(inv_raw.get("confirmed", False)),
     )
 
@@ -94,6 +164,7 @@ def load_settings(path: str | Path | None = None) -> Settings:
         weekday_beds={int(k): float(v) for k, v in p["weekday_beds"].items()},
         weekend_days=tuple(int(d) for d in p.get("weekend_days", [4, 5])),
         room_types={k: float(v) for k, v in p["room_types"].items()},
+        bed_types={k: float(v) for k, v in (p.get("bed_types") or {}).items()},
         target_occupancy_rooms=float(p["target_occupancy_rooms"]),
         target_occupancy_beds=float(p["target_occupancy_beds"]),
         k_forecast=float(p["k_forecast"]),
@@ -118,12 +189,18 @@ def load_settings(path: str | Path | None = None) -> Settings:
         booking_curve=_curve(p["booking_curve"]),
         booking_curve_beds=_curve(p["booking_curve_beds"]),
         ladder=_ladder(p.get("ladder")),
+        **dict(zip(("v4", "demand_models", "demand_level"), _v4_params(p, path))),
     )
 
     if any(t not in params.room_types for t in inventory.private_room_types):
         raise ValueError("Alle lagertyper skal have en prisfaktor")
-    if inventory.flex_rooms and "familie_4" not in params.room_types:
+    if inventory.flex_room_types:
+        if any(t not in params.room_types for t in inventory.flex_room_types):
+            raise ValueError("Alle flex-rumtyper skal have en prisfaktor")
+    elif inventory.flex_rooms and "familie_4" not in params.room_types:
         raise ValueError("Flex-rum kræver prisfaktor familie_4")
+    if set(params.bed_types) & set(params.room_types):
+        raise ValueError("En kode kan ikke både være rumtype og sengetype")
     ops = raw.get("operations", {})
     return Settings(
         params=params,

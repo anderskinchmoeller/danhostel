@@ -59,7 +59,9 @@ def test_upload_run_and_approve(client):
 
     first = payload["prices"][0]
     assert first["room_price"] > 0 and first["bed_price"] > 0
-    assert "familie_4" in first["room_types"]
+    # Prislisten har præcis Picassos rumtyper og sengekoder fra config
+    expected = set(main.settings.params.room_types) | set(main.settings.params.bed_types)
+    assert set(first["room_types"]) == expected
     assert first["forecast"]["rooms"] >= first["forecast"]["rooms_now"]
     assert first["status"] == "pending"
 
@@ -89,6 +91,9 @@ def test_upload_run_and_approve(client):
         export = client.get("/export.csv")
         assert export.status_code == 200
         assert "dato;vaerelsespris;sengepris" in export.text
+        header = export.text.splitlines()[0].split(";")
+        codes = list(original.room_types) + list(original.bed_types)
+        assert header[3:3 + len(codes)] == codes
     finally:
         main.settings.params = original
 

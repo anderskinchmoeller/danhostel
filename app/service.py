@@ -12,9 +12,11 @@ from datetime import date, datetime, timedelta
 
 from sqlalchemy import select
 
-from . import db
+from pathlib import Path
+
+from . import db, level
 from .adapters import AdapterUnavailable, PricePush, get_pms_adapter, get_rateshop_adapter
-from .config import Settings
+from .config import BASE_DIR, Settings
 from .engine import DayInput, EventUplift, Params, price_day, quality_index
 
 
@@ -174,6 +176,10 @@ def run_pricing(settings: Settings, trigger: str = "manual", actor: str = "syste
         inputs = build_inputs(fresh_states, settings)
         if params.ladder is not None:
             inputs = with_ladder_history(session, inputs, today, run.id)
+        if params.v4_active:
+            params, level_note = update_demand_level(params, inputs, today)
+            if level_note:
+                notes.append(level_note)
         recs = []
         for item in inputs:
             try:
@@ -296,6 +302,50 @@ def with_ladder_history(session, inputs, today: date, current_run_id: int,
             prior_days=snap[1] if snap else None,
         ))
     return out
+
+
+def update_demand_level(params, inputs, today: date):
+    """Juster det adaptive efterspørgselsniveau på dagens prognosefejl.
+
+    Snapshottene fra `with_ladder_history` er allerede der: for hver dato ved vi
+    hvad der stod på bøgerne for ca. en uge siden og hvad der står nu. Den
+    forventede pickup i samme vindue er forskellen mellem fordelingens
+    forventning dengang og nu. Forholdet mellem de to summer er signalet.
+
+    Niveauet gemmes på disk og ikke i databasen, så det overlever en
+    skemaændring og kan læses og rettes i hånden af et menneske der er uenig.
+    """
+    pairs = {"rooms": [], "beds": []}
+    for item in inputs:
+        if item.prior_days is None or item.rooms_otb_prior is None:
+            continue
+        lead = (item.day - today).days
+        for key, model_name, now, before in (
+                ("rooms", "rum", item.rooms_otb, item.rooms_otb_prior),
+                ("beds", "senge", item.beds_otb, item.beds_otb_prior)):
+            if before is None:
+                continue
+            model = params.demand_models[model_name].bind(before)
+            expected = max(0.0, model.expected(lead + item.prior_days, item.day)
+                           - params.demand_models[model_name]
+                             .bind(now).expected(lead, item.day))
+            pairs[key].append((expected, max(0, now - before)))
+    if not pairs["rooms"] and not pairs["beds"]:
+        return params, ""
+
+    path = Path(params.v4.level_path)
+    if not path.is_absolute():
+        path = BASE_DIR / path
+    state = level.load(path)
+    updated = level.update(state, rooms=pairs["rooms"], beds=pairs["beds"], today=today,
+                           alpha=params.v4.level_alpha, low=params.v4.level_min,
+                           high=params.v4.level_max)
+    level.save(updated, path)
+    note = ""
+    if abs(updated.rooms - state.rooms) > 0.005 or abs(updated.beds - state.beds) > 0.005:
+        note = (f"Efterspørgselsniveau: rum {state.rooms:.2f} → {updated.rooms:.2f}, "
+                f"senge {state.beds:.2f} → {updated.beds:.2f}")
+    return replace(params, demand_level=(updated.rooms, updated.beds)), note
 
 
 def inventory_is_fresh(state, settings):

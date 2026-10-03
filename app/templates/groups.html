@@ -28,7 +28,12 @@
   <div class="cards">
     <div class="card"><div class="k">Minimum for hele gruppen</div>
       <div class="v">{{ "%.0f"|format(total_min) }} kr.</div>
-      <div class="n">{{ rooms }} værelser × {{ quotes|length }} nætter</div></div>
+      <div class="n">{{ rooms }} værelser × {{ quotes|length }} nætter{% if show_certain %} · i forventning{% endif %}</div></div>
+    {% if show_certain %}
+    <div class="card"><div class="k">Hvis prognosen holder</div>
+      <div class="v">{{ "%.0f"|format(total_certain) }} kr.</div>
+      <div class="n">{{ "%.0f"|format(total_certain - total_min) }} kr. mere — det er risikoen</div></div>
+    {% endif %}
     <div class="card"><div class="k">Samme værelser til normalpris</div>
       <div class="v">{{ "%.0f"|format(total_normal) }} kr.</div>
       <div class="n">hvis de var solgt enkeltvis</div></div>
@@ -43,6 +48,7 @@
       <th>Dato</th><th>Dag</th>
       <th class="num">Kapacitet</th><th class="num">Prognose</th><th class="num">Ledige</th>
       <th class="num">Fortrængt</th><th class="num">Normalpris</th><th class="num">Minimumspris</th>
+      {% if show_certain %}<th class="num">Hvis prognosen holder</th>{% endif %}
       <th>Vurdering</th>
     </tr></thead>
     <tbody>
@@ -56,6 +62,7 @@
         <td class="num" {% if q.displaced_rooms > 0 %}style="color:var(--flag)"{% endif %}>{{ "%.1f"|format(q.displaced_rooms) }}</td>
         <td class="num" style="color:var(--muted)">{{ "%.0f"|format(q.transient_price) }}</td>
         <td class="num"><b>{{ "%.0f"|format(q.minimum_rate) }}</b></td>
+        {% if show_certain %}<td class="num" style="color:var(--muted)">{{ "%.0f"|format(q.minimum_rate_certain) }}</td>{% endif %}
         <td>
           {% if q.displaced_rooms <= 0 %}
             <span class="tag approved">fri kapacitet</span>
@@ -70,6 +77,22 @@
     </tbody>
   </table>
   </div>
+
+  {% if show_certain %}
+  <p class="foot">
+    <b>Hvorfor der står to tal.</b> Minimumsprisen er den <i>forventede</i>
+    fortrængning: nogle gange fyldes datoen, nogle gange ikke, og gennemsnittet
+    er lavere end prognosen alene antyder. Den anden kolonne er hvad gruppen
+    koster, hvis prognosen rammer plet.
+    <br><br>
+    Spændet er informationen. Ligger de to tal tæt, er datoen enten tydeligt tom
+    eller tydeligt fuld, og valget er let. Ligger de langt fra hinanden, er
+    prognosen usikker netop dér — og så er det jer, ikke modellen, der skal
+    afgøre hvor meget risiko tilbuddet må bære. Et afgivet gruppetilbud er
+    bindende; et forkert prisforslag koster én nat, et forkert gruppegulv står
+    i et år.
+  </p>
+  {% endif %}
 
   <p class="foot">
     <b>Sådan læses tallet.</b> Minimumsprisen er hvad gruppen skal betale pr.

@@ -17,7 +17,7 @@ fundet og navnet i loggen.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, timedelta
 
 MAX_OCC_JUMP = 0.40          # procentpoint på ét døgn (senge)
 # Værelser: gruppeankomster giver ægte spring på 50-75 procentpoint (fx 13 -> 52
@@ -29,6 +29,7 @@ FUTURE_DAYS_ALLOWED = 730
 PRICE_LOW_FACTOR = 0.5       # under halvdelen af gulvet er ikke en lav pris
 PRICE_HIGH_FACTOR = 2.0      # over det dobbelte af loftet er ikke en høj pris
 MAX_LISTED_DATES = 3
+MAX_GAP_DAYS_LISTED = 3      # hvor mange huller der nævnes ved navn
 
 
 @dataclass(frozen=True)
@@ -133,7 +134,29 @@ def check_inventory(rows, params, today: date | None = None) -> list[Finding]:
                 "er i kroner.",
             ))
 
-    # 5. Datoer uden for horisonten. Fanger dd/mm mod mm/dd.
+    # 5. Huller i datoserien.
+    #
+    # En belægningsfil har én række pr. dato. Mangler der datoer midt i serien,
+    # er det ikke en periode uden gæster — det er rækker der er faldet ud under
+    # eksport eller filtrering. Og det er værre end en tom kolonne, for de datoer
+    # bliver aldrig prissat: de står bare ikke i filen, og motoren mærker intet.
+    #
+    # Kun huller MELLEM første og sidste dato tæller. At filen slutter før
+    # horisontens ende er helt normalt og håndteres allerede af dødmandsknappen.
+    span = (rows[-1].day - rows[0].day).days + 1
+    if span > len(rows):
+        present = {r.day for r in rows}
+        missing = [rows[0].day + timedelta(days=i) for i in range(span)
+                   if rows[0].day + timedelta(days=i) not in present]
+        findings.append(Finding(
+            "date_gaps",
+            f"{len(missing)} datoer mangler mellem {_dk(rows[0].day)} og "
+            f"{_dk(rows[-1].day)}: {_dates(missing, MAX_GAP_DAYS_LISTED)}. "
+            "De datoer bliver ikke prissat. Tjek om eksporten er afbrudt, "
+            "eller om et filter har fjernet rækker.",
+        ))
+
+    # 6. Datoer uden for horisonten. Fanger dd/mm mod mm/dd.
     stray = [r.day for r in rows
              if (today - r.day).days > PAST_DAYS_ALLOWED
              or (r.day - today).days > FUTURE_DAYS_ALLOWED]
