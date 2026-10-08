@@ -2,7 +2,7 @@
 #
 # Alle tal her kan ændres uden at røre kode. Genstart servicen efter en ændring.
 # Start med lageret nedenfor og med bar_base, bed_base, price_floor og bed_floor.
-# Resten kan vente til efter første måneds skyggedrift.
+# Resten kan vente til efter første måneds drift.
 
 database_url: "sqlite:///data/rms.db"
 
@@ -45,7 +45,7 @@ inventory:
 
 operations:
   horizon_days: 120        # hvor langt frem der prissættes
-  auto_publish: false      # false = skyggedrift. Sæt først til true når du stoler på modellen
+  auto_publish: false      # false = manuel kontrol. Sæt først til true når du stoler på modellen
   stale_hours: 36          # ældre data end dette → dødmandsknap, priser fastfryses
   run_cron_hour: 4         # natlig kørsel, lokal tid
   run_cron_minute: 15
@@ -57,8 +57,8 @@ pricing:
   bar_base: 645     # dobbeltværelse uden bad
   bed_base: 270     # én dormseng
 
-  # Hvor fuldt huset skal være. Modellen prissætter mod prognosen for
-  # slutbelægning, ikke mod belægningen i dag.
+  # Ældre målbelægningsparametre. De bliver stadig indlæst for historiske
+  # analyser og test, men v4's prisvalg styres af bid price, ikke af et mål.
   #
   # Sænk målet, hvis I hellere vil have høj pris end fuldt hus. Hæv det, hvis
   # tomme senge gør mere ondt end lav pris — fx fordi caféen og morgenmaden
@@ -85,8 +85,8 @@ pricing:
   max_daily_change: 0.15   # ændringsbremse
 
   # Økonomi og guardrails
-  variable_cost: 95        # pr. solgt privat værelse: rengøring, linned, forbrug
-  variable_cost_bed: 45    # pr. solgt seng
+  variable_cost: 91         # de har i gennemsnit 2.28 senge pr vœrelse de sœlger. pr. solgt privat værelse: rengøring, linned, forbrug
+  variable_cost_bed: 39.84        # pr. solgt seng
   commission: 0.16         # vægtet gennemsnit over kanaler; direkte tæller som 0
   price_floor: 375
   price_ceiling: 1400
@@ -197,21 +197,12 @@ pricing:
     - {lead_days_from: 61, weekday: 0.006, weekend: 0.006}
 
   # ---------------------------------------------------------------------------
-  # Prisstige — trinbaseret prissætning (version 3)
+  # Prisstige — v4's faste prisrum
   # ---------------------------------------------------------------------------
-  # I stedet for en ny pris hver dag står prisen på et af et fast sæt trin fra
-  # gulv til top, forankret i dagens grundpris (sæson x ugedag). Den flytter
-  # sig kun når triggerne samlet siger det tydeligt nok:
-  #
-  #   tryk = 0,40 x prognose-mod-mål + 0,25 x bookingtempo
-  #        + 0,20 x markedsposition + 0,15 x lead time      (hver i [-1; 1])
-  #   trin = referencetrin + tryk / score_per_rung + eventtrin
-  #
-  # Derefter hysterese, maks. to trin op / ét ned pr. kørsel, ingen prisfald på
-  # datoer der er på vej mod målet, og knaphedsbeskyttelse der lukker de
-  # nederste trin når risikoen for udsolgt er høj.
-  #
-  # enabled: false giver den gamle kontinuerlige faktormodel tilbage.
+  # V4 vælger mellem faste trin fra gulv til top, forankret i dagens grundpris
+  # (sæson x ugedag). Bid price vælger det økonomisk bedste trin; stigen giver
+  # træghed, afrunding, forklaring, eventtrin og begrænsning på daglige hop.
+  # enabled skal være true i drift.
   ladder:
     enabled: true
     # Faktor på dagens grundpris. Ét trin SKAL være 1.00 (referencetrinnet).
@@ -249,7 +240,7 @@ pricing:
 
     event_rung_step: 0.10  # 10 % eventtillæg = ét trin op, og aldrig under reference
 
-    # Bundet eksploration (kræver pricing.v4.enabled). Står to nabotrin omtrent
+    # Bundet eksploration. Står to nabotrin omtrent
     # lige godt, vælges der tilfældigt mellem dem, og valget logges. Risikoen er
     # loftet ved ét trin — mindre end den uro modellen laver i forvejen — og
     # til gengæld bliver hver dato et eksperiment. Det er den billige vej til
@@ -262,11 +253,7 @@ pricing:
   # ---------------------------------------------------------------------------
   # Version 4 — bid price i stedet for målbelægning
   # ---------------------------------------------------------------------------
-  # Version 3 styrer mod target_occupancy_rooms, som vejer 0,40 i stigens tryk
-  # og er et gæt: historikken for hverdage er 0,39, så hverdage starter 1-2 trin
-  # under reference per konstruktion.
-  #
-  # Version 4 har ingen målbelægning. For hvert trin på stigen beregnes
+  # Runtime bruger kun v4. For hvert trin på stigen beregnes
   #
   #     forventet omsætning = nettopris x E[min(efterspørgsel, ledig kapacitet)]
   #
@@ -275,20 +262,20 @@ pricing:
   # forklaring — men knaphedsbeskyttelsen og ratchet'en slås fra, fordi bid
   # price allerede indeholder knapheden.
   #
-  # Før den kan slås til:
+  # Grundlaget bygges med:
   #     python -m app.cube        # bygger kali/cube.csv af reservationshistorikken
   #     python -m app.demand      # estimerer config/demand_model.json
-  #     python -m app.backtest    # sammenligner version 3 og 4 på historikken
+  #     python -m app.backtest    # validerer v4 på historikken
   #
-  # Mangler modelfilen, falder prissætningen tilbage på version 3 og siger det
-  # i /health. Den må ikke stoppe en natlig kørsel.
+  # Mangler modelfilen, stopper indlæsningen med en klar fejl. Projektet falder
+  # ikke tilbage til en ældre prismotor.
   v4:
-    enabled: true              # skyggedrift først — se risikovurderingen, punkt 4
+    enabled: true
     model_path: config/demand_model.json
     level_path: data/demand_level.json
 
     # Egenpriselasticitet. Det ENESTE ukendte tal tilbage i prisbeslutningen,
-    # og det er med vilje: version 3 havde fire triggervægte, to målbelægninger
+    # og det er med vilje: ældre motorer havde triggervægte, målbelægninger
     # og en trinafstand, som alle var gæt. Tallene her er litteraturniveau, ikke
     # jeres gæster. De erstattes af eksplorationens målinger efter en sæson.
     # Sættes de til 0, bliver den højeste pris altid den bedste.

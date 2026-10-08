@@ -31,10 +31,10 @@ def _v4_params(pricing: dict, config_path: Path) -> tuple:
 
 
 V4_NOTES: list = []
-"""Beskeder fra indlæsningen af version 4, fx at modelfilen mangler.
+"""Beskeder fra indlæsningen af version 4.
 
-De vises i /health og i dashboardet. En stille nedgradering til version 3 er
-det rigtige valg i driften, men den må ikke være usynlig.
+De vises i /health og i dashboardet. Runtime er v4-only, så manglende eller
+ulæseligt modelgrundlag stopper indlæsningen i stedet for at skifte motor.
 """
 
 
@@ -65,8 +65,7 @@ def _curve(raw: list) -> BookingCurve:
 
 
 def _ladder(raw: dict | None) -> LadderConfig | None:
-    """pricing.ladder i config.yaml. Mangler afsnittet, eller er enabled
-    false, kører den kontinuerlige faktormodel."""
+    """pricing.ladder i config.yaml. Stigen er rammen omkring v4's trinvalg."""
     if not raw or not raw.get("enabled", False):
         return None
     kw = {}
@@ -89,9 +88,9 @@ def _ladder(raw: dict | None) -> LadderConfig | None:
 
 
 def _v4(raw: dict | None) -> V4Config | None:
-    """pricing.v4 i config.yaml. Mangler afsnittet, kører version 3."""
+    """pricing.v4 i config.yaml. Mangler afsnittet, bruges v4-standarderne."""
     if not raw:
-        return None
+        return V4Config(enabled=True)
     kw = {}
     for key, field_ in V4Config.__dataclass_fields__.items():
         if key not in raw:
@@ -110,23 +109,23 @@ def _v4(raw: dict | None) -> V4Config | None:
 def _v4_state(cfg: V4Config | None, base: Path) -> tuple:
     """Hent efterspørgselsfordelingen og det adaptive niveau fra disk.
 
-    Mangler modelfilen, slås version 4 fra i stedet for at stoppe kørslen.
-    Prissætningen falder tilbage på version 3, som virker. En prismotor der
-    ikke starter, er værre end en der er en version bagud.
+    Runtime er v4-only. Mangler modelfilen, eller kan den ikke læses, stoppes
+    indlæsningen med en klar fejl, så en natlig kørsel ikke ubemærket bruger en
+    ældre motor.
     """
     if cfg is None or not cfg.enabled:
-        return {}, (1.0, 1.0), []
+        raise ValueError("pricing.v4.enabled skal være true; projektet kører kun v4")
     path = Path(cfg.model_path)
     if not path.is_absolute():
         path = base / path
     if not path.exists():
-        return {}, (1.0, 1.0), [
-            f"pricing.v4 er slået til, men {cfg.model_path} findes ikke — "
-            f"kører version 3. Byg den med: python -m app.cube && python -m app.demand"]
+        raise FileNotFoundError(
+            f"pricing.v4.model_path findes ikke: {cfg.model_path}. "
+            "Byg den med: python -m app.cube && python -m app.demand")
     try:
         models = demand_module.load(path)
     except (ValueError, KeyError, OSError) as exc:
-        return {}, (1.0, 1.0), [f"Kunne ikke læse {cfg.model_path} ({exc}) — kører version 3"]
+        raise ValueError(f"Kunne ikke læse pricing.v4.model_path {cfg.model_path}: {exc}") from exc
     level_path = Path(cfg.level_path)
     if not level_path.is_absolute():
         level_path = base / level_path

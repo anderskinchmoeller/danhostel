@@ -1,4 +1,4 @@
-"""Prismodellen, version 3 — bygget til et hostel, ikke til et hotel.
+"""Prismodellen, version 4 — bygget til et hostel, ikke til et hotel.
 
 Tre ting adskiller den fra version 1:
 
@@ -313,13 +313,11 @@ class Params:
     booking_curve: BookingCurve = field(default_factory=BookingCurve.rooms)
     booking_curve_beds: BookingCurve = field(default_factory=BookingCurve.beds)
 
-    # Prisstige. None = den kontinuerlige faktormodel (version 2). Sat = prisen
-    # står på faste trin og flytter sig kun når triggerne siger det tydeligt.
+    # Prisstige. V4 bruger stigen som prisrum, træghed og forklaring.
     ladder: LadderConfig | None = None
 
-    # Version 4: bid price vælger trinnet ud fra forventet omsætning over hele
-    # efterspørgselsfordelingen, og målbelægningen indgår ikke. Kræver både en
-    # estimeret fordeling (app/demand.py) og en tændt stige.
+    # Bid price vælger trinnet ud fra forventet omsætning over hele
+    # efterspørgselsfordelingen, og målbelægningen indgår ikke.
     v4: V4Config | None = None
     demand_models: dict = field(default_factory=dict)
     demand_level: tuple = (1.0, 1.0)   # (rum, senge) fra app/level.py
@@ -483,7 +481,7 @@ def flex_bounds(inv: Inventory, *, rooms_otb: int, beds_otb: int,
 
     Solgte rum og blokeringer er hårde bindinger; PMS-grænserne kan reservere
     hele flex-rum gennem et helt ophold. Samme grænser gælder uanset om
-    allokeringen afgøres af forventet bidrag (version 3) eller af bid price.
+    allokeringen afgøres af historisk gennemsnitslogik eller af v4's bid price.
     """
     lower = max(0, rooms_otb + blocked_rooms - inv.private_rooms,
                 private_min if private_min is not None else 0)

@@ -1,9 +1,8 @@
 """Fordelingen af resterende efterspørgsel — ikke kun dens middelværdi.
 
-Prismotoren i version 3 beregner én forventet slutbelægning og sammenligner den
-med en målbelægning. Det kaster den information væk, som prisbeslutningen i
-virkeligheden har brug for: en dato hvor prognosen er 60 % ± 5 skal ikke
-prissættes som en hvor den er 60 % ± 25.
+V4 bruger hele fordelingen i stedet for én forventet slutbelægning. Det er den
+information, prisbeslutningen har brug for: en dato hvor prognosen er 60 % ± 5
+skal ikke prissættes som en hvor den er 60 % ± 25.
 
 Modulet her estimerer hele fordelingen af *netto pickup* — hvor mange enheder
 der endnu kommer ind, efter annulleringer — ud fra bookingkuben, og svarer på

@@ -375,7 +375,7 @@ def delivery_error(session, settings, run, recs):
 
 def publish_run(settings: Settings, run_id: int, actor: str = "system",
                 only_approved: bool = True) -> dict:
-    """Skriv priser til PMS. I skyggedrift sker det kun for godkendte datoer."""
+    """Skriv priser til PMS. Ved manuel kontrol sker det kun for godkendte datoer."""
     session = db.get_session()
     try:
         query = select(db.Recommendation).where(db.Recommendation.run_id == run_id)

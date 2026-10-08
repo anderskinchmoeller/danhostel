@@ -192,7 +192,7 @@ def params(models):
     return (base, replace(base, v4=V4Config(enabled=True), demand_models=models))
 
 
-def test_v4_er_inaktiv_uden_modelfil(tmp_path):
+def test_v4_stopper_uden_modelfil(tmp_path):
     raw = load_settings().raw
     missing_model = tmp_path / "manglende_model.json"
     raw["pricing"]["v4"] = dict(enabled=True, model_path=str(missing_model))
@@ -200,12 +200,9 @@ def test_v4_er_inaktiv_uden_modelfil(tmp_path):
     config_path = tmp_path / "config.yaml"
     config_path.write_text(yaml.safe_dump(raw), encoding="utf-8")
 
-    params = load_settings(config_path).params
     assert not missing_model.exists()
-    assert params.v4.enabled
-    assert params.ladder is not None
-    assert params.demand_models == {}
-    assert not params.v4_active
+    with pytest.raises(FileNotFoundError, match="pricing.v4.model_path"):
+        load_settings(config_path)
 
 
 def test_v4_respekterer_gulv_og_loft(params):

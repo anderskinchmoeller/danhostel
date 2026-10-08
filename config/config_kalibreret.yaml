@@ -2,7 +2,7 @@
 #
 # Alle tal her kan ændres uden at røre kode. Genstart servicen efter en ændring.
 # Start med lageret nedenfor og med bar_base, bed_base, price_floor og bed_floor.
-# Resten kan vente til efter første måneds skyggedrift.
+# Resten kan vente til efter første måneds drift.
 
 database_url: "sqlite:///data/rms.db"
 
@@ -43,7 +43,7 @@ inventory:
 
 operations:
   horizon_days: 120        # hvor langt frem der prissættes
-  auto_publish: false      # false = skyggedrift. Sæt først til true når du stoler på modellen
+  auto_publish: false      # false = manuel kontrol. Sæt først til true når du stoler på modellen
   stale_hours: 36          # ældre data end dette → dødmandsknap, priser fastfryses
   run_cron_hour: 4         # natlig kørsel, lokal tid
   run_cron_minute: 15
@@ -55,8 +55,8 @@ pricing:
   bar_base: 645     # dobbeltværelse uden bad
   bed_base: 270     # én dormseng
 
-  # Hvor fuldt huset skal være. Modellen prissætter mod prognosen for
-  # slutbelægning, ikke mod belægningen i dag.
+  # Ældre målbelægningsparametre. De bliver stadig indlæst for historiske
+  # analyser og test, men v4's prisvalg styres af bid price, ikke af et mål.
   #
   # Sænk målet, hvis I hellere vil have høj pris end fuldt hus. Hæv det, hvis
   # tomme senge gør mere ondt end lav pris — fx fordi caféen og morgenmaden

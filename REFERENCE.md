@@ -657,7 +657,7 @@ der, og motoren mærker intet. Det er værre end en tom kolonne, fordi der ikke 
 noget forkert tal at opdage. At filen slutter før horisontens ende er derimod
 normalt og håndteres af dødmandsknappen.
 
-`/export.csv` skriver dansk Excel-format: semikolon som feltseparator,
+`/xport.csv` skriver dansk Excel-format: semikolon som feltseparator,
 decimalkomma og UTF-8 med BOM. Uden kommaet læser Excel `900.00` som 90.000,
 fordi punktum er tusindtalsseparator på dansk — og det opdages først, når prisen
 er tastet ind i Picasso. Uden BOM bliver æ, ø og å forvansket i kolonnenavne og

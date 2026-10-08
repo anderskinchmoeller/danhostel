@@ -665,15 +665,12 @@ def health():
         if run and run.finished:
             stale = (db.utcnow() - run.finished) > timedelta(hours=36)
         params = settings.params
-        # Version 4 falder stille tilbage til version 3, hvis modelfilen mangler.
-        # Det er det rigtige valg i driften, men det må ikke være usynligt:
-        # uden linjen her kan man tro man kører v4 i ugevis uden at gøre det.
         return {
             "status": "degraded" if stale else "ok",
             "last_run": run.finished.isoformat() if run and run.finished else None,
             "last_run_status": run.status if run else None,
             "auto_publish": settings.auto_publish,
-            "pricing_version": 4 if params.v4_active else (3 if params.ladder else 2),
+            "pricing_version": 4,
             "v4_requested": bool(params.v4 and params.v4.enabled),
             "v4_notes": list(config.V4_NOTES),
             "exploration": bool(params.ladder and params.ladder.explore),

@@ -1,13 +1,12 @@
 # Prismotor — Danhostel Aarhus City
 
-Foreslår en værelsespris og en sengepris for hver dato 120 dage frem, ud fra
-hvor fyldt huset er på vej til at blive, hvad markedet tager, og hvad der sker i
-byen.
+Foreslår en værelsespris og en sengepris for hver dato 120 dage frem med v4:
+bid price på en efterspørgselsfordeling, plus marked, events og faste prisgulve.
 
-Priserne står på en **prisstige**: ni faste trin fra gulv til top pr. dato.
-Prisen flytter sig kun ét eller to trin ad gangen, når prognose, bookingtempo,
-marked og lead time samlet siger det tydeligt nok. Se `REFERENCE.md` →
-*Prisstigen*. Du læser forslagene i browseren og taster dem selv ind i Picasso.
+Priserne står på en **prisstige**: ni faste trin fra gulv til top pr. dato. V4
+vælger trinnet med højest forventet netoomsætning; stigen sørger for træghed,
+afrunding, eventtrin og forklaring. Se `REFERENCE.md` → *Version 4*. Du læser
+forslagene i browseren og taster dem selv ind i Picasso.
 
 **Servicen skriver ingenting til Picasso.** Den kan ikke og skal ikke. Den
 regner, og du beslutter.
@@ -61,7 +60,7 @@ komma virker som separator, og datoer må skrives `2026-09-16`, `16-09-2026`
 eller `16/09/2026`.
 
 Alt efter de tre første kolonner i belægningsfilen er valgfrit. Jo mere du
-sender med, jo mindre gætter modellen — men den kører på de tre.
+sender med, jo mindre gætter modellen — men v4 kan køre på de tre.
 
 **Hvor kommer belægningsfilen fra?** Du behøver ikke lave CSV'en selv. Tag
 Picassos **Arrivals**-rapport (Rooms spec.) fra ca. 30 dage tilbage til 120
@@ -101,10 +100,10 @@ forkerte, er alle priser forkerte i samme retning hver eneste dag. Ret dem til
 den faktiske opdeling i Picasso og sæt `confirmed: true`. Indtil da siger
 dashboardet det selv med rødt.
 
-**2. Parametrene er brancheskøn.** Bookingkurver, sæsonprofil og målbelægning
-er gennemsnit fra branchen, ikke fra jeres gæster. Kør
-`python -m app.calibration` på jeres egen historik, før tallene bruges til
-noget. En god model på forkerte kurver er stadig en forkert model.
+**2. V4 kræver sit modelgrundlag.** `config/demand_model.json` skal findes og
+være bygget på jeres historik. Kør `python -m app.cube` og derefter
+`python -m app.demand`, når historikken ændrer sig væsentligt. Mangler
+modelfilen, starter servicen ikke med en ældre prismotor i baggrunden.
 
 **3. Servicen fanger sine egne dårlige data — men ikke sine egne dårlige gæt.**
 En uploadet fil bliver afvist hvis den ser plausibel men forkert ud: en kolonne
@@ -133,13 +132,14 @@ pytest -q
 
 ## Mere
 
-`REFERENCE.md` har detaljerne: prismodellen og dens formler, alle valgfrie
+`REFERENCE.md` har detaljerne: v4-prismodellen og dens formler, alle valgfrie
 kolonner, kalibrering, guardrails, API-endpoints, sikkerhed ved drift på en
 server, og hvad der endnu ikke er bygget.
 
 ```
-app/engine.py       prismodellen: prognose, to lagre, flex-allokering, RevPAB
-app/ladder.py       prisstigen: trin, triggere, hysterese, knaphedsbeskyttelse
+app/engine.py       prismodellen: v4-priser, to lagre, flex-allokering, RevPAB
+app/ladder.py       prisstigen: trin, træghed, eventtrin og forklaring
+app/bidprice.py     v4: forventet omsætning, bid price, grupper og flex
 app/service.py      kørslen: hent, beregn, gem
 app/sanity.py       rimelighedstjek på uploadet belægning
 app/main.py         FastAPI: dashboard, grupper, upload, godkendelse

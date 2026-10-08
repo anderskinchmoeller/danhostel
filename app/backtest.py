@@ -1,4 +1,4 @@
-"""Backtest: version 3 mod version 4 på den tilstand der faktisk stod på bøgerne.
+"""Backtest af v4 på den tilstand der faktisk stod på bøgerne.
 
 Roadmappens Tier 3 foreslår at køre modellen på historikken. Med bookingkuben
 kan det gøres rigtigt: ikke mod en gennemsnitskurve, men mod det der stod på
@@ -7,8 +7,8 @@ bøgerne den enkelte dag, for hver dato og hvert lead time.
 Backtesten svarer på to spørgsmål, og det er vigtigt at holde dem adskilt.
 
 **Hvor godt rammer prognosen?** Det kan måles uden at antage noget om priser.
-Version 3 giver ét tal; version 4 giver en fordeling. Begge sammenlignes med
-det der faktisk skete, og version 4 bedømmes også på dækning: lander de
+Den historiske motor giver ét tal; v4 giver en fordeling. Begge sammenlignes med
+det der faktisk skete, og v4 bedømmes også på dækning: lander de
 faktiske tal inden for 10-90 %-intervallet i 80 % af tilfældene? Rammer
 dækningen ved siden af, er fordelingen for smal eller for bred, og bid price
 bliver tilsvarende forkert.
@@ -115,7 +115,7 @@ def revenue_under_assumption(path: dict, final_units: float, capacity: int,
 
 
 def main(argv: list[str] | None = None) -> int:
-    ap = argparse.ArgumentParser(description="Sammenlign version 3 og version 4 på historikken")
+    ap = argparse.ArgumentParser(description="Valider v4 på historikken")
     ap.add_argument("kube", nargs="?", default="kali/cube.csv")
     ap.add_argument("--model", default="config/demand_model.json")
     ap.add_argument("--datoer", type=int, default=60, help="antal datoer i prisvejen")

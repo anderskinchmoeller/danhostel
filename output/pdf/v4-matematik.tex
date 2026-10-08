@@ -1,0 +1,337 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[danish]{babel}
+\usepackage{lmodern,amsmath,amssymb,booktabs,array,microtype}
+\usepackage[margin=25mm,headheight=15pt]{geometry}
+\usepackage{xcolor,fancyhdr,hyperref}
+\definecolor{ink}{HTML}{173F4F}
+\hypersetup{colorlinks=true,linkcolor=ink,urlcolor=ink,pdftitle={Matematikken bag prismotor v4}}
+\pagestyle{fancy}\fancyhf{}\fancyhead[L]{\small\textcolor{ink}{PRISMOTOR V4 / MATEMATISK NOTAT}}\fancyfoot[R]{\thepage}
+\setlength{\parindent}{0pt}\setlength{\parskip}{6pt}
+\newcommand{\E}{\mathbb E}\newcommand{\Prob}{\mathbb P}
+\newcommand{\clip}{\operatorname{clip}}\newcommand{\pos}[1]{\left[#1\right]_+}
+\newcommand{\code}[1]{\texttt{\small\detokenize{#1}}}
+\begin{document}
+{\Huge\bfseries\textcolor{ink}{Matematikken bag v4}}\\[7pt]
+{\large Efterspørgselsfordeling, prisvalg og værdien af kapacitet}\\[5pt]
+{\small Dokumenteret ud fra projektets reference og implementering, 3. oktober 2026.}
+
+\section{Hvad optimerer modellen?}
+Version 4 vurderer hvert muligt pristrin ud fra det forventede bidrag fra
+\emph{fremtidigt} salg. Den vælger ikke en pris for at ramme en bestemt
+målbelægning. For et lager og en opholdsdato er kerneproblemet
+\begin{equation}\boxed{\quad k^*=\arg\max_k\;\underbrace{\bigl((1-c)p_k-v\bigr)}_{\text{bidrag pr. solgt enhed}}
+\underbrace{\E[\min(X_k,C)]}_{\text{forventet fremtidigt salg}}.\quad}\label{eq:objective}\end{equation}
+Her er $X_k$ den ikke-negative, heltallige efterspørgsel ved pris $p_k$, og $C$
+er ledig kapacitet. Allerede bogført omsætning ændres ikke ved at vælge en ny pris
+og indgår derfor ikke i denne optimering.
+
+Koden kalder målet \code{expected_revenue}. Fordi både provision og variabel
+omkostning trækkes fra, er det mere præcist et \textbf{forventet dækningsbidrag}
+end bruttoomsætning. Der beregnes særskilt for private værelser og dormsenge.
+
+\begin{center}\small
+\begin{tabular}{@{}p{24mm}p{119mm}@{}}\toprule
+Symbol & Betydning \\\midrule
+$t,\ell$ & Opholdsdato og antal dage til opholdsdatoen (lead time).\\
+$B,C$ & Enheder på bøgerne (OTB) og resterende salgsbar kapacitet.\\
+$Y_t,R_{t,\ell}$ & Historisk endeligt salg og netto pickup: $R_{t,\ell}=Y_t-B_{t,\ell}$.\\
+$p_k,p_0$ & Pris på trin $k$ og pris på referencetrinnet.\\
+$c,v$ & Provisionsandel og variabel omkostning pr. solgt enhed.\\
+$\varepsilon,L$ & Antaget priselasticitet og adaptivt efterspørgselsniveau.\\
+$\mu,Z$ & Prognoseskala for pickup og empirisk formvariabel.\\
+$S_D(x)$ & Halesandsynlighed $\Prob(D\geq x)$ for resterende efterspørgsel.\\\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Tre lag i beslutningen.} Først estimeres efterspørgslen ved
+referenceprisen. Derefter beregnes økonomien på alle pristrin. Til sidst
+anvendes markedsjustering, events, træghed og prisgrænser. Den endelige pris
+behøver derfor ikke være det ubetingede optimum i (\ref{eq:objective}).
+
+Dette er en model af de resterende salg ved en given pris, ikke en fuld dynamisk
+optimering af alle fremtidige prisændringer, bookingforløb og ophold på én gang.
+
+\newpage
+\section{Fra reservationshistorik til efterspørgsel}
+Bookingkuben rekonstruerer $B_{t,\ell}$ ved hjælp af oprettelses- og
+annulleringsdatoer. Netto pickup kan være negativ, når annulleringerne overstiger
+nysalget. Flytninger og andre ændringer uden fuld ændringshistorik kan ikke
+rekonstrueres eksakt.
+
+\subsection{Sæson og gennemsnit}
+Lad $m(t)$ være måned og $w(t)$ ugedag. På de brugbare træningsdatoer estimeres
+\begin{align}
+s_m&=\frac{\operatorname{gennemsnit}(Y_t\mid m(t)=m)}{\operatorname{gennemsnit}(Y_t)},\\
+a_{\ell,w}&=\operatorname{gennemsnit}\left(\frac{R_{t,\ell}}{s_{m(t)}}\;\middle|\;w(t)=w\right),\\
+\mu^{\rm raw}_{t,\ell}&=\max\{0,a_{\ell,w(t)}s_{m(t)}L\}.
+\end{align}
+Sæsonfaktoren er dimensionsløs. $a_{\ell,w}$ og $\mu^{\rm raw}$ måles i enheder.
+Udsolgte datoer flagges som censurerede og udelades som standard; særlige
+lukkeperioder kan også udelades. Det fjerner ikke censureringsproblemet: de
+udeladte datoer kan netop være dem med størst latent efterspørgsel.
+
+\subsection{Den empiriske form}
+For observationer med $a_{\ell,w}\geq2$ beregnes forholdet
+\begin{equation}z_{t,\ell}=\frac{R_{t,\ell}}{s_{m(t)}a_{\ell,w(t)}}.\end{equation}
+Disse forhold samles i lead-intervallerne
+\[
+[0,1],\ [2,3],\ [4,6],\ [7,10],\ [11,17],\ [18,30],\ [31,45],\ [46,70],\ [71,365].
+\]
+Hvert interval gemmes som 201 empiriske kvantiler $q_0,\ldots,q_{200}$.
+Det bevarer skævhed, gruppespring og negative observationer uden at vælge en
+Poisson-fordeling. Tomme intervaller låner en form fra et andet interval.
+
+Mellem to forskellige nabokvantiler bruges lineær interpolation. Hvis
+$q_{i-1}<z\leq q_i$, er den implementerede hale
+\begin{equation}
+S_Z(z)=1-\frac{i-1+(z-q_{i-1})/(q_i-q_{i-1})}{200}.
+\end{equation}
+Gentagne kvantiler håndteres særskilt i koden. Over højeste kvantil bruges en
+konstrueret hale, med $T=\max(q_{200},10^{-9})$:
+\begin{equation}
+S_Z(z)=\max\left\{10^{-4},\frac{1}{201}\exp\left(-\frac{z-T}{\max(0{,}25T,10^{-9})}\right)\right\}.
+\end{equation}
+Dette er en numerisk regularisering, ikke en estimeret ekstremhale. Gulvet og
+springet lige over største kvantil betyder, at funktionen ikke overalt er en
+matematisk konsistent overlevelsesfunktion. Forventningsformlerne nedenfor er
+idealet; koden bruger denne numeriske approksimation.
+
+\newpage
+\section{Krympning mod kalendergennemsnittet}
+En stor tidlig gruppebooking er ikke nødvendigvis et pålideligt signal om det
+endelige salg. Derfor kombineres bøger plus pickup med et kalendergennemsnit
+$H_{w,m}=\operatorname{gennemsnit}(Y_t\mid w,m)$:
+\begin{align}
+\widehat Y_{t,\ell}&=w_\ell(B_{t,\ell}+\mu^{\rm raw}_{t,\ell})
+ +(1-w_\ell)H_{w(t),m(t)}L,\label{eq:shrink}\\
+\mu_{t,\ell}&=\max\{0,\widehat Y_{t,\ell}-B_{t,\ell}\}.\label{eq:mu}
+\end{align}
+$w_\ell=1$ lægger al vægt på bøger plus pickup; $w_\ell=0$ lægger al vægt på
+kalenderen. Bindingen \code{model.bind(otb)} gør det aktuelle $B$ tilgængeligt
+for efterspørgselsberegningen.
+
+\subsection{Udledning af vægten}
+På træningsdata sættes $A_i=B_i+\mu_i^{\rm raw}$ og $H_i=H_{w(i),m(i)}$ med
+niveau $L=1$. For hvert lead minimeres
+\begin{equation}\min_{0\leq w\leq1}\sum_i\bigl(H_i+w(A_i-H_i)-Y_i\bigr)^2.\end{equation}
+Differentiering med hensyn til $w$ giver
+\begin{equation}\boxed{w_\ell=\clip_{[0,1]}
+\left(\frac{\sum_i(A_i-H_i)(Y_i-H_i)}{\sum_i(A_i-H_i)^2}\right).}\end{equation}
+Hvis nævneren er for lille, gemmes ingen vægt for det lead. Koden bruger den
+nærmeste gemte vægt eller $1$ uden krympningsmodel.
+
+\subsection{Fordelingen efter krympning}
+Den krympede skala multipliceres med den samme empiriske form:
+\begin{equation}
+D=\mu_{t,\ell}Z,\qquad S_D(x)=S_Z(x/\mu_{t,\ell}),\quad x>0,\ \mu_{t,\ell}>0.
+\end{equation}
+Ved $\mu=0$ sættes halen til nul for positive tærskler. Negative formkvantiler
+kan stadig forekomme, men prisberegningen tæller kun positive salgsgrænser.
+
+\textbf{Præcis fortolkning.} Krympningen skalerer fordelingen; den blander ikke
+to fulde prognosefordelinger. $\mu$ er heller ikke nødvendigvis præcis
+$\E[D]$: den poolede kvantilform er ikke tvunget til at have middelværdi $1$.
+Desuden tillader (\ref{eq:mu}) ikke negativ forventet resterende pickup, selv om
+træningsdata kan indeholde negativ pickup. Modellen er derfor ikke en fuld
+stokastisk model for annulleringer og frigivelse af allerede solgt kapacitet.
+
+\textbf{Eksempel.} Med $B=20$, $\mu^{\rm raw}=12$, $H=24$, $L=1$ og
+$w=0{,}4$ bliver $\widehat Y=0{,}4\cdot32+0{,}6\cdot24=27{,}2$ og
+$\mu=7{,}2$. Kalenderen dæmper dermed pickup-skalaen fra $12$ til $7{,}2$.
+
+\newpage
+\section{Priselasticitet og forventet salg}
+Ved pris $p_k$ skaleres efterspørgslen med
+\begin{equation}
+g_k=\left(\frac{p_k}{p_0}\right)^{-\varepsilon},\qquad
+D_k=g_kD,\qquad S_{D_k}(x)=S_D(x/g_k).
+\end{equation}
+De konfigurerede elasticiteter er $1{,}6$ for rum og $2{,}0$ for senge. De er
+\emph{antagelser}, ikke målte kausale effekter på egne gæster. Eksempelvis giver
+10\,\% højere værelsespris $g=1{,}1^{-1{,}6}\approx0{,}859$.
+
+\subsection{Hvorfor summeres halerne?}
+For ikke-negativ heltallig efterspørgsel $X$ og heltallig kapacitet $C$ gælder
+\begin{align}
+\min(X,C)&=\sum_{j=1}^{C}\mathbf1\{X\geq j\},\\
+\E[\min(X,C)]&=\sum_{j=1}^{C}\Prob(X\geq j).
+\end{align}
+Koden evaluerer derfor
+\begin{equation}
+Q_k(C)=\sum_{j=1}^{C}S_D(j/g_k),\qquad V_k(C)=\bigl((1-c)p_k-v\bigr)Q_k(C).
+\end{equation}
+For en kontinuert $D_k$ svarer summen til at tælle hele positive enheder, dvs.
+$X_k=\lfloor\max(D_k,0)\rfloor$, hvis halen var en konsistent fordeling.
+Den kontinuerte forventning ville i stedet være integralet
+$\int_0^C S_{D_k}(x)\,dx$.
+\code{expected_sales} afrunder kapaciteten op med en numerisk tolerance og
+begrænser som standard summen til 400 enheder.
+
+\subsection{Et gennemregnet prisvalg}
+Et rent regneeksempel: $C=3$, $c=0{,}16$, $v=95$ kr. Tabellen antager de viste
+halesandsynligheder ved hvert trin; de er ikke en prognose for hostellet.
+\begin{center}\small
+\begin{tabular}{@{}rrrrrrr@{}}\toprule
+$p_k$ & $S_k(1)$ & $S_k(2)$ & $S_k(3)$ & $Q_k$ & $(1-c)p_k-v$ & $V_k$\\\midrule
+600 & 0,95 & 0,80 & 0,55 & 2,30 & 409 & 940,70\\
+700 & 0,90 & 0,70 & 0,40 & 2,00 & 493 & 986,00\\
+800 & 0,80 & 0,55 & 0,25 & 1,60 & 577 & 923,20\\\bottomrule
+\end{tabular}
+\end{center}
+700 kr. vinder: højere bidrag pr. salg opvejer tabet af volumen fra 600 kr.,
+men ikke det yderligere volumetab ved 800 kr.
+
+Uden kapacitetsbinding giver den kontinuerte approksimation
+$V(p)\propto((1-c)p-v)p^{-\varepsilon}$. For $\varepsilon>1$ har den optimum
+\begin{equation}p^*=\frac{\varepsilon v}{(\varepsilon-1)(1-c)}.\end{equation}
+Med rumparametrene fås ca. 302 kr. Det illustrerer, hvorfor en antaget høj
+elasticitet kan presse priser ned: indtil måling begrænses det rå trinvalg til
+højst ét trin under reference. Dette er en politikbegrænsning, ikke et estimat.
+
+\newpage
+\section{Bid price: værdien af den sidste enhed}
+Ved fast pris og bidrag $n=(1-c)p-v\geq0$ er værdien af kapacitet $C$
+$V(C)=n\sum_{j=1}^{C}S_D(j/g)$. Den marginale værdi er derfor
+\begin{equation}\boxed{b(C)=V(C)-V(C-1)=nS_D(C/g).}\end{equation}
+Bid price er den forventede alternativomkostning ved at afgive den sidste
+ledige enhed. I eksemplet med 700 kr. er $b(3)=493\cdot0{,}40=197{,}20$ kr.
+Koden bruger $\max(0,n)$ og returnerer dette bidrag ved $C\leq0$ som en
+konvention; den konvention er ikke en tilladelse til overbooking.
+
+\subsection{Flex-rum}
+Lad $f$ være antal flex-rum allokeret til private, og lad et flex-rum rumme $h$
+senge. Kapaciteterne bliver $C_r(f)=C_r(0)+f$ og $C_b(f)=C_b(0)-hf$.
+Ved faste priser og efterspørgselsmodeller er gevinsten ved ét ekstra privat rum
+\begin{align}
+G(f)&=n_rS_r\left((C_r(f)+1)/g_r\right),\\
+T(f)&=n_b\sum_{j=0}^{h-1}S_b\left((C_b(f)-j)/g_b\right),\\
+\Delta(f)&=G(f)-T(f).
+\end{align}
+Flytningen foretages, når $\Delta(f)>\tau$, hvor $\tau=25$ kr. i
+konfigurationen. Her er $h=8$; det tidligere lagerekssempel i referencen bruger
+4 og er ikke den aktuelle parameter.
+
+Algoritmen starter ved den tilladte nedre grænse og lægger rum til, indtil
+gevinsten er for lille eller øvre grænse nås. For monotone haler falder
+rumgevinsten, mens tabet på de fjernede senge stiger. Derfor er den grådige
+regel begrundet for dette separable problem. Den numeriske ekstremhale omtalt
+på side 2 betyder, at monotonicitet ikke er en ubetinget garanti i koden.
+
+Trinvalget beregnes i motoren med hvert lagers \emph{maksimalt mulige}
+kapacitet. Begge lagre kan ikke samtidig få alle flex-rum. Prisvalg og
+flex-allokering er derfor ikke én fælles global optimering. Rumtyper,
+faktiske reservationer og ophold på tværs af datoer begrænser desuden
+allokeringen.
+
+\subsection{Ophold over flere nætter}
+For ét ophold over datoerne $\mathcal T$ er den implementerede kapacitetsværdi
+\begin{equation}B_{\rm ophold}=\sum_{t\in\mathcal T}b_t(C_t).\end{equation}
+Et tilbuds samlede bidrag kan sammenlignes med denne sum. Funktionen
+\code{stay_value} findes, men er ikke koblet til bookingmotoren. Summen alene
+løser ikke sammenhængende rumtildeling eller automatisk minimumsophold.
+
+\newpage
+\section{Grupper: forventet fortrængning og punktprognose}
+Hvis en gruppe bruger $q\leq C$ enheder på en dato, er den marginale
+fortrængningsværdi ved fast pris
+\begin{equation}
+A(q)=V(C)-V(C-q)=\sum_{i=0}^{q-1}b(C-i).
+\end{equation}
+De første enheder kan koste lidt, mens de sidste koster meget. Med eksempellets
+700 kr. koster to enheder $493(0{,}40+0{,}70)=542{,}30$ kr. i mistet
+forventet dækningsbidrag.
+
+\textbf{Motorens konkrete gruppegulv er mere konservativt.} I
+\code{engine.py} anvendes $\widetilde n_t=(1-c)p_t$ i fortrængningssummen:
+der fratrækkes ikke variable omkostninger på det fortrængte salg. Derefter
+lægges gruppens variable omkostning til:
+\begin{align}
+\widetilde A_t(q)&=(1-c)p_t\sum_{i=0}^{q-1}S_t\left((C_t-i)/g_t\right),\\
+r_{t,\min}&=v+\frac{\widetilde A_t(q)}q.\label{eq:group}
+\end{align}
+Med to rum i eksemplet giver dette $v+588\cdot1{,}10/2=418{,}40$ kr. pr. rum,
+før prisgrænser og afrunding. Et gulv baseret på mistet dækningsbidrag ville
+i stedet være $95+542{,}30/2=366{,}15$ kr.
+
+Som standard sættes $g_t=1$ i gruppeberegningen, så længe elasticiteten ikke er
+målt. Den særskilte hjælpefunktion \code{group_floor} kan gennemsnitsberegne
+over flere nætter med de nettopriser, den får; motorens viste tilbud beregnes
+pr. dato med (\ref{eq:group}). Der indgår ingen særskilt division med
+$1-c_{\rm gruppe}$ for en eventuel provision på gruppetilbuddet.
+
+\subsection{Det supplerende punktbaserede tal}
+Motoren viser også \code{minimum_rate_certain}. Med total rumkapacitet $K_t$
+og punktprognose $\widehat F_t$ er beregningen
+\begin{equation}
+r_{t,\rm punkt}=v+\frac{(1-c)p_t}{q}
+\max\{0,q-\max(0,K_t-\widehat F_t)\}.
+\end{equation}
+Navnet ``certain'' betyder her en beregning, der tager punktprognosen som
+udfald. Det er hverken en øvre fraktil, et worst case eller en garanti.
+Begge tal underlægges prisgulv, prisloft og afrunding.
+
+\section{Adaptivt efterspørgselsniveau}
+Forventet og faktisk pickup summeres først på tværs af datoer til $E$ og $A$.
+Den implementerede opdatering, når $E\geq20$, er
+\begin{equation}\boxed{L_{\rm ny}=\clip_{[0{,}6,1{,}6]}
+\left[L_{\rm gammel}\left(\frac{\max(0,A)+1}{E+1}\right)^{0{,}07}\right].}\end{equation}
+Ved $E<20$ ændres niveauet ikke. Tillægget $1$ undgår nulstilling ved nul
+pickup. For $L=1$, $E=100$ og $A=75$ fås ca. $0{,}980$: en lille korrektion.
+Rum og senge har separate niveauer. Dette er en adaptiv regel, ikke en ny
+estimation af elasticiteten eller hele fordelingen.
+
+\newpage
+\section{Fra økonomisk optimum til endelig pris}
+De aktuelle trinfaktorer er
+\[
+(0{,}80;\ 0{,}86;\ 0{,}93;\ 1{,}00;\ 1{,}07;\ 1{,}15;\ 1{,}24;\ 1{,}35;\ 1{,}48).
+\]
+De multipliceres med dagens grundpris og behandles med prisgrænser og
+afrunding. Ved ens målværdi vælger \code{choose_rung} det første trin.
+
+Efter den indledende rabatbegrænsning justeres trinpositionen med markedet:
+\begin{equation}
+u=k_{\text{begrænset}}+\frac{w_M}{s}\clip_{[-1,1]}
+\left(\frac{p_{\rm comp}I_{\rm kvalitet}/p_{\rm base}-1}{a_M}\right).
+\end{equation}
+Her er $w_M=0{,}20$, $s=0{,}15$ og $a_M=0{,}20$. Uden markedspris er
+markedsleddet nul. Mere end tre dage før ankomst udglattes positionen med
+forrige position, når den findes: $\bar u=0{,}5u+0{,}5u_{\text{før}}$.
+Derefter tilføjes eventtrin $\operatorname{round}(\max(0,F_{\rm event}-1)/0{,}10)$.
+
+Hysterese kræver normalt en afstand på mindst $0{,}75$ trin før skift.
+Der tillades højst to trin op og ét ned pr. trinbeslutning; tæt på ankomst to
+ned. Desuden gælder bl.a. eventgulv, langtidsgrænse, manuelle låse, prisgulv,
+prisloft og en daglig ændringsbremse på 15\,\% med fast 24-timers anker.
+V3's særskilte knaphedsgulv og ratchet er slået fra ved aktiv v4.
+
+\textbf{Eksploration i koden.} Et deterministisk hashvalg pr. dato og lager kan
+vælge et nabotrin ved lead højst 60 dage, hvis afstanden mellem positionen og
+det valgte trin er højst $0{,}35$. Dette tester ikke direkte, om to trins
+forventede dækningsbidrag er næsten ens. Referencens beskrivelse af ``lige
+gode trin'' er derfor en hensigt, ikke en verificeret økonomisk betingelse.
+En kausal elasticitetsmåling kræver også et korrekt forsøgsdesign og logning af
+de priser, gæsterne faktisk blev eksponeret for.
+
+\section{Hvad kan valideres?}
+Prognosepræcision kan måles på senere, adskilte historiske perioder med fx.
+$\mathrm{MAE}=N^{-1}\sum_t|Y_t-\widehat Y_t|$ og empirisk dækning af
+prognoseintervaller. Gentagne lead-observationer fra samme dato er afhængige;
+derfor bør usikkerhed beregnes med datoen som klynge. Referencens historiske
+resultater er ikke genkørt som del af dette dokument.
+
+En bedre salgsprognose dokumenterer ikke en omsætningsgevinst ved andre priser.
+Historiske priser afhænger selv af forventet efterspørgsel. Modellen rummer
+også andre antagelser end elasticiteten: censurering, sæsonstruktur,
+formpooling, haleapproksimation og driftsregler påvirker beslutningen.
+
+\vfill
+{\small\raggedright\textbf{Kildegrundlag og reproduktion.}
+Projektets \code{REFERENCE.md} samt \code{app/cube.py}, \code{app/demand.py},
+\code{app/bidprice.py}, \code{app/engine.py}, \code{app/ladder.py},
+\code{app/level.py} og \code{config/config.yaml}. Ved forskel mellem forklarende
+tekst og kode beskriver notatet koden. Alle regneeksempler er illustrative.
+LaTeX-kilden kompileres med \code{pdflatex v4-matematik.tex} (to kørsler).\par}
+\end{document}

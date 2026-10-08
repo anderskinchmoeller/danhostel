@@ -1,11 +1,6 @@
 """Bid price — den marginale værdi af den sidste ledige enhed.
 
-Version 3 styrer mod en målbelægning. `target_occupancy_rooms: 0.55` vejer 0,40
-i stigens samlede tryk og er et gæt: historikken for hverdage er 0,39, så
-hverdage starter 1-2 trin under reference per konstruktion. Det er ikke en
-kalibreringsfejl, det er et designvalg truffet uden data.
-
-Version 4 har ingen målbelægning. Den regner i stedet forventet omsætning ud
+Version 4 har ingen målbelægning. Den regner forventet omsætning ud
 for hvert trin på stigen, over hele fordelingen af resterende efterspørgsel, og
 vælger det trin der giver mest. Belægningen bliver et resultat, ikke et input.
 
@@ -29,13 +24,13 @@ m(r) er hvor meget efterspørgslen flytter sig med prisen:
     m(r) = (pris(r) / pris(reference)) ^ (-elasticitet)
 
 Elasticiteten er ikke målt. Den er det eneste ukendte tal tilbage i
-prisbeslutningen, og det er med vilje: version 3 havde fire triggervægte, to
-målbelægninger og en trinafstand, som alle var gæt. Her er der ét, det står i
+prisbeslutningen, og det er med vilje: ældre motorer havde flere triggervægte,
+målbelægninger og trinafstande, som alle var gæt. Her er der ét, det står i
 config, og det er præcis det tal `pricing.v4.exploration` begynder at måle fra
 første dag. Indtil det er målt, er standardværdierne branchelitteratur og ikke
 jeres gæster.
 
-Bid price gør tre ting, som version 3 løser hver for sig og omtrentligt:
+Bid price samler tre beslutninger i samme marginale regnestykke:
 
 **Flex-allokering.** Et flex-rum solgt privat lægger beslag på otte
 sengepladser. Sælg det som rum, hvis værdien af den ekstra rumkapacitet
@@ -76,8 +71,8 @@ til 0, bliver den højeste pris altid den bedste, og modellen mister sin bremse.
 
 @dataclass(frozen=True)
 class V4Config:
-    """pricing.v4 i config.yaml. Slået fra kører version 3 uændret."""
-    enabled: bool = False
+    """pricing.v4 i config.yaml. Projektet kører kun v4 i drift."""
+    enabled: bool = True
     model_path: str = "config/demand_model.json"
     level_path: str = "data/demand_level.json"
     elasticity_rooms: float = DEFAULT_ELASTICITY_ROOMS
@@ -89,7 +84,7 @@ class V4Config:
     use_for_groups: bool = True
 
     # Så længe elasticiteten er et litteraturtal og ikke en måling, må version 4
-    # ikke rabattere dybere end version 3 ville. Grunden er ikke forsigtighed
+    # ikke rabattere dybere end ét trin under reference. Grunden er ikke forsigtighed
     # for forsigtighedens skyld: med en konstant elasticitet over 1 og en lav
     # variabel omkostning ligger det ubegrænsede optimum under prisgulvet, så
     # modellen vil stå på nederste trin på enhver dato hvor kapaciteten ikke

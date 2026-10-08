@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>dk.danhostel.prismotor</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/Users/anderskinch/hostel/scripts/run-prismotor.sh</string>
+  </array>
+
+  <key>WorkingDirectory</key>
+  <string>/Users/anderskinch/hostel</string>
+
+  <key>RunAtLoad</key>
+  <true/>
+
+  <key>KeepAlive</key>
+  <true/>
+
+  <key>StandardOutPath</key>
+  <string>/Users/anderskinch/hostel/logs/prismotor.out.log</string>
+
+  <key>StandardErrorPath</key>
+  <string>/Users/anderskinch/hostel/logs/prismotor.err.log</string>
+</dict>
+</plist>
