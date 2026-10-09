@@ -240,12 +240,11 @@ pricing:
 
     event_rung_step: 0.10  # 10 % eventtillæg = ét trin op, og aldrig under reference
 
-    # Bundet eksploration. Står to nabotrin omtrent
-    # lige godt, vælges der tilfældigt mellem dem, og valget logges. Risikoen er
-    # loftet ved ét trin — mindre end den uro modellen laver i forvejen — og
-    # til gengæld bliver hver dato et eksperiment. Det er den billige vej til
-    # elasticiteten (roadmap punkt 3): hundredvis af observationer pr. sæson i
-    # stedet for fyrre, og prisen er valgt tilfældigt, så målingen holder.
+    # Bundet eksploration. Står to nabotrin omtrent lige godt, vælges der
+    # tilfældigt mellem dem, og valget logges. Det leverer v4's billige
+    # eksperimentdata, men v5-målingen skal være smallere: 40 sammenlignelige
+    # datoer, halvdelen 5 % op og halvdelen 5 % ned. Efter en sæson kan
+    # k_forecast og k_market erstattes af et tal målt på egne gæster.
     explore: true
     explore_band: 0.35
     explore_max_lead: 60

@@ -152,7 +152,10 @@ def price_path(by_date, day: str, params, max_lead: int) -> dict:
         item = DayInput(day=arrival, rooms_otb=int(row["otb_rum"]),
                         beds_otb=int(row["otb_senge"]),
                         prev_room_rung=prev_rung, prev_room_position=prev_position)
-        rec = price_day(item, params, today=date.fromordinal(arrival.toordinal() - lead))
+        try:
+            rec = price_day(item, params, today=date.fromordinal(arrival.toordinal() - lead))
+        except ValueError:
+            return {}
         prev_rung = rec.room_rung
         prev_position = (rec.room_ladder or {}).get("smoothed_position")
         prices[lead] = rec.room_price
@@ -196,7 +199,7 @@ def revenue_sweep(paths: dict, by_date, capacity: int,
     usikkerheden på elasticiteten — den er grunden til at der er en hel tabel
     og ikke ét tal.
     """
-    days = sorted(paths["v3"])
+    days = sorted(d for d in paths["v3"] if paths["v3"][d] and paths["v4"].get(d))
     out = []
     for elasticity in elasticities:
         pairs = [(revenue(paths["v3"][d], by_date, d, capacity, elasticity),
@@ -218,15 +221,44 @@ def revenue_sweep(paths: dict, by_date, capacity: int,
     return out
 
 
+def revenue_sweep_pair(paths: dict, by_date, capacity: int, base: str, challenger: str,
+                       elasticities=ELASTICITIES, *, draws: int = 1000,
+                       seed: int = 20261002) -> list:
+    """Sammenlign to prisveje under samme elasticitetsantagelser."""
+    days = sorted(d for d in set(paths[base]) & set(paths[challenger])
+                  if paths[base][d] and paths[challenger][d])
+    out = []
+    for elasticity in elasticities:
+        pairs = [(revenue(paths[base][d], by_date, d, capacity, elasticity),
+                  revenue(paths[challenger][d], by_date, d, capacity, elasticity))
+                 for d in days]
+        b = statistics.mean(a for a, _ in pairs)
+        c = statistics.mean(v for _, v in pairs)
+        rng = random.Random(seed)
+        n = len(pairs)
+        diffs = []
+        for _ in range(draws):
+            sample = [pairs[rng.randrange(n)] for _ in range(n)]
+            base_mean = statistics.mean(a for a, _ in sample)
+            diffs.append((statistics.mean(v for _, v in sample) - base_mean) / base_mean
+                         if base_mean else 0.0)
+        diffs.sort()
+        out.append({"elasticitet": elasticity, base: b, challenger: c,
+                    "forskel": (c - b) / b if b else 0.0,
+                    "lav": diffs[int(0.025 * draws)], "hoej": diffs[int(0.975 * draws)]})
+    return out
+
+
 # --------------------------------------------------------------------------
 # 3. Hvor meget data skal der til, før sagen kan afgøres?
 # --------------------------------------------------------------------------
 
-def power(test_rows, *, rung_step: float = 0.07, target_se: float = 0.20) -> dict:
+def power(test_rows, *, rung_step: float = 0.10, target_se: float = 0.20) -> dict:
     """Hvor mange eksplorationsdatoer skal der til for at måle elasticiteten?
 
-    Eksplorationen vælger tilfældigt mellem to nabotrin, altså en prisforskel på
-    ca. 7 %. Elasticiteten estimeres ved at regressere log pickup på log pris.
+    Version 5-forsøget fordeler datoer 5 % op og 5 % ned, altså ca. 10 %
+    prisforskel mellem de to grupper. Elasticiteten estimeres ved at regressere
+    log pickup på log pris.
     Standardfejlen er
 
         SE = sigma(log pickup) / (sigma(log pris) x kvadratroden af n)
@@ -325,6 +357,8 @@ def main(argv: list[str] | None = None) -> int:
     p3 = settings.params
     v4cfg = replace(p3.v4 or bidprice.V4Config(), enabled=True)
     p4 = replace(p3, v4=v4cfg, demand_models=models)
+    v5cfg = replace(v4cfg, elasticity_measured=True)
+    p5 = replace(p4, v4=v5cfg)
     capacity = p3.inventory.max_room_capacity
 
     print("OPSÆTNING")
@@ -370,11 +404,16 @@ def main(argv: list[str] | None = None) -> int:
     sample = days[::step][:args.datoer]
     paths = {name: {day: price_path(by_date, day, params, args.max_lead)
                     for day in sample}
-             for name, params in (("v3", p3), ("v4", p4))}
+             for name, params in (("v3", p3), ("v4", p4), ("v5", p5))}
 
-    changes = {name: statistics.mean(
-        sum(1 for a, b in zip(list(p.values()), list(p.values())[1:]) if abs(a - b) > 0.01)
-        for p in paths[name].values()) for name in paths}
+    changes = {}
+    for name, price_paths in paths.items():
+        counted = [
+            sum(1 for a, b in zip(list(p.values()), list(p.values())[1:])
+                if abs(a - b) > 0.01)
+            for p in price_paths.values() if p
+        ]
+        changes[name] = statistics.mean(counted) if counted else 0.0
     print(f"3. OMSÆTNING — {len(sample)} datoer, {args.max_lead} dage ned mod ankomst")
     print(f"   Prisskift pr. dato: v3 {changes['v3']:.1f}, v4 {changes['v4']:.1f}")
     print(f"{'elasticitet':>12}{'v3':>10}{'v4':>10}{'forskel':>10}{'95 %-interval':>20}")
@@ -384,6 +423,18 @@ def main(argv: list[str] | None = None) -> int:
               f"{line['forskel']:>+10.1%}{interval:>20}")
     print("  Dette er IKKE et bevis. Hver række er en antagelse om gæsterne.")
     print("  Tabellen viser hvilken antagelse der skal holde, for at hver version vinder.")
+    print()
+
+    print("3B. V4 MOD V5 — v5 = v4 med målt elasticitet og uden midlertidig rabatbinding")
+    print(f"   Prisskift pr. dato: v4 {changes['v4']:.1f}, v5 {changes['v5']:.1f}")
+    print(f"{'elasticitet':>12}{'v4':>10}{'v5':>10}{'forskel':>10}{'95 %-interval':>20}")
+    for line in revenue_sweep_pair(paths, by_date, capacity, "v4", "v5"):
+        interval = f"[{line['lav']:+.1%}; {line['hoej']:+.1%}]"
+        print(f"{line['elasticitet']:>12.1f}{line['v4']:>10.0f}{line['v5']:>10.0f}"
+              f"{line['forskel']:>+10.1%}{interval:>20}")
+    print("  Dette tester ikke en færdig v5 på historiske gæster. Det tester effekten af")
+    print("  den v5-beslutning der først må tages efter forsøget: at behandle")
+    print("  elasticiteten som målt og fjerne v4's midlertidige rabatloft.")
     print()
 
     e = endogeneity(rows)
@@ -408,7 +459,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"   Prisvariation fra eksplorationen: {p['sigma_log_pris']:.3f} i log")
         print(f"   Datoer for en standardfejl på {p['target_se']:.2f}: {p['n']:.0f}")
         print(f"   Ved 120 datoer i horisonten: {p['n'] / 120:.0f} kørselsdage, "
-              f"altså under en måned hvis eksplorationen rammer alle datoer.")
+              f"hvis eksplorationen rammer alle datoer.")
         print("   Realistisk rammer den en mindre del, så regn med en sæson.")
     return 0
 

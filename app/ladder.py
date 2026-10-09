@@ -106,11 +106,11 @@ class LadderConfig:
     ratchet: bool = True           # aldrig ned på en dato der er på vej mod målet
     smoothing: float = 0.5         # vægt på dagens tryk; resten er gårsdagens (EWMA)
 
-    # Bundet eksploration (version 4). Står to nabotrin omtrent lige godt, så
-    # vælg tilfældigt mellem dem og log valget. Risikoen er loftet ved ét trin
-    # — mindre end den uro modellen laver i forvejen — og til gengæld bliver
-    # hver dato et eksperiment. Over en sæson giver det hundredvis af
-    # observationer at måle elasticitet på i stedet for fyrre.
+    # Bundet eksploration (version 4, input til version 5). Står to nabotrin
+    # omtrent lige godt, så vælg tilfældigt mellem dem og log valget. Den
+    # rigtige v5-måling er smallere: 40 sammenlignelige datoer, halvdelen 5 %
+    # op og halvdelen 5 % ned, så elasticiteten kan måles på egne gæster efter
+    # en sæson i stedet for at gætte k_forecast og k_market.
     explore: bool = False
     explore_band: float = 0.35     # hvor tæt på vippepunktet et valg skal være
     explore_max_lead: int = 60     # ikke så langt ude at valget alligevel bliver skrevet om
