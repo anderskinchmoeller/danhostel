@@ -98,6 +98,14 @@ def test_event_adds_rungs_and_floors_at_reference():
     assert r.triggers["event_trin"] == 2
 
 
+def test_market_level_can_nudge_without_numeric_comp_price():
+    elevated = step(market_pressure=0.6)
+    low = step(market_pressure=-0.6)
+    assert elevated.triggers["marked"] == 0.6
+    assert low.triggers["marked"] == -0.6
+    assert elevated.position > low.position
+
+
 def test_pace_noise_is_ignored_on_small_numbers():
     # Én booking over det forventede på en stille dag er ikke et signal
     quiet = step(pickup=2 / 36, expected_pickup=1 / 36)

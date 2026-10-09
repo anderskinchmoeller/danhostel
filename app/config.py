@@ -100,6 +100,8 @@ def _v4(raw: dict | None) -> V4Config | None:
             value = bool(value)
         elif isinstance(field_.default, float):
             value = float(value)
+        elif isinstance(field_.default, int):
+            value = int(value)
         elif isinstance(field_.default, str):
             value = str(value)
         kw[key] = value

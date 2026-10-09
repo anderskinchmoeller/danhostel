@@ -15,7 +15,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
 
-SCHEMA_VERSION = 3
+SCHEMA_VERSION = 4
 
 
 def utcnow() -> datetime:
@@ -48,6 +48,8 @@ class DayState(Base):
 
     comp_room: Mapped[float | None] = mapped_column(Float, nullable=True)
     comp_bed: Mapped[float | None] = mapped_column(Float, nullable=True)
+    market_pressure_room: Mapped[float | None] = mapped_column(Float, nullable=True)
+    market_pressure_bed: Mapped[float | None] = mapped_column(Float, nullable=True)
 
     current_room_price: Mapped[float | None] = mapped_column(Float, nullable=True)
     current_bed_price: Mapped[float | None] = mapped_column(Float, nullable=True)
@@ -207,12 +209,13 @@ def init_db(database_url: str):
 
     SessionLocal = sessionmaker(bind=_engine, expire_on_commit=False, future=True)
     Base.metadata.create_all(_engine)
-    # Version 2 -> 3: nullable additions preserve all existing prices and history.
+    # Versioned nullable additions preserve all existing prices and history.
     additions = {
         "day_state": {"flex_private_min": "INTEGER", "flex_private_max": "INTEGER",
                       "booked_room_revenue": "FLOAT", "booked_bed_revenue": "FLOAT",
                       "room_type_otb": "TEXT", "anchor_room_price": "FLOAT",
-                      "anchor_bed_price": "FLOAT", "anchor_at": "DATETIME"},
+                      "anchor_bed_price": "FLOAT", "anchor_at": "DATETIME",
+                      "market_pressure_room": "FLOAT", "market_pressure_bed": "FLOAT"},
         "recommendation": {"revenue_basis": "VARCHAR(32)", "room_rung": "INTEGER",
                            "bed_rung": "INTEGER", "ladder": "TEXT"},
     }

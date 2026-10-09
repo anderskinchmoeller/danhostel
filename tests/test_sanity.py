@@ -17,7 +17,7 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
-from app.adapters import parse_inventory
+from app.adapters import parse_comp, parse_inventory
 from app.config import load_settings
 from app.sanity import check_inventory
 
@@ -60,6 +60,13 @@ def codes(findings):
 
 def test_normal_file_passes(params):
     assert check_inventory(_rows(_normal()), params) == []
+
+
+def test_lighthouse_compset_level_imports_as_market_pressure():
+    rows = parse_comp("dato;smart_compset_price_level\n2026-10-19;Elevated\n")
+    assert rows[0].day == date(2026, 10, 19)
+    assert rows[0].comp_room is None
+    assert rows[0].market_pressure_room == pytest.approx(0.6)
 
 
 def test_real_sample_passes(params):

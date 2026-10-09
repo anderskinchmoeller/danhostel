@@ -61,7 +61,36 @@ ALIASES = {
     "comp_bed": {
         "medianpris_seng", "comp_bed", "konkurrentpris_seng", "median_bed", "bed_median",
     },
+    "market_pressure_room": {
+        "market_pressure_room", "compset_price_level", "smart_compset_price_level",
+        "smart_compset_priceniveau", "smart_compset_niveau", "compset_niveau",
+        "konkurrentniveau", "lighthouse_compset_price_level",
+    },
+    "market_pressure_bed": {
+        "market_pressure_bed", "bed_compset_price_level", "senge_compset_price_level",
+        "senge_konkurrentniveau", "lighthouse_bed_compset_price_level",
+    },
     "n_properties": {"antal", "n", "properties", "antal_hoteller", "count"},
+}
+
+LEVEL_PRESSURE = {
+    "very_low": -1.0,
+    "verylow": -1.0,
+    "meget_lav": -1.0,
+    "lav": -0.6,
+    "low": -0.6,
+    "normal": 0.0,
+    "neutral": 0.0,
+    "elevated": 0.6,
+    "forhoejet": 0.6,
+    "forhøjet": 0.6,
+    "high": 1.0,
+    "hoej": 1.0,
+    "høj": 1.0,
+    "very_high": 1.0,
+    "veryhigh": 1.0,
+    "meget_hoej": 1.0,
+    "meget_høj": 1.0,
 }
 
 
@@ -103,6 +132,24 @@ def parse_number(value: str) -> float:
     if not math.isfinite(number):
         raise ValueError("Tal skal være endelige")
     return number
+
+
+def parse_market_pressure(value: str) -> float:
+    """Parse Lighthouse-style market levels to a bounded ladder trigger.
+
+    The returned value is not a price. It is the same -1..1 pressure scale that
+    the ladder uses after comparing a numeric compset price with our base price.
+    """
+    value = (value or "").strip()
+    if not value:
+        raise ValueError("tom værdi")
+    try:
+        return max(-1.0, min(1.0, parse_number(value)))
+    except ValueError:
+        key = _norm(value)
+        if key in LEVEL_PRESSURE:
+            return LEVEL_PRESSURE[key]
+    raise ValueError(f"Ukendt markedsniveau: {value!r}")
 
 
 def _reader(text: str):
@@ -197,9 +244,11 @@ def parse_comp(text: str) -> list:
     cols = _map_headers(rows[0])
     if "day" not in cols:
         raise ValueError("Mangler datokolonne. Forventede fx: dato;medianpris_vaerelse;medianpris_seng")
-    if "comp_room" not in cols and "comp_bed" not in cols:
+    if not any(field in cols for field in (
+            "comp_room", "comp_bed", "market_pressure_room", "market_pressure_bed")):
         raise ValueError(
-            "Mangler priskolonne. Forventede fx: dato;medianpris_vaerelse;medianpris_seng"
+            "Mangler priskolonne. Forventede fx: dato;medianpris_vaerelse;medianpris_seng "
+            "eller dato;smart_compset_price_level"
         )
 
     out = []
@@ -209,11 +258,15 @@ def parse_comp(text: str) -> list:
         try:
             room = _cell(row, cols, "comp_room")
             bed = _cell(row, cols, "comp_bed")
+            room_pressure = _cell(row, cols, "market_pressure_room")
+            bed_pressure = _cell(row, cols, "market_pressure_bed")
             n = _cell(row, cols, "n_properties")
             out.append(CompRow(
                 day=parse_date(row[cols["day"]]),
                 comp_room=parse_number(room) if room else None,
                 comp_bed=parse_number(bed) if bed else None,
+                market_pressure_room=parse_market_pressure(room_pressure) if room_pressure else None,
+                market_pressure_bed=parse_market_pressure(bed_pressure) if bed_pressure else None,
                 n_properties=int(parse_number(n)) if n else 0,
             ))
         except (ValueError, IndexError) as exc:

@@ -196,7 +196,8 @@ def ladder_step(*, base: float, rungs: Sequence[float], rounder, cfg: LadderConf
                 scarcity_protect: bool = True,
                 use_ratchet: bool | None = None,
                 explore_seed: str | None = None,
-                bid: dict | None = None) -> LadderResult:
+                bid: dict | None = None,
+                market_pressure: float | None = None) -> LadderResult:
     """Vælg trin for ét produkt på én dato.
 
     `position_override` er version 4: bid price har allerede valgt trinnet ud
@@ -230,6 +231,8 @@ def ladder_step(*, base: float, rungs: Sequence[float], rounder, cfg: LadderConf
 
     if comp_price and base > 0:
         t_market = _clip((comp_price * quality_index / base - 1.0) / cfg.market_scale)
+    elif market_pressure is not None:
+        t_market = _clip(market_pressure)
     else:
         t_market = 0.0
 

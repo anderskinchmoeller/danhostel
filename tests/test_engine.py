@@ -14,6 +14,7 @@ from app.engine import (
     allocate_flex, base_prices, forecast_occupancy, group_quote,
     price_day, price_range, quality_index, round_to, round_within,
 )
+from app.ladder import LadderConfig
 
 TODAY = date(2026, 9, 15)
 
@@ -125,6 +126,14 @@ def test_market_factor_is_damped_not_copied(params):
     r = rec(date(2026, 10, 20), rooms=12, beds=90, comp_room=300, comp_bed=140, params=params)
     assert r.f_market_rooms == params.market_min
     assert r.room_price > 300
+
+
+def test_lighthouse_compset_level_feeds_ladder_without_warning():
+    params = Params(ladder=LadderConfig())
+    r = rec(date(2026, 10, 20), rooms=12, beds=90, comp_room=None,
+            market_pressure_room=1.0, params=params)
+    assert r.room_ladder["triggers"]["marked"] == 1.0
+    assert not any("Ingen konkurrentpris på værelser" in w for w in r.warnings)
 
 
 # -- flex-allokering -------------------------------------------------------

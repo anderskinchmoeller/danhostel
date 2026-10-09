@@ -147,3 +147,7 @@ app/adapters/       CSV i dag, Picasso den dag der er API-adgang
 app/calibration.py  bookingkurver og sæson fra egen historik
 config/config.yaml  lager og alle parametre, ingen kode
 ```
+
+
+Koder: Hotel
+       Janesminde6))

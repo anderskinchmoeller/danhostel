@@ -185,6 +185,10 @@ def test_delivery_checks_freshness_again_and_inventory_confirmation(database):
 
 
 def test_reimports_do_not_compound_daily_price_changes(database):
+    database.params = replace(
+        database.params,
+        v4=replace(database.params.v4, unbounded_daily_change=False),
+    )
     with db.get_session() as session:
         service.upsert_inventory(session, [InventoryRow(TODAY, current_room_price=600,
                                                         current_bed_price=200)])

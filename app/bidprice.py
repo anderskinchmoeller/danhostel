@@ -102,6 +102,12 @@ class V4Config:
     # koster en forespørgsel; et for lavt gulv er bindende i et år.
     group_undamped_until_measured: bool = True
 
+    # Når den er slået til, respekterer v4 stadig prisgulv, prisloft,
+    # afrunding og manuelle låse, men den daglige ændringsbremse ignoreres.
+    # Bruges til at se det rene v4-svar uden en 15 %-glidesti fra gårsdagens
+    # pris.
+    unbounded_daily_change: bool = False
+
     # Mindste forskel i kroner før et flex-rum anbefales flyttet. Uden den
     # flytter modellen sovesale til private værelser på en død december-søndag,
     # fordi to en halv krone er mere end nul. Regnestykket har ret og

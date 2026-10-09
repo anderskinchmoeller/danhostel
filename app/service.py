@@ -6,7 +6,9 @@ Kun friske, mulige datoer beregnes; eksport/skrivning validerer igen.
 
 from __future__ import annotations
 
+import csv
 import json
+import os
 from dataclasses import replace
 from datetime import date, datetime, timedelta
 
@@ -23,6 +25,47 @@ from .engine import DayInput, EventUplift, Params, price_day, quality_index
 # --------------------------------------------------------------------------
 # Ind- og udlæsning af tilstand
 # --------------------------------------------------------------------------
+
+def _kr(value: float) -> str:
+    return f"{value:.2f}".replace(".", ",")
+
+
+def save_price_archive(settings: Settings, run_id: int) -> Path:
+    """Gem seneste prisforslag som CSV i en lokal mappe.
+
+    Filen er til daglig brug og fejlsøgning, ikke en bekræftelse på at priserne
+    er godkendt eller lagt i Picasso. Derfor gemmes både status og bemærkning.
+    """
+    archive_dir = Path(os.getenv("RMS_PRICE_ARCHIVE_DIR", BASE_DIR / "dagens_priser"))
+    archive_dir.mkdir(parents=True, exist_ok=True)
+
+    session = db.get_session()
+    try:
+        recs = session.scalars(
+            select(db.Recommendation)
+            .where(db.Recommendation.run_id == run_id)
+            .order_by(db.Recommendation.day)
+        ).all()
+        types = list(settings.params.room_types) + list(settings.params.bed_types)
+        rows = [["dato", "vaerelsespris", "sengepris"] + types
+                + ["flex_forslag_til_private", "status", "bemaerkning"]]
+        for rec in recs:
+            prices = json.loads(rec.room_types or "{}")
+            rows.append(
+                [rec.day.isoformat(), _kr(rec.room_price), _kr(rec.bed_price)]
+                + [_kr(prices.get(t, 0)) for t in types]
+                + [rec.flex_to_private, rec.status, rec.warnings or ""]
+            )
+    finally:
+        session.close()
+
+    today = date.today().isoformat()
+    path = archive_dir / f"priser_{today}_run-{run_id}.csv"
+    latest = archive_dir / "dagens_priser.csv"
+    for target in (path, latest):
+        with target.open("w", newline="", encoding="utf-8-sig") as fh:
+            csv.writer(fh, delimiter=";").writerows(rows)
+    return path
 
 def upsert_inventory(session, rows, actor="system") -> int:
     now = db.utcnow()
@@ -69,6 +112,10 @@ def upsert_comp(session, rows, actor="system") -> int:
             state.comp_room = row.comp_room
         if row.comp_bed is not None:
             state.comp_bed = row.comp_bed
+        if row.market_pressure_room is not None:
+            state.market_pressure_room = row.market_pressure_room
+        if row.market_pressure_bed is not None:
+            state.market_pressure_bed = row.market_pressure_bed
         state.comp_updated = now
         n += 1
     db.log(session, "import_comp", actor=actor, new=n, detail=f"{n} datoer opdateret")
@@ -102,6 +149,8 @@ def build_inputs(states, settings: Settings) -> list:
             beds_otb=s.beds_otb,
             comp_room=s.comp_room,
             comp_bed=s.comp_bed,
+            market_pressure_room=s.market_pressure_room,
+            market_pressure_bed=s.market_pressure_bed,
             current_room_price=(s.anchor_room_price if s.anchor_at and
                 db.utcnow() - s.anchor_at < timedelta(hours=24) and s.anchor_room_price
                 else s.current_room_price),
@@ -238,10 +287,12 @@ def run_pricing(settings: Settings, trigger: str = "manual", actor: str = "syste
         run.note = " | ".join(notes)
         db.log(session, "run", actor=actor, new=len(recs), detail=run.note)
         session.commit()
+        archive_path = save_price_archive(settings, run.id)
 
         result = {"status": "done", "run_id": run.id, "n_days": len(recs),
                   "quality_index": params.quality_index,
-                  "avg_revpab": run.revpab, "notes": notes}
+                  "avg_revpab": run.revpab, "notes": notes,
+                  "price_archive": str(archive_path)}
 
         if settings.auto_publish:
             result["publish"] = publish_run(settings, run.id, actor="auto")

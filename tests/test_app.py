@@ -22,6 +22,7 @@ ROOT = Path(__file__).resolve().parent.parent
 def client():
     tmp = tempfile.mkdtemp()
     os.environ["RMS_DATABASE_URL"] = f"sqlite:///{tmp}/test.db"
+    os.environ["RMS_PRICE_ARCHIVE_DIR"] = f"{tmp}/dagens_priser"
     os.environ.pop("RMS_USER", None)
     from app import main  # importeres efter miljøvariablen er sat
     with TestClient(main.app) as c:
@@ -53,6 +54,9 @@ def test_upload_run_and_approve(client):
     payload = client.get("/api/prices?days=30").json()
     assert payload["run"]["status"] == "done"
     assert payload["run"]["avg_revpab"] > 0
+    archive_dir = Path(os.environ["RMS_PRICE_ARCHIVE_DIR"])
+    assert (archive_dir / "dagens_priser.csv").exists()
+    assert list(archive_dir.glob("priser_*_run-*.csv"))
     from app import main
     assert payload["inventory"]["total_beds"] == main.settings.params.inventory.total_beds
     assert len(payload["prices"]) >= 25

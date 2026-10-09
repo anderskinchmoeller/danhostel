@@ -350,6 +350,8 @@ class DayInput:
     beds_otb: int = 0
     comp_room: float | None = None
     comp_bed: float | None = None
+    market_pressure_room: float | None = None
+    market_pressure_bed: float | None = None
     current_room_price: float | None = None
     current_bed_price: float | None = None
     blocked_rooms: int = 0
@@ -563,6 +565,8 @@ def price_day(item: DayInput, params: Params, events: Iterable[EventUplift] = ()
     f_event, event_names = event_factor(item.day, events, params)
     f_market_rooms, has_room_comp = market_factor(item.comp_room, base_room, params.k_market, params)
     f_market_beds, has_bed_comp = market_factor(item.comp_bed, base_bed, params.k_market_bed, params)
+    has_room_comp = has_room_comp or item.market_pressure_room is not None
+    has_bed_comp = has_bed_comp or item.market_pressure_bed is not None
     if not has_room_comp:
         warnings.append("Ingen konkurrentpris på værelser — F_marked sat til 1,000")
     if not has_bed_comp:
@@ -603,14 +607,17 @@ def price_day(item: DayInput, params: Params, events: Iterable[EventUplift] = ()
 
     # Linking products is advisory: privacy and dorm beds are distinct products.
     # Apply all hard price bounds last; never override the daily brake afterwards.
+    skip_daily_brake = bool(params.v4_active and params.v4.unbounded_daily_change)
     room_price = (item.locked_room_price if item.locked_room_price is not None else
                   _brake(room_price, item.current_room_price, params, warnings,
                          "værelsespris", params.price_floor, params.price_ceiling,
-                         room_ladder.rung_prices if room_ladder else None))
+                         room_ladder.rung_prices if room_ladder else None,
+                         skip=skip_daily_brake))
     bed_price = (item.locked_bed_price if item.locked_bed_price is not None else
                  _brake(bed_price, item.current_bed_price, params, warnings,
                         "sengepris", params.bed_floor, params.bed_ceiling,
-                        bed_ladder.rung_prices if bed_ladder else None))
+                        bed_ladder.rung_prices if bed_ladder else None,
+                        skip=skip_daily_brake))
     # Stigen skal huske det trin prisen faktisk endte på — efter bremse og lås —
     # ellers starter morgendagens hysterese fra et trin der aldrig blev brugt.
     for ladder, final in ((room_ladder, room_price), (bed_ladder, bed_price)):
@@ -777,7 +784,8 @@ def _ladder(item, params, lead, weekend, base_room, base_bed, f_event,
         rounder=lambda v: round_within(v, params.price_floor, params.price_ceiling, params.rounding),
         forecast=room_forecast, target=params.target_occupancy_rooms, occ_now=room_occ_now,
         lead_days=lead, pickup=rp, expected_pickup=re_, comp_price=item.comp_room,
-        quality_index=params.quality_index, event_factor=f_event,
+        quality_index=params.quality_index, market_pressure=item.market_pressure_room,
+        event_factor=f_event,
         capacity=max_rooms, forecast_units=forecast_rooms, previous_rung=item.prev_room_rung,
         previous_position=item.prev_room_position,
         position_override=room_override, scarcity_protect=protect,
@@ -788,7 +796,8 @@ def _ladder(item, params, lead, weekend, base_room, base_bed, f_event,
         rounder=lambda v: round_within(v, params.bed_floor, params.bed_ceiling, params.rounding),
         forecast=bed_forecast, target=params.target_occupancy_beds, occ_now=bed_occ_now,
         lead_days=lead, pickup=bp, expected_pickup=be, comp_price=item.comp_bed,
-        quality_index=params.quality_index, event_factor=f_event,
+        quality_index=params.quality_index, market_pressure=item.market_pressure_bed,
+        event_factor=f_event,
         capacity=max_beds, forecast_units=forecast_beds, previous_rung=item.prev_bed_rung,
         previous_position=item.prev_bed_position,
         position_override=bed_override, scarcity_protect=protect,
@@ -855,8 +864,8 @@ def rung_prices_for(base: float, rungs: Sequence[float], params: Params,
 
 def _brake(new_price: float, current: float | None, params: Params,
            warnings: list, label: str, floor: float, ceiling: float,
-           rungs: Sequence[float] | None = None) -> float:
-    if not current:
+           rungs: Sequence[float] | None = None, *, skip: bool = False) -> float:
+    if skip or not current:
         return round_within(new_price, floor, ceiling, params.rounding)
     low = max(floor, current * (1 - params.max_daily_change))
     high = min(ceiling, current * (1 + params.max_daily_change))

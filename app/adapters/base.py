@@ -47,6 +47,8 @@ class CompRow:
     day: date
     comp_room: float | None = None
     comp_bed: float | None = None
+    market_pressure_room: float | None = None
+    market_pressure_bed: float | None = None
     n_properties: int = 0
 
 

@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from dataclasses import replace
 from datetime import date
+from pathlib import Path
 
 import pytest
 import yaml
@@ -212,6 +213,33 @@ def test_v4_respekterer_gulv_og_loft(params):
                         today=date(2026, 9, 21))
         assert p4.price_floor <= rec.room_price <= p4.price_ceiling
         assert p4.bed_floor <= rec.bed_price <= p4.bed_ceiling
+
+
+def test_v4_kan_koere_uden_daglig_aendringsbremse(params):
+    _, p4 = params
+    item = DayInput(day=date(2026, 9, 30), rooms_otb=35, beds_otb=1,
+                    current_room_price=450, current_bed_price=170)
+    bremset = price_day(item, p4, today=date(2026, 9, 21))
+    fri = price_day(item, replace(p4, v4=replace(p4.v4, unbounded_daily_change=True)),
+                    today=date(2026, 9, 21))
+    assert bremset.room_price <= 450 * 1.15 + 1
+    assert fri.room_price >= bremset.room_price
+    assert "Ændringsbremse" not in " ".join(fri.warnings)
+
+
+def test_v4_config_laeser_heltal_og_ubegrenset_bremse(tmp_path):
+    raw = load_settings().raw
+    root = Path(__file__).resolve().parent.parent
+    raw["pricing"]["v4"]["model_path"] = str(root / "config" / "demand_model.json")
+    raw["pricing"]["v4"]["level_path"] = str(root / "data" / "demand_level.json")
+    raw["pricing"]["v4"]["max_discount_rungs"] = 3
+    raw["pricing"]["v4"]["unbounded_daily_change"] = True
+    config_path = tmp_path / "config.yaml"
+    config_path.write_text(yaml.safe_dump(raw), encoding="utf-8")
+
+    cfg = load_settings(config_path).params.v4
+    assert cfg.max_discount_rungs == 3
+    assert cfg.unbounded_daily_change is True
 
 
 def test_rabatten_holdes_indtil_elasticiteten_er_maalt(params):
