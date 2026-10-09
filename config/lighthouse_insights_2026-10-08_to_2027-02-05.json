@@ -1,0 +1,369 @@
+{
+  "booking_room_mapping": {
+    "cabinn_aarhus": {
+      "apartment": [
+        "Studio apartment"
+      ],
+      "budget_room": [
+        "Economy room"
+      ],
+      "standard_room": [
+        "Captain room",
+        "Commodore room",
+        "Queen room",
+        "Standard room"
+      ]
+    },
+    "danhostel_aarhus_city": {
+      "budget_room": [
+        "Economy double room"
+      ],
+      "family_room": [
+        "Family room - with private bathroom"
+      ],
+      "shared_bathroom": [
+        "Private double room with shared bathroom",
+        "Private family room with shared bathroom"
+      ],
+      "single_room": [
+        "Single room"
+      ],
+      "standard_room": [
+        "Double/2 person with private bathroom"
+      ]
+    },
+    "robertas_society_aarhus": {
+      "premium_room": [
+        "Deluxe room"
+      ],
+      "shared_bathroom": [
+        "Twin room with shared toilet"
+      ],
+      "standard_room": [
+        "Double or twin room",
+        "Double room"
+      ]
+    },
+    "wakeup_aarhus": {
+      "family_room": [
+        "Family room"
+      ],
+      "standard_room": [
+        "Heaven double room"
+      ]
+    }
+  },
+  "compset": {
+    "primary": [
+      {
+        "distance_km": 0.45,
+        "name": "Roberta's Society Aarhus",
+        "rating": null
+      }
+    ],
+    "secondary": [
+      {
+        "distance_km": 0.18,
+        "name": "Cabinn Aarhus",
+        "rating": 2
+      },
+      {
+        "distance_km": 0.84,
+        "name": "Wakeup - Aarhus",
+        "rating": 2
+      }
+    ]
+  },
+  "generated_at": "2026-10-08T21:28:01",
+  "market_insight_workbook": {
+    "average_unavailable_hotels": 0.0556,
+    "events_holidays_by_week": {
+      "2026-10-05": 0,
+      "2026-10-12": 0,
+      "2026-10-19": 0,
+      "2026-10-26": 0,
+      "2026-11-02": 0,
+      "2026-11-09": 0,
+      "2026-11-16": 0,
+      "2026-11-23": 0,
+      "2026-11-30": 0,
+      "2026-12-07": 0,
+      "2026-12-14": 0,
+      "2026-12-21": 3,
+      "2026-12-28": 2,
+      "2027-01-04": 0,
+      "2027-01-11": 0,
+      "2027-01-18": 1,
+      "2027-01-25": 0,
+      "2027-02-01": 0
+    },
+    "market_report_period": {
+      "from": "2026-10-08",
+      "n_weeks": 18,
+      "to": "2027-02-05"
+    },
+    "stay_pattern": [
+      {
+        "bucket": "LOS 1",
+        "flights": 0.0943,
+        "hotels": 0.4776
+      },
+      {
+        "bucket": "LOS 2",
+        "flights": 0.2686,
+        "hotels": 0.3553
+      },
+      {
+        "bucket": "LOS 3",
+        "flights": 0.2439,
+        "hotels": 0.0996
+      },
+      {
+        "bucket": "LOS 4-7",
+        "flights": 0.316,
+        "hotels": 0.0621
+      },
+      {
+        "bucket": "LOS 8-14",
+        "flights": 0.0772,
+        "hotels": 0.0054
+      }
+    ],
+    "top_origin_countries": {
+      "flights": [
+        {
+          "average_los": 3.67,
+          "country": "GB",
+          "mix": 0.2556
+        },
+        {
+          "average_los": 3.98,
+          "country": "ES",
+          "mix": 0.1087
+        },
+        {
+          "average_los": 3.56,
+          "country": "IT",
+          "mix": 0.0818
+        },
+        {
+          "average_los": 3.29,
+          "country": "PL",
+          "mix": 0.0752
+        },
+        {
+          "average_los": 3.7,
+          "country": "DE",
+          "mix": 0.0594
+        },
+        {
+          "average_los": 3.08,
+          "country": "NL",
+          "mix": 0.0439
+        },
+        {
+          "average_los": 4.39,
+          "country": "FR",
+          "mix": 0.0378
+        },
+        {
+          "average_los": 3.79,
+          "country": "RO",
+          "mix": 0.034
+        },
+        {
+          "average_los": 3.78,
+          "country": "CH",
+          "mix": 0.02
+        },
+        {
+          "average_los": 3.62,
+          "country": "PT",
+          "mix": 0.018
+        }
+      ],
+      "hotels": [
+        {
+          "average_los": 1.59,
+          "country": "DK",
+          "mix": 0.6385
+        },
+        {
+          "average_los": 2.47,
+          "country": "DE",
+          "mix": 0.1209
+        },
+        {
+          "average_los": 1.05,
+          "country": "NL",
+          "mix": 0.0502
+        },
+        {
+          "average_los": 1.54,
+          "country": "NO",
+          "mix": 0.0275
+        },
+        {
+          "average_los": 1.52,
+          "country": "GB",
+          "mix": 0.0266
+        },
+        {
+          "average_los": 1.24,
+          "country": "FO",
+          "mix": 0.0138
+        },
+        {
+          "average_los": 0.69,
+          "country": "CZ",
+          "mix": 0.0109
+        },
+        {
+          "average_los": 1.22,
+          "country": "IT",
+          "mix": 0.0098
+        },
+        {
+          "average_los": 1.15,
+          "country": "IS",
+          "mix": 0.0096
+        },
+        {
+          "average_los": 1.15,
+          "country": "FR",
+          "mix": 0.0084
+        }
+      ]
+    },
+    "weekly_demand_level_counts": {
+      "Elevated": 4,
+      "High": 7,
+      "Low": 1,
+      "Normal": 5,
+      "Very high": 1
+    }
+  },
+  "model_vs_lighthouse": {
+    "gap_by_compset_price_level": {
+      "Elevated": {
+        "average_pct": 0.2083,
+        "median_pct": 0.2263,
+        "n_dates": 39
+      },
+      "High": {
+        "average_pct": 0.1293,
+        "median_pct": 0.0974,
+        "n_dates": 14
+      },
+      "Low": {
+        "average_pct": 0.0678,
+        "median_pct": 0.0544,
+        "n_dates": 35
+      },
+      "Normal": {
+        "average_pct": 0.3475,
+        "median_pct": 0.3356,
+        "n_dates": 33
+      }
+    },
+    "gap_by_demand_level": {
+      "Elevated": {
+        "average_pct": 0.095,
+        "median_pct": 0.0948,
+        "n_dates": 28
+      },
+      "High": {
+        "average_pct": 0.2018,
+        "median_pct": 0.2183,
+        "n_dates": 46
+      },
+      "Low": {
+        "average_pct": 0.0323,
+        "median_pct": 0.0447,
+        "n_dates": 7
+      },
+      "Normal": {
+        "average_pct": 0.3459,
+        "median_pct": 0.3356,
+        "n_dates": 33
+      },
+      "Very high": {
+        "average_pct": 0.0271,
+        "median_pct": 0.0544,
+        "n_dates": 7
+      }
+    },
+    "level_counts": {
+      "compset_price": {
+        "Elevated": 39,
+        "High": 14,
+        "Low": 35,
+        "Normal": 33
+      },
+      "demand": {
+        "Elevated": 28,
+        "High": 46,
+        "Low": 7,
+        "Normal": 33,
+        "Very high": 7
+      },
+      "events_holidays": {
+        "0": 100,
+        "1": 7,
+        "2": 7,
+        "3": 7
+      },
+      "flight": {
+        "Higher": 53,
+        "Lower": 28,
+        "Normal": 40
+      },
+      "hotel": {
+        "Higher": 46,
+        "Lower": 14,
+        "Normal": 61
+      },
+      "my_price": {
+        "Elevated": 28,
+        "Low": 54,
+        "Normal": 39
+      }
+    },
+    "level_scores": {
+      "compset_price": 0.136,
+      "demand": 0.542,
+      "flight": 0.124,
+      "hotel": 0.159
+    },
+    "lighthouse_my_price": {
+      "average_dkk": 654.4,
+      "max_dkk": 808.0,
+      "median_dkk": 652.65,
+      "min_dkk": 595.5
+    },
+    "model_gap_to_lighthouse_room_price": {
+      "average_dkk": 98.7,
+      "average_pct": 0.1965,
+      "dates_model_above_lighthouse": 7,
+      "dates_model_below_lighthouse": 114,
+      "dates_more_than_10_pct_below": 74,
+      "dates_more_than_20_pct_below": 52,
+      "max_dkk": 335.29,
+      "median_dkk": 91.0,
+      "median_pct": 0.1752,
+      "min_dkk": -54.5
+    },
+    "period": {
+      "from": "2026-10-08",
+      "n_dates": 121,
+      "to": "2027-02-05"
+    }
+  },
+  "sources": {
+    "market_workbook": "/Users/anderskinch/Downloads/market_insight_report_danhostel-aarhus-city (2).xlsx",
+    "model_vs_lighthouse": "/Users/anderskinch/Downloads/model_vs_lighthouse_2026-10-08_to_2027-02-05.csv",
+    "screenshots": [
+      "compset membership and Booking.com room mapping, 2026-10-08"
+    ]
+  }
+}
