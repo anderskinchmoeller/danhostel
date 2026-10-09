@@ -55,18 +55,6 @@ dato;medianpris_vaerelse;medianpris_seng
 2026-09-16;640;285
 ```
 
-Lighthouse-filer kan også bruges som markedssignal. Upload fx en fil med
-`smart_compset_price_level`; niveauerne Low / Normal / Elevated / High bliver
-læst som markedstryk på prisstigen. De bredere Market Insight-exports opsummeres
-med:
-
-```bash
-python -m app.lighthouse model_vs_lighthouse.csv --workbook market_insight.xlsx --output config/lighthouse_insights_2026-10-08_to_2027-02-05.json
-```
-
-Den aktuelle Lighthouse-opsummering ligger i
-`config/lighthouse_insights_2026-10-08_to_2027-02-05.json`.
-
 Kolonnenavne genkendes på dansk og engelsk, med og uden æøå. Både semikolon og
 komma virker som separator, og datoer må skrives `2026-09-16`, `16-09-2026`
 eller `16/09/2026`.
@@ -152,7 +140,6 @@ server, og hvad der endnu ikke er bygget.
 app/engine.py       prismodellen: v4-priser, to lagre, flex-allokering, RevPAB
 app/ladder.py       prisstigen: trin, træghed, eventtrin og forklaring
 app/bidprice.py     v4: forventet omsætning, bid price, grupper og flex
-app/lighthouse.py   Lighthouse Market Insight: comp set, niveauer, prisgap og geo/LOS
 app/service.py      kørslen: hent, beregn, gem
 app/sanity.py       rimelighedstjek på uploadet belægning
 app/main.py         FastAPI: dashboard, grupper, upload, godkendelse
