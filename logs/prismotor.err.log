@@ -1,0 +1,45 @@
+.env:5: parse error near `)'
+.env:5: parse error near `)'
+.env:5: parse error near `)'
+.env:5: parse error near `)'
+.env:5: parse error near `)'
+.env:5: parse error near `)'
+.env:5: parse error near `)'
+.env:5: parse error near `)'
+.env:5: parse error near `)'
+.env:5: parse error near `)'
+.env:5: parse error near `)'
+.env:5: parse error near `)'
+.env:5: parse error near `)'
+.env:5: parse error near `)'
+.env:5: parse error near `)'
+.env:5: parse error near `)'
+.env:5: parse error near `)'
+INFO:     Started server process [56069]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [56069]
+INFO:     Started server process [56605]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [56605]
+INFO:     Started server process [57724]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [57724]
+INFO:     Started server process [60311]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)

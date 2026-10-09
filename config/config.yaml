@@ -82,7 +82,7 @@ pricing:
   market_max: 1.15
 
   event_max: 1.45          # loft over eventtillæg, så en tastefejl ikke løber løbsk
-  max_daily_change: 0.15   # ændringsbremse
+  max_daily_change: 0.15   # ændringsbremse for ældre/fallback-logik; v4 nedenfor kører uden daglig bremse
 
   # Økonomi og guardrails
   variable_cost: 91         # de har i gennemsnit 2.28 senge pr vœrelse de sœlger. pr. solgt privat værelse: rengøring, linned, forbrug
@@ -273,10 +273,11 @@ pricing:
     model_path: config/demand_model.json
     level_path: data/demand_level.json
 
-    # Egenpriselasticitet. Det ENESTE ukendte tal tilbage i prisbeslutningen,
-    # og det er med vilje: ældre motorer havde triggervægte, målbelægninger
-    # og en trinafstand, som alle var gæt. Tallene her er litteraturniveau, ikke
-    # jeres gæster. De erstattes af eksplorationens målinger efter en sæson.
+    # Standardestimat for egenpriselasticitet. Det ENESTE ukendte tal tilbage i
+    # prisbeslutningen, og det er med vilje: ældre motorer havde triggervægte,
+    # målbelægninger og en trinafstand, som alle var gæt. Tallene her er et
+    # konservativt litteraturniveau, ikke en måling på jeres gæster. De
+    # erstattes af eksplorationens målinger efter en sæson.
     # Sættes de til 0, bliver den højeste pris altid den bedste.
     elasticity_rooms: 1.6
     elasticity_beds: 2.0
@@ -291,6 +292,7 @@ pricing:
 
     use_for_flex: true          # marginal flex-allokering i stedet for gennemsnit
     use_for_groups: true        # gruppegulv som sum af bid price pr. enhed
+    unbounded_daily_change: true # v4 må flytte prisen frit fra dag til dag
 
     # Med en konstant elasticitet over 1 og en lav variabel omkostning ligger
     # det ubegrænsede optimum under prisgulvet. Modellen vil derfor stå på
