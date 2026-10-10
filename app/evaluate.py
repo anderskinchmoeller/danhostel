@@ -4,8 +4,8 @@ Spørgsmålet deler sig i to, og de to dele har vidt forskellig status.
 
 **Prognosen kan afgøres på data.** Hvor mange værelser ender der med at blive
 solgt? Det ved vi for hver eneste historisk dato. En model estimeret på 2024
-alene kan bedømmes på 2025, som den aldrig har set, mod version 3 og mod to
-trivielle referencer. Forskellen kan gives et usikkerhedsinterval. Det er et
+alene kan bedømmes på 2025, som den aldrig har set, og sættes i kontekst med
+to trivielle referencer. Forskellen kan gives et usikkerhedsinterval. Det er et
 bevis i den forstand ordet kan bruges her.
 
 **Omsætningen kan ikke.** Historikken indeholder kun de priser der faktisk blev
@@ -29,10 +29,12 @@ import random
 import statistics
 from dataclasses import replace
 from datetime import date
+from typing import Sequence
 
 from . import bidprice, cube, demand
 from .config import load_settings
-from .engine import DayInput, forecast_occupancy, price_day
+
+from .engine import DayInput, price_day
 
 LEADS = (3, 7, 14, 30, 60, 90, 120)
 ELASTICITIES = (0.8, 1.0, 1.3, 1.6, 2.0, 2.5)
@@ -58,14 +60,13 @@ def _baseline_history(train_rows) -> dict:
     return {k: sums[k] / counts[k] for k in sums}
 
 
-def errors_by_date(test_rows, models, params, history: dict, leads=LEADS) -> dict:
-    """Absolutte fejl pr. (dato, lead) for fire metoder.
+def errors_by_date(test_rows, models, history: dict, leads=LEADS) -> dict:
+    """Absolutte fejl pr. (dato, lead) for v4 og to simple referencer.
 
     Fejlene holdes samlet pr. dato, fordi lead times inden for samme dato er
     stærkt korrelerede. Bootstrappen nedenfor trækker derfor datoer, ikke
     enkeltobservationer — ellers bliver usikkerheden kunstigt lille.
     """
-    capacity = params.inventory.max_room_capacity
     out: dict = {}
     for row in test_rows:
         lead = row["lead"]
@@ -73,13 +74,11 @@ def errors_by_date(test_rows, models, params, history: dict, leads=LEADS) -> dic
             continue
         day = date.fromisoformat(row["dato"])
         actual, otb = row["endelig_rum"], row["otb_rum"]
-        v3 = forecast_occupancy(otb / capacity, lead, params.is_weekend(day),
-                                params.booking_curve) * capacity
         v4 = otb + models["rum"].expected(lead, day, otb=otb)
         naive = otb
         hist = history.get((row["ugedag"], row["maaned"]), actual)
         out.setdefault(row["dato"], {}).setdefault(lead, {}).update({
-            "v3": abs(v3 - actual), "v4": abs(v4 - actual),
+            "v4": abs(v4 - actual),
             "nu": abs(naive - actual), "historik": abs(hist - actual),
         })
     return out
@@ -87,13 +86,13 @@ def errors_by_date(test_rows, models, params, history: dict, leads=LEADS) -> dic
 
 def bootstrap_difference(errors: dict, lead: int, *, draws: int = 2000,
                          seed: int = 20261002) -> dict:
-    """Forskellen i gennemsnitlig fejl mellem v3 og v4, med 95 %-interval.
+    """Forskellen i gennemsnitlig fejl mellem historik og v4, med 95 %-interval.
 
     Klyngebootstrap over datoer. Intervallet svarer på: ville forskellen holde
     på et andet år med samme slags datoer?
     """
     days = [d for d in errors if lead in errors[d]]
-    pairs = [(errors[d][lead]["v3"], errors[d][lead]["v4"]) for d in days]
+    pairs = [(errors[d][lead]["historik"], errors[d][lead]["v4"]) for d in days]
     if len(pairs) < 30:
         return {}
     observed = statistics.mean(a - b for a, b in pairs)
@@ -199,14 +198,14 @@ def revenue_sweep(paths: dict, by_date, capacity: int,
     usikkerheden på elasticiteten — den er grunden til at der er en hel tabel
     og ikke ét tal.
     """
-    days = sorted(d for d in paths["v3"] if paths["v3"][d] and paths["v4"].get(d))
+    days = sorted(d for d in paths["v4"] if paths["v4"][d] and paths["v5"].get(d))
     out = []
     for elasticity in elasticities:
-        pairs = [(revenue(paths["v3"][d], by_date, d, capacity, elasticity),
-                  revenue(paths["v4"][d], by_date, d, capacity, elasticity))
+        pairs = [(revenue(paths["v4"][d], by_date, d, capacity, elasticity),
+                  revenue(paths["v5"][d], by_date, d, capacity, elasticity))
                  for d in days]
-        v3 = statistics.mean(a for a, _ in pairs)
-        v4 = statistics.mean(b for _, b in pairs)
+        v4 = statistics.mean(a for a, _ in pairs)
+        v5 = statistics.mean(b for _, b in pairs)
         rng = random.Random(seed)
         n = len(pairs)
         diffs = []
@@ -215,8 +214,8 @@ def revenue_sweep(paths: dict, by_date, capacity: int,
             base = statistics.mean(a for a, _ in sample)
             diffs.append((statistics.mean(b for _, b in sample) - base) / base if base else 0.0)
         diffs.sort()
-        out.append({"elasticitet": elasticity, "v3": v3, "v4": v4,
-                    "forskel": (v4 - v3) / v3 if v3 else 0.0,
+        out.append({"elasticitet": elasticity, "v4": v4, "v5": v5,
+                    "forskel": (v5 - v4) / v4 if v4 else 0.0,
                     "lav": diffs[int(0.025 * draws)], "hoej": diffs[int(0.975 * draws)]})
     return out
 
@@ -354,12 +353,12 @@ def main(argv: list[str] | None = None) -> int:
     test = [r for r in rows if r["dato"] > RENOVATION[1]]
     models = demand.fit_all(train)
     settings = load_settings()
-    p3 = settings.params
-    v4cfg = replace(p3.v4 or bidprice.V4Config(), enabled=True)
-    p4 = replace(p3, v4=v4cfg, demand_models=models)
+    base_params = settings.params
+    v4cfg = replace(base_params.v4 or bidprice.V4Config(), enabled=True)
+    p4 = replace(base_params, v4=v4cfg, demand_models=models)
     v5cfg = replace(v4cfg, elasticity_measured=True)
     p5 = replace(p4, v4=v5cfg)
-    capacity = p3.inventory.max_room_capacity
+    capacity = base_params.inventory.max_room_capacity
 
     print("OPSÆTNING")
     print(f"  Estimeret på 2024: {len({r['dato'] for r in train})} datoer")
@@ -368,22 +367,22 @@ def main(argv: list[str] | None = None) -> int:
     print()
 
     history = _baseline_history(train)
-    errors = errors_by_date(test, models, p3, history)
+    errors = errors_by_date(test, models, history)
 
     print("1. PROGNOSEPRÆCISION — gennemsnitlig absolut fejl i antal værelser")
-    print(f"{'lead':>5}{'nu':>8}{'historik':>10}{'v3':>8}{'v4':>8}"
-          f"{'v4 bedre end v3':>18}{'95 %-interval':>20}{'v4 vinder':>11}")
+    print(f"{'lead':>5}{'nu':>8}{'historik':>10}{'v4':>8}"
+          f"{'v4 bedre end historik':>24}{'95 %-interval':>20}{'v4 vinder':>11}")
     for lead in LEADS:
         days = [d for d in errors if lead in errors[d]]
         if not days:
             continue
         means = {k: statistics.mean(errors[d][lead][k] for d in days)
-                 for k in ("nu", "historik", "v3", "v4")}
+                 for k in ("nu", "historik", "v4")}
         boot = bootstrap_difference(errors, lead)
         interval = f"[{boot['lav']:+.2f}; {boot['hoej']:+.2f}]" if boot else "-"
         print(f"{lead:>5}{means['nu']:>8.1f}{means['historik']:>10.1f}"
-              f"{means['v3']:>8.1f}{means['v4']:>8.1f}"
-              f"{boot.get('forskel', 0):>+18.2f}{interval:>20}"
+              f"{means['v4']:>8.1f}"
+              f"{boot.get('forskel', 0):>+24.2f}{interval:>20}"
               f"{boot.get('andel_v4_bedst', 0):>11.0%}")
     print("  'nu' = antag at der ikke kommer flere. 'historik' = gennemsnittet for")
     print("  den ugedag i den måned. Et interval der ikke rummer 0 betyder at")
@@ -404,7 +403,7 @@ def main(argv: list[str] | None = None) -> int:
     sample = days[::step][:args.datoer]
     paths = {name: {day: price_path(by_date, day, params, args.max_lead)
                     for day in sample}
-             for name, params in (("v3", p3), ("v4", p4), ("v5", p5))}
+             for name, params in (("v4", p4), ("v5", p5))}
 
     changes = {}
     for name, price_paths in paths.items():
@@ -415,23 +414,16 @@ def main(argv: list[str] | None = None) -> int:
         ]
         changes[name] = statistics.mean(counted) if counted else 0.0
     print(f"3. OMSÆTNING — {len(sample)} datoer, {args.max_lead} dage ned mod ankomst")
-    print(f"   Prisskift pr. dato: v3 {changes['v3']:.1f}, v4 {changes['v4']:.1f}")
-    print(f"{'elasticitet':>12}{'v3':>10}{'v4':>10}{'forskel':>10}{'95 %-interval':>20}")
+    print(f"   Prisskift pr. dato: v4 {changes['v4']:.1f}, v5 {changes['v5']:.1f}")
+    print(f"{'elasticitet':>12}{'v4':>10}{'v5':>10}{'forskel':>10}{'95 %-interval':>20}")
     for line in revenue_sweep(paths, by_date, capacity):
         interval = f"[{line['lav']:+.1%}; {line['hoej']:+.1%}]"
-        print(f"{line['elasticitet']:>12.1f}{line['v3']:>10.0f}{line['v4']:>10.0f}"
+        print(f"{line['elasticitet']:>12.1f}{line['v4']:>10.0f}{line['v5']:>10.0f}"
               f"{line['forskel']:>+10.1%}{interval:>20}")
     print("  Dette er IKKE et bevis. Hver række er en antagelse om gæsterne.")
     print("  Tabellen viser hvilken antagelse der skal holde, for at hver version vinder.")
     print()
 
-    print("3B. V4 MOD V5 — v5 = v4 med målt elasticitet og uden midlertidig rabatbinding")
-    print(f"   Prisskift pr. dato: v4 {changes['v4']:.1f}, v5 {changes['v5']:.1f}")
-    print(f"{'elasticitet':>12}{'v4':>10}{'v5':>10}{'forskel':>10}{'95 %-interval':>20}")
-    for line in revenue_sweep_pair(paths, by_date, capacity, "v4", "v5"):
-        interval = f"[{line['lav']:+.1%}; {line['hoej']:+.1%}]"
-        print(f"{line['elasticitet']:>12.1f}{line['v4']:>10.0f}{line['v5']:>10.0f}"
-              f"{line['forskel']:>+10.1%}{interval:>20}")
     print("  Dette tester ikke en færdig v5 på historiske gæster. Det tester effekten af")
     print("  den v5-beslutning der først må tages efter forsøget: at behandle")
     print("  elasticiteten som målt og fjerne v4's midlertidige rabatloft.")

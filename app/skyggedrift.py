@@ -1,4 +1,4 @@
-"""Version 3 og version 4 side om side på dagens faktiske belægning.
+"""Version 4 og version 5 side om side på dagens faktiske belægning.
 
 Skyggedrift betyder at se forskellen, før man stoler på den. Uden en konkret
 visning bliver de fire uger til "kør videre og håb"; med den bliver de til en
@@ -12,8 +12,8 @@ viser begge versioners forslag for hver dato i horisonten.
     python -m app.skyggedrift --alle          # hele horisonten
     python -m app.skyggedrift --csv log.csv   # til regneark, så uenighederne kan følges
 
-Kolonnen `forskel` er v4 minus v3 i kroner. Positiv betyder at version 4 vil
-tage mere for værelset end version 3 ville.
+Kolonnen `forskel` er v5 minus v4 i kroner. Positiv betyder at version 5 vil
+tage mere for værelset end version 4 ville.
 """
 
 from __future__ import annotations
@@ -33,7 +33,7 @@ DAYS_DK = ("man", "tir", "ons", "tor", "fre", "lør", "søn")
 
 
 def compare(settings, today: date | None = None) -> list[dict]:
-    """Kør begge versioner på den belægning der står i databasen lige nu."""
+    """Kør v4 og v5 på den belægning der står i databasen lige nu."""
     today = today or date.today()
     end = today + timedelta(days=settings.horizon_days)
     session = db.get_session()
@@ -57,16 +57,14 @@ def compare(settings, today: date | None = None) -> list[dict]:
             "og byg fordelingen med:\n"
             "  python -m app.cube && python -m app.demand")
 
-    # Samme parametre, kun motoren skiftes ud. Så er forskellen modellens og
-    # ikke en bivirkning af to forskellige konfigurationer.
     p4 = params
-    p3 = replace(params, v4=replace(params.v4, enabled=False))
+    p5 = replace(params, v4=replace(params.v4, elasticity_measured=True))
 
     rows = []
     for item in inputs:
         try:
-            a = price_day(item, p3, events, today=today)
-            b = price_day(item, p4, events, today=today)
+            a = price_day(item, p4, events, today=today)
+            b = price_day(item, p5, events, today=today)
         except ValueError:
             continue    # fastfrosne datoer håndteres af kørslen selv
         rows.append({
@@ -75,9 +73,9 @@ def compare(settings, today: date | None = None) -> list[dict]:
             "lead": a.lead_days,
             "otb_rum": a.rooms_otb,
             "otb_senge": a.beds_otb,
-            "v3_rum": a.room_price, "v4_rum": b.room_price,
-            "v3_seng": a.bed_price, "v4_seng": b.bed_price,
-            "v3_flex": a.flex_to_private, "v4_flex": b.flex_to_private,
+            "v4_rum": a.room_price, "v5_rum": b.room_price,
+            "v4_seng": a.bed_price, "v5_seng": b.bed_price,
+            "v4_flex": a.flex_to_private, "v5_flex": b.flex_to_private,
             "forskel": b.room_price - a.room_price,
             "bid_price": round((b.room_ladder or {}).get("bid", {}).get("bid_price", 0), 0),
             "uenige": (abs(b.room_price - a.room_price) > 0.01
@@ -89,7 +87,7 @@ def compare(settings, today: date | None = None) -> list[dict]:
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(
-        description="Sammenlign version 3 og version 4 på dagens belægning")
+        description="Sammenlign version 4 og version 5 på dagens belægning")
     ap.add_argument("--alle", action="store_true", help="vis hele horisonten")
     ap.add_argument("--csv", help="skriv også til en CSV-fil")
     ap.add_argument("--dage", type=int, default=None, help="begræns horisonten")
@@ -108,21 +106,21 @@ def main(argv: list[str] | None = None) -> int:
     print(f"{len(rows)} datoer, {sum(r['uenige'] for r in rows)} hvor versionerne er uenige")
     print()
     print(f"{'dato':12}{'dag':5}{'lead':>5}{'otb':>9}"
-          f"{'v3 rum':>8}{'v4 rum':>8}{'forskel':>9}"
-          f"{'v3 sg':>7}{'v4 sg':>7}{'flex':>9}{'bid':>6}")
+          f"{'v4 rum':>8}{'v5 rum':>8}{'forskel':>9}"
+          f"{'v4 sg':>7}{'v5 sg':>7}{'flex':>9}{'bid':>6}")
     for r in shown:
-        flex = f"{r['v3_flex']}→{r['v4_flex']}" if r["v3_flex"] != r["v4_flex"] else str(r["v4_flex"])
+        flex = f"{r['v4_flex']}→{r['v5_flex']}" if r["v4_flex"] != r["v5_flex"] else str(r["v5_flex"])
         print(f"{r['dato']:12}{r['dag']:5}{r['lead']:>5}"
               f"{str(r['otb_rum']) + '/' + str(r['otb_senge']):>9}"
-              f"{r['v3_rum']:>8.0f}{r['v4_rum']:>8.0f}{r['forskel']:>+9.0f}"
-              f"{r['v3_seng']:>7.0f}{r['v4_seng']:>7.0f}{flex:>9}{r['bid_price']:>6.0f}")
+              f"{r['v4_rum']:>8.0f}{r['v5_rum']:>8.0f}{r['forskel']:>+9.0f}"
+              f"{r['v4_seng']:>7.0f}{r['v5_seng']:>7.0f}{flex:>9}{r['bid_price']:>6.0f}")
 
     if rows:
         diffs = [r["forskel"] for r in rows]
         up = sum(1 for d in diffs if d > 0)
         down = sum(1 for d in diffs if d < 0)
         print()
-        print(f"Version 4 vil højere på {up} datoer, lavere på {down}, "
+        print(f"Version 5 vil højere på {up} datoer, lavere på {down}, "
               f"ens på {len(diffs) - up - down}.")
         print(f"Gennemsnitlig forskel: {sum(diffs) / len(diffs):+.0f} kr. pr. værelse.")
         print()

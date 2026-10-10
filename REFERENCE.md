@@ -6,7 +6,7 @@ ud som den gør.
 
 ---
 
-**Version 3 — prisforslag med manuel vurdering.** Tre ting adskiller den fra en almindelig hotelmodel:
+**Prismotoren — prisforslag med manuel vurdering.** Tre ting adskiller den fra en almindelig hotelmodel:
 
 1. **Den forudsiger i stedet for at reagere.** En dato der er 20 % solgt 40 dage
    ude er ikke svag — den er på vej til 85 %, og prisen skal ikke falde.
@@ -307,10 +307,10 @@ på, før nogen skriver den kode:
 
 ---
 
-## Prisstigen (version 3)
+## Prisstigen
 
 Slås til og fra under `pricing.ladder.enabled` i `config.yaml`. Slået fra kører
-den kontinuerlige faktormodel fra version 2 uændret.
+den kontinuerlige faktormodel uændret.
 
 **Idéen.** I stedet for en ny pris hver dag står prisen på ét af ni faste trin
 fra 0,80 til 1,48 gange dagens grundpris (sæson x ugedag). Trin 4 er 1,00 —
@@ -376,13 +376,14 @@ i roadmappens punkt 3 er det der gør dem til jeres egne tal.
 
 Slås til med `pricing.v4.enabled` i `config.yaml`. Kræver prisstigen tændt og en
 estimeret efterspørgselsfordeling. Mangler modelfilen, falder prissætningen
-tilbage på version 3 og siger det i `/health`.
+tilbage på standardberegningen og siger det i `/health`.
 
 ### Hvorfor
 
-Version 3 styrer mod `target_occupancy_rooms: 0.55`. Det tal vejer 0,40 i
-stigens samlede tryk og er et gæt: historikken for hverdage er 0,39, så hverdage
-starter 1-2 trin under reference per konstruktion. Version 4 har ingen
+Den tidligere målbelægningslogik styrer mod `target_occupancy_rooms: 0.55`.
+Det tal vejer 0,40 i stigens samlede tryk og er et gæt: historikken for
+hverdage er 0,39, så hverdage starter 1-2 trin under reference per konstruktion.
+Version 4 har ingen
 målbelægning. For hvert trin beregnes
 
     forventet omsætning = nettopris x E[min(efterspørgsel, ledig kapacitet)]
@@ -400,7 +401,7 @@ ville lægge et ekstra gulv oven på et tal der allerede indeholder knapheden.
 ```
 python -m app.cube        # kali/cube.csv  — OTB(dato, lead) for hele historikken
 python -m app.demand      # config/demand_model.json — fordelingen af netto pickup
-python -m app.backtest --ud-af-stikproeve   # version 3 mod version 4
+python -m app.backtest --ud-af-stikproeve   # version 4 og version 5
 ```
 
 `app/cube.py` rekonstruerer hvad der stod på bøgerne enhver historisk dag:
@@ -469,19 +470,18 @@ Gennemsnitlig absolut fejl i prognosen for antal solgte værelser, med
 klyngebootstrap over datoer (`python -m app.evaluate`). "historik" er det rå
 gennemsnit for ugedagen i måneden — referencen enhver model skal slå:
 
-| lead | historik | version 3 | version 4 | forskel v3 − v4 | 95 %-interval |
-|---|---|---|---|---|---|
-| 3 | 10,3 | 4,9 | 4,8 | +0,09 | [−0,39; +0,56] |
-| 7 | 10,3 | 7,8 | 6,8 | +0,96 | [+0,21; +1,68] |
-| 14 | 10,3 | 10,4 | 7,9 | +2,54 | [+1,71; +3,39] |
-| 30 | 10,3 | 12,1 | 9,0 | +3,15 | [+2,10; +4,18] |
-| 60 | 10,3 | 13,0 | 9,8 | +3,25 | [+2,07; +4,41] |
-| 120 | 10,3 | 15,2 | 9,9 | +5,23 | [+3,93; +6,60] |
+| lead | historik | version 4 | forskel historik − v4 |
+|---|---|---|---|
+| 3 | 10,3 | 4,8 | +5,5 |
+| 7 | 10,3 | 6,8 | +3,5 |
+| 14 | 10,3 | 7,8 | +2,5 |
+| 30 | 10,3 | 8,9 | +1,4 |
+| 60 | 10,3 | 9,7 | +0,6 |
+| 90 | 10,3 | 9,9 | +0,5 |
+| 120 | 10,3 | 9,9 | +0,4 |
 
-Tre dage ude er det uafgjort — intervallet rummer nul, og det er som det skal
-være, for der er ikke meget tilbage at forudsige. Fra en uge og ud vinder
-version 4 hele vejen. Med krympningen slår version 4 også historik-referencen på
-alle lead times; uden den tabte den fra 60 dage og ud.
+Med krympningen slår version 4 historik-referencen på alle lead times; uden den
+tabte den fra 60 dage og ud.
 
 Kalibreringen, altså om fordelingen har den bredde den lover:
 
@@ -513,7 +513,7 @@ Det nærliggende spørgsmål er, om elasticiteten ikke bare kan estimeres på de
 
 Begge har forkert fortegn. Taget for pålydende siger det første, at 10 % højere
 pris giver 20 % **flere** solgte værelser. Grunden er, at priserne i historikken
-ikke blev sat tilfældigt: et menneske eller den gamle model hævede prisen netop
+ikke blev sat tilfældigt: et menneske eller den tidligere logik hævede prisen netop
 når efterspørgslen var høj, så pris og salg bevæger sig sammen (korrelation
 +0,57). Regressionen måler den sammenhæng, ikke gæsternes prisfølsomhed.
 
@@ -535,7 +535,7 @@ rent. Prisen varierer til gengæld mindre (spredning 0,035 i log mod historikken
     efterspørgselsfaktor(trin) = (pris(trin) / pris(reference)) ^ (-elasticitet)
 
 Elasticiteten er ikke målt. Den er det eneste ukendte tal tilbage i
-prisbeslutningen, og det er med vilje: version 3 havde fire triggervægte, to
+prisbeslutningen, og det er med vilje: den tidligere logik havde fire triggervægte, to
 målbelægninger og en trinafstand, som alle var gæt. Standardværdierne (rum 1,6,
 senge 2,0) er litteraturniveau.
 
@@ -618,10 +618,10 @@ bund. Niveauet erstatter ikke undersøgelsen af hvorfor efteråret faldt.
 ### Rækkefølge i drift
 
 1. Byg kube og fordeling, kør backtesten og se på dækningen.
-2. Kør med `enabled: true` i skyggedrift ved siden af version 3 i mindst fire
-   uger, og før log over de datoer hvor I var uenige. `python -m app.skyggedrift`
-   viser begge versioners forslag side om side på dagens belægning og skriver
-   dem til CSV med `--csv`.
+2. Kør skyggedrift med version 4 og version 5 i mindst fire uger, og før log
+   over de datoer hvor de er uenige. `python -m app.skyggedrift` viser begge
+   versioners forslag side om side på dagens belægning og skriver dem til CSV
+   med `--csv`.
 3. Slå `explore: true` til, så elasticitetsmålingen begynder at samle data.
 4. Efter en sæson: mål elasticiteten, sæt `elasticity_measured: true`, og
    løft `max_discount_rungs`.
@@ -631,12 +631,9 @@ bund. Niveauet erstatter ikke undersøgelsen af hvorfor efteråret faldt.
 det adaptive niveau står. Uden den linje kan man tro man kører v4 i ugevis uden
 at gøre det.
 
-**Forvent en mærkbar forskel.** På belægningen pr. 21. september 2026 var de to
-versioner uenige på 43 af 46 datoer, og version 4 lå i snit 74 kr. lavere pr.
-værelse. Det er ikke en finjustering. Ændringsbremsen på 15 % om dagen betyder
-at prisen bevæger sig derhen over to-tre døgn og ikke på én nat, men retningen
-er tydelig: version 4 holder igen med prisen på datoer, hvor version 3 så en
-prognose over målet.
+**Forvent en mærkbar forskel.** Version 5 fjerner den midlertidige rabatbinding,
+når elasticiteten er målt. Det er ikke en finjustering. Ændringsbremsen på 15 %
+om dagen betyder at prisen bevæger sig derhen over to-tre døgn og ikke på én nat.
 
 Risikovurderingens punkt 7 gælder uændret. Ingen modelforbedring erstatter
 rimelighedstjek, alarm på `/health`, skyggedrift og en aftale om hvem der kigger.
@@ -763,7 +760,7 @@ app/cube.py               bookingkuben: OTB(dato, lead) fra reservationshistorik
 app/demand.py             fordelingen af resterende efterspørgsel
 app/bidprice.py           bid price: trinvalg, flex, gruppegulv, opholdsværdi
 app/level.py              adaptivt efterspørgselsniveau
-app/backtest.py           version 3 mod version 4 på historikken
+app/backtest.py           version 4 og version 5 på historikken
 app/evaluate.py           afgør hvilken version der er bedst, med usikkerhed
 app/skyggedrift.py        begge versioner side om side på dagens belægning
 app/service.py            kørslen: hent, beregn, gem, skriv tilbage

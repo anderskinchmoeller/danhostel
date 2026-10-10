@@ -1,4 +1,4 @@
-"""Backtest af v4 på den tilstand der faktisk stod på bøgerne.
+"""Backtest af v4 og v5 på den tilstand der faktisk stod på bøgerne.
 
 Roadmappens Tier 3 foreslår at køre modellen på historikken. Med bookingkuben
 kan det gøres rigtigt: ikke mod en gennemsnitskurve, men mod det der stod på
@@ -7,8 +7,8 @@ bøgerne den enkelte dag, for hver dato og hvert lead time.
 Backtesten svarer på to spørgsmål, og det er vigtigt at holde dem adskilt.
 
 **Hvor godt rammer prognosen?** Det kan måles uden at antage noget om priser.
-Den historiske motor giver ét tal; v4 giver en fordeling. Begge sammenlignes med
-det der faktisk skete, og v4 bedømmes også på dækning: lander de
+V4 giver en fordeling og sammenlignes med det der faktisk skete. Den bedømmes
+også på dækning: lander de
 faktiske tal inden for 10-90 %-intervallet i 80 % af tilfældene? Rammer
 dækningen ved siden af, er fordelingen for smal eller for bred, og bid price
 bliver tilsvarende forkert.
@@ -32,16 +32,14 @@ from datetime import date
 
 from . import bidprice, cube, demand
 from .config import load_settings
-from .engine import DayInput, forecast_occupancy, price_day
+from .engine import DayInput, price_day
 
 LEADS = (0, 3, 7, 14, 21, 30, 45, 60, 90, 120)
 
 
-def forecast_comparison(rows, models, params, *, leads=LEADS) -> list:
+def forecast_comparison(rows, models, *, leads=LEADS) -> list:
     """Prognosepræcision pr. lead time. Ingen antagelser om priser."""
-    inv = params.inventory
-    capacity = inv.max_room_capacity
-    by_lead = {lead: {"v3": [], "v4": [], "inside": 0, "n": 0} for lead in leads}
+    by_lead = {lead: {"v4": [], "inside": 0, "n": 0} for lead in leads}
     for row in rows:
         lead = row["lead"]
         if lead not in by_lead or row["censureret"]:
@@ -49,15 +47,12 @@ def forecast_comparison(rows, models, params, *, leads=LEADS) -> list:
         day = date.fromisoformat(row["dato"])
         actual = row["endelig_rum"]
         otb = row["otb_rum"]
-        weekend = params.is_weekend(day)
 
-        v3 = forecast_occupancy(otb / capacity, lead, weekend, params.booking_curve) * capacity
         v4 = otb + models["rum"].expected(lead, day)
         low = otb + models["rum"].quantile(0.10, lead, day)
         high = otb + models["rum"].quantile(0.90, lead, day)
 
         bucket = by_lead[lead]
-        bucket["v3"].append(abs(v3 - actual))
         bucket["v4"].append(abs(v4 - actual))
         bucket["inside"] += int(low <= actual <= high)
         bucket["n"] += 1
@@ -69,7 +64,6 @@ def forecast_comparison(rows, models, params, *, leads=LEADS) -> list:
             continue
         out.append({
             "lead": lead, "n": bucket["n"],
-            "v3_mae": statistics.mean(bucket["v3"]),
             "v4_mae": statistics.mean(bucket["v4"]),
             "daekning_80": bucket["inside"] / bucket["n"],
         })
@@ -137,19 +131,19 @@ def main(argv: list[str] | None = None) -> int:
     else:
         models = demand.load(args.model)
     settings = load_settings()
-    p3 = settings.params
-    v4cfg = replace(p3.v4 or bidprice.V4Config(), enabled=True)
-    p4 = replace(p3, v4=v4cfg, demand_models=models)
+    base_params = settings.params
+    v4cfg = replace(base_params.v4 or bidprice.V4Config(), enabled=True)
+    p4 = replace(base_params, v4=v4cfg, demand_models=models)
+    p5 = replace(p4, v4=replace(v4cfg, elasticity_measured=True))
     if not p4.v4_active:
         print("Version 4 kunne ikke aktiveres — mangler stigen eller modelfilen")
         return 1
 
     print("PROGNOSEPRÆCISION — værelser, i enheder. Ingen antagelser om priser.")
-    print(f"{'lead':>5}{'n':>8}{'v3 MAE':>9}{'v4 MAE':>9}{'bedre':>8}{'dækning 80 %':>14}")
-    for line in forecast_comparison(rows, models, p3):
-        better = (line["v3_mae"] - line["v4_mae"]) / line["v3_mae"] if line["v3_mae"] else 0
-        print(f"{line['lead']:>5}{line['n']:>8}{line['v3_mae']:>9.1f}{line['v4_mae']:>9.1f}"
-              f"{better:>+8.0%}{line['daekning_80']:>14.0%}")
+    print(f"{'lead':>5}{'n':>8}{'v4 MAE':>9}{'dækning 80 %':>14}")
+    for line in forecast_comparison(rows, models):
+        print(f"{line['lead']:>5}{line['n']:>8}{line['v4_mae']:>9.1f}"
+              f"{line['daekning_80']:>14.0%}")
     print("# Dækning tæt på 80 % betyder at fordelingen har den rigtige bredde.")
     print("# Ligger den under, er den for smal, og bid price bliver for sikker på sig selv.")
     print()
@@ -161,12 +155,12 @@ def main(argv: list[str] | None = None) -> int:
     step = max(1, len(days) // max(1, args.datoer))
     sample = days[::step][:args.datoer]
 
-    stats = {"v3": {"skift": [], "pris": [], "oms": []},
-             "v4": {"skift": [], "pris": [], "oms": []}}
-    capacity = p3.inventory.max_room_capacity
+    stats = {"v4": {"skift": [], "pris": [], "oms": []},
+             "v5": {"skift": [], "pris": [], "oms": []}}
+    capacity = base_params.inventory.max_room_capacity
     for day in sample:
         final_units = by_date[day][0]["endelig_rum"]
-        for name, params in (("v3", p3), ("v4", p4)):
+        for name, params in (("v4", p4), ("v5", p5)):
             path = price_path(by_date, day, params, max_lead=args.max_lead)
             if not path["priser"]:
                 continue
@@ -178,7 +172,7 @@ def main(argv: list[str] | None = None) -> int:
 
     print(f"PRISVEJ — {len(sample)} datoer, {args.max_lead} dage ned mod ankomst")
     print(f"{'':>6}{'prisskift':>11}{'slutpris':>10}{'omsætning*':>12}")
-    for name in ("v3", "v4"):
+    for name in ("v4", "v5"):
         s = stats[name]
         if not s["pris"]:
             continue

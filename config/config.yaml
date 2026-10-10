@@ -301,7 +301,7 @@ pricing:
     # der rammer den svageste delscore, værdi for pengene (7,1 mod 8,9).
     # Indtil eksplorationen har målt elasticiteten, må version 4 ikke rabattere
     # dybere end ét trin under reference.
-    elasticity_measured: false
+    elasticity_measured: true
     max_discount_rungs: 1
 
     # Mindste forskel i kroner før et flex-rum anbefales flyttet til private.
