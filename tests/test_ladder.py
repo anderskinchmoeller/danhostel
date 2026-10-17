@@ -174,3 +174,18 @@ def test_ladder_is_stable_under_repeated_runs():
                               current_bed_price=first.bed_price), LP, today=TODAY)
     assert again.room_price == first.room_price
     assert again.bed_price == first.bed_price
+
+
+@pytest.mark.parametrize('coin,arm', [(False,'control'),(True,'alternative')])
+def test_exploration_logs_control_and_alternative_without_relabeling_proposals(monkeypatch,coin,arm):
+    from app import ladder
+    monkeypatch.setattr(ladder,'_coin',lambda _:coin)
+    result=step(cfg=replace(CFG,explore=True,explore_band=1),position_override=4.1,
+                scarcity_protect=False,explore_seed='2026-10-16|rum')
+    assignment=result.exploration
+    assert assignment['assigned_arm']==arm
+    assert assignment['probability_alternative']==.5
+    assert assignment['distinct_prices']
+    assert assignment['assigned_price']==result.price
+    assert assignment['unit']=='stay_date_product'
+    assert 'confirmed_applied_price' not in assignment

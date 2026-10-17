@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% set page = "results" %}
+{% block title %}Økonomi og prisfølsomhed · Prismotor{% endblock %}
+{% block body %}
+<h1>Økonomi og prisfølsomhed</h1>
+<p><a href="/resultater/afvigelser">Se graf: model mod faktiske tal og statistik →</a></p>
+<p><a href="/resultater">← Resultatlog</a></p>
+<div class="msg info"><b>Økonomisk effekt er ikke målt.</b> Ingen beregning på denne side beviser,
+at modellen øger omsætningen eller indtjeningen. Historiske prisstigninger på travle datoer
+kan ikke alene fortælle, hvor prisfølsomme gæsterne er.</div>
+<div class="panel">
+<h2>Aktuelle antagelser</h2>
+<p>Prisfølsomhed: værelser {{ '%.2f'|format(settings.params.v4.elasticity_rooms) }},
+senge {{ '%.2f'|format(settings.params.v4.elasticity_beds) }}. Det er konfigurerede værdier;
+den nye opfølgning har ikke estimeret dem fra et gennemført prisforsøg.</p>
+<p>Den eksisterende prisvariation er fortsat {{ 'slået til' if settings.params.ladder.explore else 'slået fra' }}.
+Fra nye beregninger gemmes begge mulige priser, valget og eventuel efterfølgende bremse/lås.
+En prisbekræftelse med valgt beregning gemmer også, om den anvendte pris stemte med forsøgsvalget.
+Ældre beregninger får ikke genskabt manglende forsøgsoplysninger.</p>
+<p>Der mangler stadig et dokumenteret kontrolforløb med faktisk anvendte priser,
+tidsafgrænset salg, annulleringer og økonomiske resultater. Ændringer undervejs og forskelle i
+opholdsdatoer skal håndteres, før prisfølsomhed eller merindtjening kan vurderes.</p>
+</div>
+<div class="panel" style="margin-top:16px">
+<h2>Datadækning · seneste færdige beregning{% if run %} #{{ run.id }}{% endif %}</h2>
+<p>Hele kørslen: {{ coverage.total }} datoer. Aktuelt indlæst værelsesomsætning: {{ coverage.room_known }};
+sengeomsætning: {{ coverage.bed_known }}. Begge felter er udfyldt på {{ coverage.both_known }} datoer.
+{{ coverage.estimated }} omsætningsprognoser i beregningen mangler fuldt datagrundlag.</p>
+<p>Nul tæller som et oplyst tal; tomt er ukendt. Dækningen viser de senest indlæste data,
+og kan derfor være ændret siden prisberegningen.</p>
+<p>Endelig bogført omsætning foreligger først for afsluttede datoer.
+Manglende bogførte tal på fremtidige opholdsdatoer kan ikke udfyldes med en historisk rapport.
+Reservationsværdi frem i tiden er et særskilt prognosegrundlag.</p>
+<table><thead><tr><th>Forslagslog i denne kørsel</th><th>Oprindelig pris valgt</th><th>Nabopris valgt</th><th>Bremset/låst</th></tr></thead>
+<tbody>{% for product, label in [('rooms','Værelser'),('beds','Senge')] %}
+{% set counts=coverage.assignments[product] %}<tr><td>{{ label }}</td><td>{{ counts.control }}</td><td>{{ counts.alternative }}</td><td>{{ counts.overridden }}</td></tr>{% endfor %}</tbody></table>
+<p class="foot">Kun nye logposter med to forskellige priser tælles. Forslag er ikke dokumentation for
+anvendelse, og samme opholdsdato er ikke et nyt uafhængigt forsøg ved hver beregning.</p>
+</div>
+<div class="panel" style="margin-top:16px">
+<h2>Daglige rapporter fra Picasso</h2>
+<ol>
+<li><b>Hotelmanager:</b> Vælg en afsluttet dato efter natkørslen. Medtag part 1 og part 2 med Room/Bed.
+Ekskludér moms, pakker, kredit og ude af drift som i det afstemte eksempel.</li>
+<li><b>Reports (F7) → Statistik → Produkter:</b> Samme dato, Overnight, produktnavn og opdeling pr. rumtype,
+eksklusive moms. Medtag Confirmed, Guaranteed, In-House og Out of House; fravælg øvrige statusser.</li>
+<li><a href="/resultater">Upload de to PDF’er i Resultatlog</a>. Kontrollér endeligt salg, rumtyper, fradrag af morgenmad,
+opholdsdato og afstemning, før du bekræfter resultatet.</li>
+</ol>
+<p>Hvis produktudtrækket siger “Arrival date”, skal du kontrollere, at beløbene gælder opholdsdatoen.
+Et match for én dato beviser ikke en korrekt fordeling af flerdagesophold for alle datoer.</p>
+<p>Accounts / bogføringsrapport er valgfri til yderligere afstemning. Flyttede produkter, kreditposteringer,
+provision og andre omkostninger skal kontrolleres særskilt. Importen udfylder ingen standardsatser.</p>
+</div>
+<div class="panel" style="margin-top:16px">
+<h2>Faktiske økonomiske resultater</h2>
+<form class="bar" method="get"><label>Fra <input type="date" name="start" value="{{ start }}"></label>
+<label>Til <input type="date" name="end" value="{{ end }}"></label><button type="submit">Vis periode</button></form>
+<p>{{ rows|length }} afsluttede datoer; {{ revenue_dates }} med begge omsætningstal,
+{{ contribution_dates }} med tilstrækkelige oplysninger til dækningsbidrag.</p>
+<div style="overflow-x:auto"><table><thead><tr><th>Dato</th><th>Logiomsætning</th><th>RevPAB faktisk</th><th>Dækningsbidrag</th><th>Bidrag pr. tilgængelig seng</th><th>Kilde</th></tr></thead><tbody>
+{% for row in rows %}<tr><td>{{ row.day.strftime('%d-%m-%Y') }}</td>
+{% for key in ['revenue','revpab','contribution','contribution_per_bed'] %}<td>{{ '%.2f kr.'|format(row[key]) if row[key] is not none else 'Mangler' }}</td>{% endfor %}
+<td>{{ row.source }}{% if row.data.get('result_report_id') %}<br><a href="/resultater/rapporter/{{ row.data.result_report_id }}">Kilder og afstemning</a>
+{% if row.data.get('revenue_adjustment') %}<br><small>Ufordelt afrunding inkluderet: {{ '%.2f'|format(row.data.revenue_adjustment) }} kr.</small>{% endif %}{% endif %}</td></tr>{% else %}<tr><td colspan="6">Ingen afsluttede resultater registreret endnu.</td></tr>{% endfor %}</tbody></table></div>
+<p>RevPAB kræver faktisk tilgængelige senge. Dækningsbidrag kræver begge omsætningstal,
+provision og variable omkostninger. Ukendte beløb beregnes ikke med standardsatser.
+Faktisk indtjening er ikke i sig selv dokumentation for en forbedring fra modellen.</p>
+<p><a href="/resultater">Registrér eller importér faktiske resultater</a> ·
+<a href="/resultater/export.csv?start={{ start }}&amp;end={{ end }}">Hent resultatlog</a></p>
+</div>
+{% endblock %}

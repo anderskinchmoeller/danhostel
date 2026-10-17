@@ -9,6 +9,7 @@ from __future__ import annotations
 import json
 from dataclasses import replace
 from datetime import date, datetime, timedelta
+from zoneinfo import ZoneInfo
 
 from sqlalchemy import select
 
@@ -24,7 +25,8 @@ from .engine import DayInput, EventUplift, Params, price_day, quality_index
 # Ind- og udlæsning af tilstand
 # --------------------------------------------------------------------------
 
-def upsert_inventory(session, rows, actor="system") -> int:
+def upsert_inventory(session, rows, actor="system", observed_at=None) -> int:
+    from .validation import append
     now = db.utcnow()
     n = 0
     for row in rows:
@@ -51,24 +53,33 @@ def upsert_inventory(session, rows, actor="system") -> int:
             state.current_room_price = row.current_room_price
         if row.current_bed_price:
             state.current_bed_price = row.current_bed_price
-        state.otb_updated = now
+        state.otb_updated = observed_at or now
+        append(session, "inventory", row.day, observed_at or now, {
+            "rooms_otb": row.rooms_otb, "beds_otb": row.beds_otb,
+            "blocked_rooms": row.blocked_rooms if observed_at is None else None,
+            "blocked_beds": row.blocked_beds if observed_at is None else None,
+            "room_type_otb": row.room_type_otb,
+            "booked_room_revenue": row.booked_room_revenue,
+            "booked_bed_revenue": row.booked_bed_revenue,
+            "imported_room_price": row.current_room_price,
+            "imported_bed_price": row.current_bed_price,
+        }, actor=actor, source="Indlæst belægning; ikke bekræftelse af prisændring")
         n += 1
     db.log(session, "import_inventory", actor=actor, new=n, detail=f"{n} datoer opdateret")
     return n
 
 
-def upsert_comp(session, rows, actor="system") -> int:
-    now = db.utcnow()
+def upsert_comp(session, rows, actor="system", observed_at: datetime | None = None) -> int:
+    now = observed_at or db.utcnow()
     n = 0
     for row in rows:
         state = session.get(db.DayState, row.day)
         if state is None:
             state = db.DayState(day=row.day)
             session.add(state)
-        if row.comp_room is not None:
-            state.comp_room = row.comp_room
-        if row.comp_bed is not None:
-            state.comp_bed = row.comp_bed
+        # Each row is a snapshot: blank means unavailable, never a fresh old quote.
+        state.comp_room = row.comp_room
+        state.comp_bed = row.comp_bed
         state.comp_updated = now
         n += 1
     db.log(session, "import_comp", actor=actor, new=n, detail=f"{n} datoer opdateret")
@@ -94,14 +105,23 @@ def load_events(session) -> list:
     ]
 
 
-def build_inputs(states, settings: Settings) -> list:
+def build_inputs(states, settings: Settings, *, now: datetime | None = None) -> list:
+    now = now or db.utcnow()
+    local_now = now.replace(tzinfo=ZoneInfo("UTC")).astimezone(ZoneInfo(settings.timezone))
+    remaining = 1 - (local_now.hour * 3600 + local_now.minute * 60 + local_now.second) / 86400
+    def fresh_market(s):
+        return bool(s.comp_updated and timedelta(0) <= now - s.comp_updated
+                    <= timedelta(hours=settings.stale_hours))
     return [
         DayInput(
             day=s.day,
             rooms_otb=s.rooms_otb,
             beds_otb=s.beds_otb,
-            comp_room=s.comp_room,
-            comp_bed=s.comp_bed,
+            comp_room=s.comp_room if fresh_market(s) else None,
+            comp_bed=s.comp_bed if fresh_market(s) else None,
+            same_day_fraction=remaining if s.day == local_now.date() else None,
+            market_notes=(("Gamle konkurrentpriser udeladt — opdatér markedet",)
+                          if s.comp_updated and not fresh_market(s) else ()),
             current_room_price=(s.anchor_room_price if s.anchor_at and
                 db.utcnow() - s.anchor_at < timedelta(hours=24) and s.anchor_room_price
                 else s.current_room_price),
@@ -126,7 +146,7 @@ def build_inputs(states, settings: Settings) -> list:
 
 def run_pricing(settings: Settings, trigger: str = "manual", actor: str = "system",
                 today: date | None = None) -> dict:
-    today = today or date.today()
+    today = today or datetime.now(ZoneInfo(settings.timezone)).date()
     start = today
     end = today + timedelta(days=settings.horizon_days)
 
@@ -175,7 +195,8 @@ def run_pricing(settings: Settings, trigger: str = "manual", actor: str = "syste
         events = load_events(session)
         inputs = build_inputs(fresh_states, settings)
         if params.ladder is not None:
-            inputs = with_ladder_history(session, inputs, today, run.id)
+            inputs = with_ladder_history(session, inputs, today, run.id,
+                                         timezone=settings.timezone)
         if params.v4_active:
             params, level_note = update_demand_level(params, inputs, today)
             if level_note:
@@ -231,7 +252,17 @@ def run_pricing(settings: Settings, trigger: str = "manual", actor: str = "syste
                 warnings=" · ".join(warnings), status=status,
             ))
 
+        from .forecast_validation import save_checkpoints
+        saved = save_checkpoints(session, run, recs, inputs, params, today, settings.timezone,
+                                 revenue_settings=settings.raw.get("validation", {}))
+        notes.append(f"Gemte {saved} nye prognoser ved 30/14/7/1 dage")
         run.n_days = len(recs)
+        if params.v4_active:
+            # Save the comparison with the run's actual data, levels and clock.
+            # Files are only written when the user downloads the CSV.
+            from .skyggedrift import compare_inputs
+            run.shadow_json = json.dumps(compare_inputs(params, inputs, events, today,
+                                                        recommendations=recs), ensure_ascii=False)
         run.revpab = revpab_total / len(recs) if recs else 0.0
         run.status = "done"
         run.finished = db.utcnow()
@@ -248,6 +279,8 @@ def run_pricing(settings: Settings, trigger: str = "manual", actor: str = "syste
         return result
 
     except Exception as exc:  # noqa: BLE001 — en kørsel må aldrig vælte servicen
+        # A failed run must not retain partial proposals or consume a checkpoint.
+        session.rollback()
         run.status = "failed"
         run.finished = db.utcnow()
         run.note = f"{type(exc).__name__}: {exc}"
@@ -259,10 +292,13 @@ def run_pricing(settings: Settings, trigger: str = "manual", actor: str = "syste
 
 
 def with_ladder_history(session, inputs, today: date, current_run_id: int,
-                        pace_window: int = 7) -> list:
+                        pace_window: int = 7, timezone: str = "Europe/Copenhagen") -> list:
     """Giv stigen hukommelse: forrige trin og belægningen for ca. en uge siden.
 
-    Forrige trin er det seneste færdige forslag for datoen. Tempo-snapshottet er
+    Forrige trin er det seneste færdige forslag fra før den lokale dags start.
+    Alle dagens kørsler bruger samme trin og udglatning som udgangspunkt; nye
+    data kan ændre forslaget uden at gentagne klik bruger endnu et dagstrin.
+    Tempo-snapshottet er
     det forslag der ligger tættest på `pace_window` dage tilbage, inden for
     5-10 dage. Ældre eller nyere snapshots giver et for støjende vindue.
     """
@@ -273,14 +309,18 @@ def with_ladder_history(session, inputs, today: date, current_run_id: int,
         select(db.Recommendation, db.Run.started)
         .join(db.Run, db.Run.id == db.Recommendation.run_id)
         .where(db.Run.status == "done", db.Run.id != current_run_id,
+               db.Run.id < current_run_id if current_run_id > 0 else True,
                db.Recommendation.day >= min(days), db.Recommendation.day <= max(days))
         .order_by(db.Recommendation.run_id.desc())
     ).all()
     latest: dict = {}
     prior: dict = {}
     for rec, started in rows:
-        latest.setdefault(rec.day, rec)
-        age = (today - started.date()).days
+        local_day = started.replace(tzinfo=ZoneInfo("UTC")).astimezone(
+            ZoneInfo(timezone)).date()
+        age = (today - local_day).days
+        if age > 0:
+            latest.setdefault(rec.day, rec)
         if 5 <= age <= 10:
             best = prior.get(rec.day)
             if best is None or abs(age - pace_window) < abs(best[1] - pace_window):
@@ -315,11 +355,20 @@ def update_demand_level(params, inputs, today: date):
     Niveauet gemmes på disk og ikke i databasen, så det overlever en
     skemaændring og kan læses og rettes i hånden af et menneske der er uenig.
     """
+    path = Path(params.v4.level_path)
+    if not path.is_absolute():
+        path = BASE_DIR / path
+    state = level.load(path)
+    if state.updated and state.updated >= today.isoformat():
+        return replace(params, demand_level=(state.rooms, state.beds)), ""
     pairs = {"rooms": [], "beds": []}
     for item in inputs:
         if item.prior_days is None or item.rooms_otb_prior is None:
             continue
         lead = (item.day - today).days
+        # Intraday observations are incomplete; the training cube is end-of-day.
+        if lead <= 0:
+            continue
         for key, model_name, now, before in (
                 ("rooms", "rum", item.rooms_otb, item.rooms_otb_prior),
                 ("beds", "senge", item.beds_otb, item.beds_otb_prior)):
@@ -331,16 +380,15 @@ def update_demand_level(params, inputs, today: date):
                              .bind(now).expected(lead, item.day))
             pairs[key].append((expected, max(0, now - before)))
     if not pairs["rooms"] and not pairs["beds"]:
-        return params, ""
-
-    path = Path(params.v4.level_path)
-    if not path.is_absolute():
-        path = BASE_DIR / path
-    state = level.load(path)
-    updated = level.update(state, rooms=pairs["rooms"], beds=pairs["beds"], today=today,
-                           alpha=params.v4.level_alpha, low=params.v4.level_min,
-                           high=params.v4.level_max)
-    level.save(updated, path)
+        return replace(params, demand_level=(state.rooms, state.beds)), ""
+    with level.locked(path):
+        state = level.load(path)
+        updated = level.update(state, rooms=pairs["rooms"], beds=pairs["beds"], today=today,
+                               alpha=params.v4.level_alpha, low=params.v4.level_min,
+                               high=params.v4.level_max)
+        if updated is not state:
+            level.save(updated, path)
+            updated = level.load(path)
     note = ""
     if abs(updated.rooms - state.rooms) > 0.005 or abs(updated.beds - state.beds) > 0.005:
         note = (f"Efterspørgselsniveau: rum {state.rooms:.2f} → {updated.rooms:.2f}, "

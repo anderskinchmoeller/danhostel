@@ -1,0 +1,24 @@
+Ud af stikprøve: estimeret på 44286 rækker fra 2024, målt på 36179 rækker fra 2025 (renoveringen udeladt)
+
+PROGNOSEPRÆCISION — værelser, i enheder. Ingen antagelser om priser.
+ lead       n   v4 MAE  dækning 80 %
+    0     293      0.0          100%
+    1     293      2.6           94%
+    3     293      4.8           82%
+    7     293      6.8           76%
+   14     293      7.8           84%
+   21     293      8.6           79%
+   30     293      8.9           81%
+   45     293      9.7           80%
+   60     293      9.7           76%
+   90     293      9.9           77%
+  120     293      9.9           79%
+# Dækning tæt på 80 % betyder at fordelingen har den rigtige bredde.
+# Ligger den under, er den for smal, og bid price bliver for sikker på sig selv.
+
+PRISVEJ — 60 datoer, 60 dage ned mod ankomst
+        prisskift  slutpris  omsætning*
+    v4        1.8       636       25711
+    v5        3.6       559       24161
+# *Omsætningen hviler på den ANTAGNE elasticitet (1.6), ikke på data.
+# Den er ikke et bevis for en gevinst. Det kommer fra eksplorationen.

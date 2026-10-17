@@ -78,7 +78,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 .msg.ok{background:var(--good-soft);color:var(--good)}
 .msg.err{background:var(--flag-soft);color:var(--flag)}
 .msg.info{background:var(--accent-soft);color:var(--accent)}
-input[type=text],input[type=date],input[type=number],input[type=file],select{
+input[type=text],input[type=date],input[type=datetime-local],input[type=number],input[type=file],select,textarea{
   font:inherit;font-size:13.5px;padding:7px 9px;border:1px solid var(--line-strong);
   border-radius:5px;background:var(--surface);color:var(--ink);max-width:100%}
 label{font-size:12px;color:var(--muted);display:block;margin-bottom:3px}
@@ -103,6 +103,7 @@ pre{background:var(--surface-2);padding:12px;border-radius:5px;overflow-x:auto;f
     <a href="/" class="{% if page=='dashboard' %}on{% endif %}">Priser</a>
     <a href="/grupper" class="{% if page=='groups' %}on{% endif %}">Grupper</a>
     <a href="/data" class="{% if page=='data' %}on{% endif %}">Data</a>
+    <a href="/resultater" class="{% if page=='results' %}on{% endif %}">Resultater</a>
     <a href="/events" class="{% if page=='events' %}on{% endif %}">Events</a>
     <a href="/settings" class="{% if page=='settings' %}on{% endif %}">Indstillinger</a>
   </nav>

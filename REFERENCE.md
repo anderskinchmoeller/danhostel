@@ -1,774 +1,618 @@
-# Prismotor — reference
+# Prismotor · teknisk reference
 
-Detaljerne. Den korte vejledning står i `README.md`; her står alt det man
-kun har brug for når man skal ændre noget eller forstå hvorfor en pris ser
-ud som den gør.
+Beskriver den nuværende implementation og konfiguration pr. **17. oktober 2026**.
+Start med [README](README.md) for daglig brug eller
+[Picasso-rapportguiden](HVORDANMANFINDERBELAEGNIONG.MD) for eksportopsætninger.
+Konfiguration og kode er kilden til de aktuelle værdier; tabellerne her er et
+øjebliksbillede, ikke selvstændige indstillinger.
 
----
+## Indhold
 
-**Prismotoren — prisforslag med manuel vurdering.** Tre ting adskiller den fra en almindelig hotelmodel:
+- [Status og versioner](#status-og-versioner)
+- [Lager og salgsenheder](#lager-og-salgsenheder)
+- [Prisberegningen](#prisberegningen)
+- [Data og import](#data-og-import)
+- [Prisdownload og skyggedrift](#prisdownload-og-skyggedrift)
+- [Resultatlog og PDF-import](#resultatlog-og-pdf-import)
+- [Prognosevalidering](#prognosevalidering)
+- [Omsætning og økonomisk effekt](#omsaetning-og-oekonomisk-effekt)
+- [Modelgrundlag og analyser](#modelgrundlag-og-analyser)
+- [Opstart](#opstart)
+- [Drift og backup](#drift-og-backup)
+- [Sider og API](#sider-og-api)
+- [Kendte begrænsninger](#kendte-begraensninger)
+- [Kodekort](#kodekort)
 
-1. **Den forudsiger i stedet for at reagere.** En dato der er 20 % solgt 40 dage
-   ude er ikke svag — den er på vej til 85 %, og prisen skal ikke falde.
-2. **Den prissætter to lagre.** Private værelser og dormsenge har hver sin
-   bookingkurve, hver sin prognose og hver sin pris. Senge bookes senere og er
-   mindre weekendfølsomme.
-3. **Den træffer beslutningen om flex-rummene.** Et rum der kan sælges som
-   familieværelse eller som fire senge er ikke et prisspørgsmål — modellen
-   sammenligner dækningsbidraget ved alle mulige fordelinger. Flex er kun et dagsforslag; konkrete rum og hele ophold skal kontrolleres i Picasso.
+## Status og versioner
 
-Nøgletallet er **RevPAB**: omsætning pr. tilgængelig seng i hele huset. Et
-hostel der optimerer værelsesprisen alene optimerer den forkerte størrelse.
-
-```
-værelsespris = grundpris(sæson × ugedag) × F_pace × F_marked × F_event
-sengepris    = grundpris_seng(sæson × ugedag_seng) × F_pace_seng × F_marked_seng × F_event
-```
-
----
-
-## Lageret — det vigtigste at få rigtigt
-
-```yaml
-inventory:
-  confirmed: false
-  private_beds: null       # udfyld fra Picasso
-  private_room_types: {}   # antal faste private værelser pr. priskode
-  private_rooms: 20        # altid private (typisk dem med eget bad)
-  flex_rooms: 16           # kan sælges som familieværelse ELLER som senge
-  flex_room_types: {}      # flex-rum pr. Picasso-kode, fx {V6: 7, V8: 6}
-  beds_per_flex_room: 4
-  dorm_beds: 216           # faste sovesale
-```
-
-Det giver 36 mulige private værelser, 280 mulige senge og 320 senge i alt.
-Tallene er kun et eksempel. Danhostel oplyser 72 værelser, heraf 20 med bad/toilet,
-og **330 senge**, mens eksemplet giver **320**. De manglende 10 senge må ikke blot
-lægges i en vilkårlig kategori. `private_beds` erstatter antagelsen om to senge
-i hvert fast privat værelse. `private_room_types` skal summere til `private_rooms`. **Ret dem til den faktiske opdeling i Picasso, før
-du bruger priserne til noget.** Er lageret forkert, er alt andet også forkert.
-
-`flex_room_types` skal summere til `flex_rooms`. Er den tom, regnes alle flex-rum
-som én type, `familie_4`. Er den udfyldt, får hver sovesalstype sin egen pris,
-og et flex-rum solgt privat regnes til gennemsnittet af typerne, vægtet med antal.
-
-### Prislisten
-
-Prislisten (`/export.csv` og `room_types` i `/api/prices`) har én kolonne pr. kode
-i `pricing.room_types` og `pricing.bed_types`, i den rækkefølge de står i config.
-Rumkoder = værelsesprisen × faktor; sengekoder (Picassos B-typer) = sengeprisen ×
-faktor. Skal prislisten passe til Picasso, skal de to lister have præcis Picassos
-rumtyper — hverken flere eller færre.
-
-Sæt først `confirmed: true`, når opdelingen er afstemt med Picasso. Indtil da
-kan forslag vurderes i dashboardet, men priser kan hverken eksporteres til live
-import eller skrives til PMS. Dette kræver en konfigurationsændring og genstart.
-
-Flex-beregningen respekterer solgte enheder, blokeringer og valgfrie
-`flex_private_min`/`flex_private_max`. De sidste skal baseres på faktiske rum og
-hele ophold: én solgt seng kan binde et helt rum. Daglige totaler kan ikke afsløre
-spredte bookinger eller garantere et bestemt rum gennem flere nætter.
-**Ingen gæster flyttes, og intet lager ændres automatisk.** CSV-kolonnen
-`flex_forslag_til_private` er kun til manuel vurdering.
-
----
-
-## Sikkerhed før du sætter den på nettet
-
-Servicen kan ændre priser på et rigtigt hostel. Tre ting, ingen af dem valgfri:
-
-1. **Sæt `RMS_USER` og `RMS_PASSWORD` i `.env`.** Uden dem er dashboardet åbent.
-2. **Bind til `127.0.0.1` og læg Caddy eller nginx foran med HTTPS.** Så kan
-   porten ikke nås direkte udefra. Skal kun du læse siden, er Tailscale
-   simplere end begge dele — så er der ingen åben port overhovedet.
-3. **Læg aldrig `.env` i versionsstyring.**
-
-```nginx
-server {
-    server_name priser.dithotel.dk;
-    location / {
-        proxy_pass http://127.0.0.1:8000;
-        proxy_set_header Host $host;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    }
-}
-```
-
----
-
-## Dagligdagen
-
-| Hvornår | Hvad |
+| Område | Nuværende adfærd |
 |---|---|
-| Hver nat kl. 04:15 | Servicen kører selv |
-| Hver morgen, 5 min. | Kig på **Priser**. Start med datoer der har en bemærkning |
-| Ved gruppeforespørgsler | **Grupper** → antal værelser og datoer → minimumspris |
-| Ved tvivl | Lås datoen med dine egne priser. Automatikken rører den ikke |
-| En gang om måneden, 30 min. | Opdatér **Events** fra VisitAarhus' kalender |
-| En gang i kvartalet | Opdatér review-scores under **Indstillinger** |
+| Aktiv prismotor | V4; `pricing.v4.enabled` og prisstigen skal være slået til |
+| Modelgrundlag | `config/demand_model.json`; manglende eller ugyldigt grundlag stopper indlæsningen |
+| V5 | Opdateringsvariant af samme motor, beregnet som skyggeforslag |
+| Picasso | Manuel overførsel; ingen implementeret API-skrivning |
+| Horisont | 120 dage frem; beregningen kan også indeholde ankomstdagen |
+| Indlæsning | CSV og understøttede Picasso-PDF’er |
+| Planlagt beregning | Konfigureret til 04:15, `Europe/Copenhagen` |
+| Friskhed | `stale_hours: 36`; kontrolleres pr. opholdsdato |
+| Normal drift | `auto_publish: false` |
 
----
+V4 og v5 er **ikke to uafhængige strategier til forsøget om merindtjening**.
+`app/skyggedrift.py` laver v5 ved at sætte `elasticity_measured=True` i en kopi
+af parametrene. Det ophæver blandt andet den midlertidige rabatbinding; det
+estimerer ikke en ny elasticitet. Den antagelse må ikke forveksles med en måling.
 
-## Data ind
+Den økonomiske sammenligning er **prismodellen mod den normale prisstrategi**.
+Skyggeforslag, simuleret omsætning og bedre prognoser dokumenterer ikke denne effekt.
 
-To filer. **Begge lagre skal med** — leverer eksporten kun værelser, er den
-halve model blind.
+## Lager og salgsenheder
 
-**Belægning**
+| Pulje | Konfiguration | Antal |
+|---|---|---:|
+| Faste private værelser | D1: 1, D2: 13, D4: 8, F1: 17, F3: 11 | 50 værelser |
+| Senge i faste private værelser | `private_beds` | 148 senge |
+| Flexrum | FS: 1, V8: 6, V6: 7, V10: 6 | 20 rum |
+| Beregnet størrelse på flexrum | `beds_per_flex_room` | 8 senge pr. rum |
+| Faste sovesalspladser | `dorm_beds` | 4 senge |
+
+Lageret er markeret `confirmed: true` i konfigurationen. Det er ikke længere
+et ubekræftet eksempellager med 20 private værelser og 216 faste dormsenge.
+
+```text
+maksimale værelsesenheder = 50 + 20 = 70
+maksimale sengeenheder    = 4 + 20 × 8 = 164
+RevPAB-nævner             = 148 + 4 + 20 × 8 = 312
+```
+
+De to maksimale salgspuljer er alternative yderpunkter, ikke samtidig kapacitet.
+Hvis `n` flexrum sælges som hele rum, regnes før blokeringer med:
+
+```text
+værelseskapacitet = 50 + n
+sengekapacitet    = 4 + (20 − n) × 8
+```
+
+Flextypernes konkrete størrelser summerer til 158 senge; modellen bruger 160.
+De 312 er derfor en **tilnærmet beregningskapacitet**, ikke en ny optælling af
+fysiske senge. Faktisk RevPAB på økonomisiden kræver oplyst tilgængelig kapacitet.
+
+Modellen tillader stadig, at flexrum sælges som enkelte senge. En kommentar i
+YAML om kun at sælge hele værelser ændrer ikke denne adfærd. Hvis den daglige
+drift kun tillader hele rum, skal modellen og kapacitetsgrænserne tilpasses.
+
+`room_type_otb` og valgfrie `flex_private_min`/`flex_private_max` begrænser
+fordelingen. Kontrollen skal også omfatte konkrete rum og hele ophold; én seng
+kan binde et rum på flere datoer. Appen flytter ikke gæster eller lager i Picasso.
+
+Prislisten følger koderne i `pricing.room_types` og `pricing.bed_types`.
+Typepris beregnes som basispris × typefaktor og afrundes derefter med motorens
+afrundingsfunktion. YP, GRP og andre produktnavne afgør ikke rum/seng.
+
+## Prisberegningen
+
+### Efterspørgsel og trinvalg
+
+V4 bruger en fordeling af resterende **netto-pickup**, inklusive negative
+udfald ved annulleringer. Modellen bindes til det aktuelle salg på bøgerne.
+Prognosen kombinerer bøger og forventet pickup med et historisk kalenderniveau;
+vægten varierer med bookinghorisonten. Kapaciteten begrænser forventet salg.
+
+For hvert tilladt pristrin vurderes skematisk:
+
+```text
+efterspørgselsfaktor = (trinpris / referencepris) ^ (−elasticitet)
+modelbidrag         = pris × (1 − provision) − variabel omkostning
+forventet bidrag     = modelbidrag × E[min(resterende efterspørgsel, ledig kapacitet)]
+```
+
+Motoren vælger et trin ud fra denne beregning. Den aktive v4 styrer ikke efter
+den ældre vægtede målbelægningsformel, selv om ældre parametre og triggerfelter
+stadig findes i konfigurationen og på nogle skærmbilleder.
+
+| Parameter | Nuværende værdi |
+|---|---:|
+| Elasticitet, værelser / senge | 1,6 / 2,0; antagelser, ikke målt på gæsterne |
+| Referencetrin | Faktor 1,00 på dagens grundpris |
+| Trinfaktorer | 0,80; 0,86; 0,93; 1,00; 1,07; 1,15; 1,24; 1,35; 1,48 |
+| Rabatbinding | Højst ét trin under reference, mens elasticiteten er umålt |
+| Prisgulv / loft, basisværelse | 375 / 1.400 kr. |
+| Prisgulv / loft, basisseng | 165 / 600 kr. |
+| Afrunding | 10 kr., med kontrol af tilladte prisgrænser |
+| Antaget provision | 16 % |
+| Antaget variabel omkostning, værelse / seng | 91 / 39,84 kr. |
+
+De økonomiske satser ovenfor bruges i prisberegningen. De erstatter ikke
+faktiske omkostninger i resultatloggen. Modelpriser er bekræftet inklusive
+25 % moms og uden morgenmad. Motorens bidragsformel omregner ikke selv alle
+beløb til et særskilt regnskabsgrundlag; kald derfor ikke dens modelbidrag for
+målt, regnskabsmæssigt dækningsbidrag.
+
+Markedet kan flytte v4’s valgte position via stigens markedsvægt og kvalitetsindeks.
+Events giver eventtrin og referencegulv; eventfaktoren er begrænset til 1,45.
+V4 bruger ikke den ældre knaphedsbeskyttelse og ratchet som ekstra gulve.
+
+### Hukommelse, læring og beskyttelse
+
+- Alle dagens kørsler bruger seneste færdige trin og udglatning fra **før lokal
+  midnat**. Gentagne klik bruger ikke flere dagstrin på samme datagrundlag.
+- Udglatning og hysterese dæmper skift. Trinbegrænsninger er normalt højst to
+  trin op og ét ned; tæt på ankomst kan to trin ned være tilladt.
+- Ændringsbremsen er aktuelt 15 % omkring prisankeret, når et relevant anker
+  findes. Ankeret holdes i 24 timer, så gentagne importer ikke flytter grænsen.
+- Prisgulv, prisloft, bremse og afrunding kontrolleres samlet. Modstridende
+  grænser fastfryser datoen. Grænserne gælder basispriserne; typer følger faktorerne.
+- En manuel lås respekteres; afledte priser og prognose genberegnes ved næste kørsel.
+- Det adaptive niveau opdateres højst én gang pr. lokal dato under fil-lås.
+  Aktuelt `alpha=0,07`, med niveau begrænset til `[0,6; 1,6]`.
+- På ankomstdagen fordeles historisk samme-dags-pickup over den resterende tid
+  til lokal midnat. Det er en tilnærmelse uden bookingtidspunkter. Uafsluttet
+  ankomstdag bruges ikke til den daglige niveaulæring.
+
+**Konfigurationsforbehold:** YAML indeholder `pricing.v4.unbounded_daily_change`,
+men den nuværende `V4Config` og indlæsning understøtter ikke feltet. Det ophæver
+hverken ændringsbremsen eller stigens trinbegrænsninger. Dokumentationen følger
+koden; feltet er ikke aktiveret eller rettet som del af dokumentationsoprydningen.
+
+### Flex og grupper
+
+Flexberegningen sammenligner marginalværdien af endnu et helt rum med værdien
+af de senge, det koster. `flex_min_gain: 25` begrænser små fordelsskøn.
+Fordelingen respekterer solgte enheder, blokeringer og oplyste grænser.
+
+Gruppens minimumspris bygger på summen af fortrængningsværdier pr. enhed og nat.
+`minimum_rate` er forventet fortrængning; `minimum_rate_certain` viser værdien,
+hvis punktprognosen rammer. Før elasticiteten er målt, er gruppefortrængningen
+som udgangspunkt udæmpet. Gruppen kan også påvirke flex og kapacitet på tværs
+af opholdet. Værktøjet giver et gulv til vurdering, ikke et bindende tilbud.
+`bidprice.stay_value` findes, men er ikke koblet på en bookingmotor.
+
+### Prisvariation
+
+`pricing.ladder.explore: true` tillader valg mellem to næsten ligeværdige
+nabotrinsforslag. Det er deterministisk pr. opholdsdato og produkt. Nye logs
+bevarer begge priser, tildelt valg, sandsynlighed og eventuel senere bremse/lås.
+En bekræftet anvendt pris kan sammenholdes med tildelingen.
+
+Det er et observationsgrundlag, ikke et færdigt randomiseret forsøg mod den
+normale prisstrategi. Antal kørsler er ikke antal uafhængige forsøgsdatoer.
+Sæt ikke `elasticity_measured: true` alene fordi prisvariation er slået til.
+
+## Data og import
+
+### Belægning og konkurrentpriser
+
+Belægning kan indlæses fra understøttet Arrivals-PDF eller CSV. Rapportopsætning
+står i [Picasso-guiden](HVORDANMANFINDERBELAEGNIONG.MD).
 
 ```csv
 dato;solgte_vaerelser;solgte_senge;blokerede_vaerelser;blokerede_senge;vaerelsespris;sengepris
-2026-09-16;24;148;4;0;690;280
+2026-10-18;24;4;0;0;690;280
 ```
 
-Begge solgte antal skal være med og må ikke være tomme. Brug eksplicit nul,
-og kun én række pr. dato. Negative antal, brøker og ugyldige tal afvises.
-Alt efter de tre første kolonner er valgfrit. Blokerede enheder trækkes fra
-kapaciteten. Allerede solgte gruppeenheder skal tælles som solgt, ikke samtidig
-som blokeret. Umulige kombinationer fastfryser datoen frem for at skjule overbookingen.
+De tre første kolonner er krævet. Begge solgte antal skal være eksplicitte,
+hele, ikke-negative tal; også nul. Én række pr. dato. Supplerende felter:
 
-Supplerende kolonner:
+| Felt | Betydning |
+|---|---|
+| `blokerede_vaerelser`, `blokerede_senge` | Kapacitet ude af salg; solgte grupper må ikke også tælles som blokeret |
+| `vaerelsespris`, `sengepris` | Aktuelle salgspriser; kan indgå som prisanker |
+| `room_type_otb` | JSON med solgte hele rum pr. kode; summen skal matche solgte værelser |
+| `flex_private_min`, `flex_private_max` | Grænser baseret på konkrete rumtildelinger |
+| `booked_room_revenue`, `booked_bed_revenue` | Omsætningsbeløb på bøgerne; afgiftsgrundlag skal afklares før blanding med priser |
 
-- `booked_room_revenue`, `booked_bed_revenue`: bogført overnatningsomsætning
-  for opholdsdatoen i DKK. Samme afgiftsgrundlag som priserne; uden morgenmad/tillæg.
-- `room_type_otb`: JSON-objekt med solgte private rum pr. priskode, fx
-  `{"D2": 5, "V8": 2}`. Summen skal matche `solgte_vaerelser`.
-- `flex_private_min`, `flex_private_max`: grænser fra konkrete værelsestildelinger.
-
-RevPAB bruger bogført omsætning på allerede solgte enheder og foreslåede priser
-kun på fremtidigt salg. Fremtidige private salg vægtes efter resterende rumtyper.
-Ved manglende typemiks, omsætning eller specificerede blokeringstyper markeres
-resultatet **skøn**. Selv med alle data er fremtidigt salg en prognose, ikke
-realiseret omsætning eller dokumenteret gevinst.
-
-**Konkurrentpriser**
+Konkurrentpriser indlæses som CSV fra sammenlignelige produkter:
 
 ```csv
 dato;medianpris_vaerelse;medianpris_seng
-2026-09-16;640;285
+2026-10-18;640;285
 ```
 
-To comp sets: private værelser mod budgethoteller, senge mod andre hostels.
-Udelad lukkede rater — en pris du ikke kan booke er ikke en lav pris.
+Kolonnenavne genkendes på dansk og engelsk med normalisering af æøå.
+Separator kan være semikolon eller komma; datoer kan være ISO, `dd-mm-åååå`
+eller `dd/mm/åååå`. Priser skal være i DKK pr. salgsenhed og nat.
 
-Kolonnenavne genkendes på dansk og engelsk, med og uden æøå. Separator må være
-semikolon eller komma, og datoformat `2026-09-16`, `16-09-2026` eller `16/09/2026`.
+Der er separate sammenligninger for hele værelser og senge. En tom pris i en
+ny fil fjerner den tidligere værdi for produkt/dato. Gamle eller manglende
+konkurrentpriser giver neutral markedsfaktor og bemærkning.
 
-Mangler en priskolonne, sættes den tilhørende markedsfaktor til 1,000 og
-modellen prissætter på prognosen alene. For et hostel er det mindre alvorligt
-end for et hotel: rate shopping vejer kun 0,45 på værelser og 0,30 på senge
-her, fordi produkterne ikke er sammenlignelige på samme måde.
+### Friskhed og rimelighedstjek
 
----
+Belægningsdata kontrolleres pr. dato før beregning og igen før eksport.
+Gamle/manglende data fastfryser datoen. Ændret belægning siden beregningen kræver
+ny beregning. Arrivals’ udskriftstidspunkt bevares; gen-upload gør ikke data friske.
 
-## Data ud af Picasso
+`app/sanity.py` undersøger blandt andet huller, nulkolonner i mindst en uge,
+kapacitetsoverskridelser, ugyldige datoer og priser. Daglige belægningsspring
+stoppes ved over **80 procentpoint for værelser** og **40 for senge**.
+En manuel tilsidesættelse under Data logges. Den tilsidesætter ikke motorens
+hårde kapacitets- og prisgrænser.
 
-Der findes ingen offentlig dokumentation af Picassos eksportfunktioner. Det
-nedenstående er læst ud af brugermanualen til **version 8.3** (2022,
-techotel.se). I kører formentlig Picasso Digital, så menunavnene kan være
-andre — men rapporterne plejer at overleve versionsskift.
+### Adaptere
 
-**Rapportmodulet** åbnes med **F7** eller rapportikonet i Selector. Manualen
-beskriver det som modulet "du bruger til at udtrække diverse rapporter,
-arrangementslister, ankomstlister, navnelister og rapport til Danmarks
-statistik".
+Kun `pms_adapter: csv` og `rateshop_adapter: manual` er implementeret.
+`RMS_CSV_INBOX` kan pege på en mappe med belægnings-CSV’er. Ukendte adapternavne
+afvises; der er ingen afprøvet Picasso- eller Lighthouse-API-integration.
+Automatisk hentning af komplette fremtidige data kræver en dokumenteret eksport
+eller integration med kapacitet, solgte enheder, typer, blokeringer og salgspriser.
 
-Perioden vælges i kalenderen i højre side: klik datoerne for at markere et
-interval, brug `◄►` til at skifte måned, eller brug datointerval-ikonet og
-udfyld **Fra** og **Til**. Bekræft med **OK**. *DSL-knapperne* gemmer en
-rapportopsætning, så den ikke skal stilles op forfra hver gang.
+## Prisdownload og skyggedrift
 
-De rapporter der kommer tættest på det motoren skal bruge:
+`GET /export.csv` henter som udgangspunkt godkendte priser efter kontroller af
+lager og friskhed. Formatet er semikolon, decimalkomma og UTF-8 med BOM.
+Eksporten har basispriser, alle konfigurerede typer og et flexforslag.
 
-| Rapport | Hvad den viser |
+Ved download gemmes samme fil og matchende skyggefil:
+
+```text
+dagens_priser/priser_ÅÅÅÅ-MM-DD.csv
+dagens_priser/priser_ÅÅÅÅ-MM-DD_run-N.csv
+skygge-v4-v5/skygge_ÅÅÅÅ-MM-DD.csv
+skygge-v4-v5/skygge_ÅÅÅÅ-MM-DD_run-N.csv
+```
+
+Datoen er lokal downloaddato. Dagens fil kan erstattes af et senere download;
+kørselskopier bevarer tidligere kørsler. Skyggen gemmes med beregningens input
+og samme udvalgte datoer/status som prislisten. Gamle kørsler uden skygge kræver
+matchende genberegning eller en ny godkendt beregning, før eksport kan fortsætte.
+En beregning alene skriver ikke disse CSV’er.
+
+CLI til særskilt inspektion af nuværende data:
+
+```sh
+.venv/bin/python -m app.skyggedrift --alle
+.venv/bin/python -m app.skyggedrift --csv skygge.csv
+```
+
+CLI-sammenligningen er en ny beregning på de nuværende data, ikke nødvendigvis
+den samme historiske kørsel som et tidligere download.
+
+## Resultatlog og PDF-import
+
+`ValidationRecord` er en historik med opholdsdato, observationstid, registreringstid,
+bruger, kilde, eventuel kørselsreference og datagrundlag. Rettelser tilføjes som
+nye registreringer. Identiske observationer får ikke dubletter.
+
+| Type | Funktion |
 |---|---|
-| **Belægning** | Belægningsoversigt for indeværende år |
-| **Rumtype statistik** | Solgte rum pr. værelsestype — svarer til `room_type_otb` |
-| **Belæg %** | "Time stat lokaler", belægningsstatistik pr. time |
-| **Hotelmanager** | Overordnet hotelstatistik |
-| **Leads** | Ugeoversigt med RevPAR, gennemsnitspriser og belægningsprocenter |
+| `inventory` | Historik fra indlæst belægning |
+| `pdf` | Arrivals-observation med originalfil og reservationsbeløb som skøn |
+| `applied` | Oplyst faktisk anvendt pris, normalpris, tidspunkt og valgt prisforslag |
+| `report_pair` | Hotelmanager + produktomsætning som kladde til kontrol |
+| `outcome` | Faktiske resultater; endelige når afsluttet og bekræftet |
 
-### Tre ting manualen ikke nævner
+Alle anvender samme database. Med ét delt login identificerer brugerfeltet
+kontoen; det dokumenterer ikke, hvilken fysisk person der brugte den.
 
-Og det er præcis de tre motoren har brug for.
+### Arrivals
 
-**Eksport til fil.** Rapportafsnittet handler om udskrivning. Hverken Excel,
-CSV eller "gem som" optræder. Der står "Digital rapporter" ét sted, uden
-forklaring. Om der findes en eksportknap i jeres version kan kun afgøres ved
-at åbne modulet.
+Importen tæller Confirmed, Guaranteed og In-House pr. opholdsnat. Udskriftstidspunkt
+og periode bevares. In-House læses i forhold til udskriftsdatoen.
+En rapport fra allerede afsluttede datoer viser kun stadig aktive reservationer;
+ufuldstændig historik bliver ikke til komplette endelige salgstal.
+Total Price fordeles jævnt over nætterne som et reservationsskøn.
 
-**Senge.** Ingen rapport i manualen opgør sovesale eller senge. Alt er pr.
-værelse — manualen er skrevet til et hotel. En eksport uden sengetal bliver
-afvist af rimelighedstjekket ved import, og det er den rigtige opførsel: uden
-sengetal er den halve model blind, og det er billigere at stoppe end at
-prissætte videre.
+### Afsluttede resultater
 
-**Fremad i tid.** Rapporterne beskrives som statistik over en valgt, afsluttet
-periode. Motoren skal bruge on-the-books **120 dage frem**.
+Den daglige import bruger to PDF’er for samme dato, begge udskrevet efter
+opholdsdatoen: Hotelmanager part 1 + part 2 (Room/Bed), og produktomsætning.
+Accounts er valgfri til yderligere afstemning. Se [rapportguiden](HVORDANMANFINDERBELAEGNIONG.MD)
+for filtre og afkrydsninger.
 
-### Hvad det betyder i praksis
+1. Hotelmanager leverer forslag til antal fra Today / Room Inhouse / Rooms og Beds.
+2. Produktlinjer samles under deres efterfølgende rumtypetotal. Koder matches
+   mod konfigurationens rum- og sengetyper; YP bruges ikke som enhed.
+3. Særskilte morgenmadslinjer uden opholdsantal foreslås fratrukket.
+4. Trykte rumtypetotaler bruges i opdelingen. Højst 2 øres forskel mod linjer
+   og hovedtotal kan accepteres; ufordelt afrunding lægges kun til samlet omsætning.
+5. Logitotal og gennemsnitspris pr. værelse/seng afstemmes mod Hotelmanagers
+   hele-kroner-tal med højst 50 øres forskel.
+6. Ukendte typer/beløb og større afvigelser spærrer økonomibekræftelsen.
 
-Den daglige belægning kan tages i hånden fra **Arrivals**-rapporten (Rooms
-spec.) som PDF og uploades direkte under **Data** (`app/picasso_belaegning.py`).
-In-house-gæster læses i forhold til rapportens udskriftsdato i sidehovedet, så
-en rapport kan uploades en dag senere uden at afrejser ruller et år frem. Den
-giver solgte værelser og senge, men ikke blokeringer eller nuværende priser.
-En fuldt automatisk fil kræver stadig en planlagt eksport. Den skal komme fra en planlagt eksport, som AK Techotel
-sætter op. Spørg dem konkret om: on-the-books pr. ankomstdato, pr.
-værelsestype **og pr. seng**, 120 dage frem, som CSV eller Excel, lagt i en
-mappe eller sendt på mail hver nat — plus de aktuelle værelses- og sengepriser
-pr. dato, så ændringslisten kan sammenligne med det der står i systemet nu.
+Upload alene afslutter ikke datoen. Endelige antal skal bekræftes, også ved nul;
+en tom Hotelmanager-celle er ikke nul. Økonomi kræver særskilt kontrol af
+opholdsdato, fuldstændighed, moms og morgenmad. `Arrival date` i fodteksten må
+ikke tolkes som automatisk bevis for korrekt periodisering af flerdagesophold.
+Flyttede produkter uden reservation og kreditposter kræver særskilt kontrol.
 
-Kontakt: info@techotel.dk, +45 36 19 21 13.
+Originalerne gemmes som SHA-256-navngivne PDF’er i `data/validation_pdfs/` og
+kan åbnes via beskyttet kildevisning. Ældre rapporter kan ikke stiltiende
+erstatte nyere registrerede resultater. Tidligere supplerende oplysninger kan
+videreføres med reference til den oprindelige registrering.
 
-*Kilde: Picasso brugermanual version 8.3, techotel.se. Læst 15-09-2026.*
+Manuel registrering og CSV-skabeloner kan bruges til priser/resultater.
+Nye bookinger og annulleringer kræver periode fra/til; overlappende perioder
+summeres ikke automatisk. Godkendt CSV er ikke dokumentation for prisændring i Picasso.
 
----
+## Prognosevalidering
 
-## Kalibrering — gør det før du stoler på tallene
+Den første vellykkede beregning pr. opholdsdato, produkt og præcis **1, 7, 14
+eller 30 dage før** fryses i `ForecastSnapshot`. Den indeholder modelaftryk,
+niveau, kapacitet, punktprognose, reference og 50/80/90 %-intervaller.
+Mislykkede kørsler bruger ikke et målepunkt. Gentagne kørsler overskriver ikke
+målingen, og manglende målinger rekonstrueres ikke efterfølgende.
 
-Sæson-, ugedags- og bookingkurvetallene i `config/config.yaml` er
-**brancheskøn**. De er bedre end ingenting og dårligere end dine egne tal.
+Seneste eksplicit afsluttede resultat leverer facit; begge endelige antal
+kræves, men omsætning kan tilføjes senere. En senere foreløbig registrering
+fjerner ikke et afsluttet facit fra prognosevalideringen.
 
-```bash
-python -m app.calibration reservationer.csv --rooms 36 --beds 280 \
-  --start 2024-01-01 --end 2025-12-31
-```
+Grafen `/resultater/afvigelser` viser prognose minus faktisk tal. Den har nulakse,
+faktiske datoafstande, tabel og CSV. Huller er ikke nul. Uden afsluttede
+driftsmålinger starter siden på den tydeligt mærkede historiske test.
 
-Filen skal have `bookingdato`, `ankomstdato` og `enhed` (`room` eller `bed`).
-Valgfrie felter: `naetter` (standard 1), `quantity` (standard 1), `pris`,
-`status`, `cancelled_at`. Pris betyder **pr. enhed pr. nat**, aldrig gruppens
-samlede pris. Gruppebookinger skal have antal solgte rum/senge i `quantity`.
-Brug eksplicit enhed — et navn som "4 bed room" er tvetydigt og afvises.
+### Mål og fortolkning
 
-Annulleringer og no-shows kræver dato, så historiske bookingtal kan rekonstrueres.
-En annulleret booking tæller kun før sin annulleringsdato. Ugyldige rækker giver
-linjenummer og fejl; de springes ikke tavst over. Der forventes én række pr.
-reservation/enhedstype, ikke gentagne ændringshistorik-rækker.
-
-`--start` og `--end` angiver en fuldstændig, afsluttet historisk driftsperiode;
-datoer uden salg medtages som nul. Eksporten skal dække hele perioden. Kapaciteten
-skal være konstant: adskil perioder med kapacitetsændringer og lukninger.
-Variable flex-lagre kræver sammenlignelige historiske kapacitetsdefinitioner.
-
-Ud kommer bookingkurver, sæson/ugedagsprofil og forslag til grundpriser.
-Kontrollér resultatet mod en separat historisk periode og sammenlign prognosefejl
-med en simpel historisk reference, før parametrene tages i brug. Koden indeholder
-ingen dokumentation for priselasticitet eller meromsætning på jeres faktiske data.
-
----
-
-## Gruppetilbud
-
-Når en skoleklasse beder om 20 værelser, er svaret ikke en mavefornemmelse.
-Prognosen ved, hvor mange værelser der alligevel ville være blevet solgt til
-almindelig pris — de fortrængte værelser er gruppens reelle omkostning.
-
-**Grupper** → antal værelser, første dato, antal nætter → minimumspris pr.
-værelse pr. nat. Ligger den tæt på normalprisen, er datoen ved at være fuld og
-en rabat koster rigtige penge.
-
-To forbehold: tallet regner kun på værelser, ikke på de dormsenge et flex-rum
-kunne have givet i stedet, og gruppen bringer ofte morgenmad og forbrug med sig.
-Brug det som gulv, ikke som tilbud.
-
----
-
-## Adaptere
-
-Servicen kender ikke Picasso. Den kender en grænseflade i
-`app/adapters/base.py`, og bag den kan der sidde en CSV-fil i dag og et REST-API
-i morgen, uden at prislogikken ændrer sig en linje.
-
-| Adapter | Bruges til |
+| Mål | Fortolkning |
 |---|---|
-| `csv` | Belægning: upload i dashboardet, eller nyeste fil i mappen `RMS_CSV_INBOX` |
-| `manual` | Konkurrentpriser uploadet i hånden |
+| MAE | Gennemsnitlig absolut fejl; lavere er bedre |
+| RMSE | Vægter store fejl mere |
+| Skævhed | Gennemsnitlig prognose minus facit; positiv er for højt |
+| Referencefordel | Reference-MAE minus model-MAE på præcis samme datoer |
+| Intervaldækning | Andel facit inden for fx 80 %-prognoseintervallet |
 
-Det er de eneste to. Et andet navn i `config.yaml` giver en fejl ved opstart i
-stedet for stille at falde tilbage på CSV.
+Referencen er historisk gennemsnit for samme ugedag og måned, kun baseret på
+data tilgængelige før prognosen. Manglende reference forbliver ukendt.
+Grupper uden oplyst gruppeantal forbliver ukendte. Travle datoer er mindst 90 %
+af kapaciteten; facitbaserede delgrupper er efterfølgende fejlanalyse.
+Prognoserne gælder referenceprisen, før virkningen af de valgte prisændringer.
 
-Der lå tidligere to skrevne, men uafprøvede API-adaptere til Picasso og
-Lighthouse. De er fjernet: feltnavne og endpoints var gæt, og kode der ikke har
-været kørt mod en rigtig server er ikke et forspring — den ser bare ud som om
-arbejdet er gjort. Kommer der API-adgang, skrives adapteren mod den
-dokumentation der så findes.
+P-værdierne tester tosidet nul skævhed og nul forskel i absolut fejl mod
+referencen. De er tilnærmede normaltest med Newey–West/HAC og Bartlett-vægte,
+lag `max(7, horisont−1)` kalenderdage. Faktiske datoafstande anvendes.
+Mindst 60 datoer og 8 kalenderblokke kræves; ingen p-værdi ved nul estimeret variation.
 
-Den viden der var værd at beholde, er de tre spørgsmål AK Techotel skal svare
-på, før nogen skriver den kode:
+Holm-korrektion reserverer 24 test: 3 målinger × 4 horisonter × 2 spørgsmål,
+inden for samme datakilde og periode. 95 %-intervallerne er punktvise, ikke
+korrigeret som en familie. Gentagne kig og skiftende perioder er ikke en
+sekventiel beslutningsregel. Afhængighed ud over de valgte lag kan stadig påvirke
+usikkerheden. Små p-værdier må ikke erstatte praktisk effektstørrelse og dækning.
 
-1. Findes der et dokumenteret API en tredjepart kan læse kapacitet og
-   on-the-books fra — **pr. værelsestype og pr. seng** — og hvad koster adgangen?
-2. Kan priser skrives via API, eller skal de sættes gennem en kanalstyring?
-   (Relevant først hvis I en dag vil skrive tilbage. I dag skriver servicen
-   ingenting.)
-3. Er priser modelleret som én BAR med afledte typepriser, eller uafhængigt pr.
-   værelsestype?
+### Historisk test
 
----
+Den aktuelle rapport træner på 2024 og tester på 08-03–31-12-2025, 299 opholdsdatoer.
+Renoveringen udelades, niveauerne holdes på 1,0, og produktionsmodellens læring
+fra 2026 føres ikke tilbage i testen. Det er en salgstest, ikke en indtjeningstest.
 
-## Prisstigen
+Rapport: `data/forecast_validation_history.json`. Grafobservationer:
+`data/forecast_validation_observations.json`, med matchende modelhash.
+Daterede kopier og CSV ligger i `outputs/prognosevalidering-*`.
 
-Slås til og fra under `pricing.ladder.enabled` i `config.yaml`. Slået fra kører
-den kontinuerlige faktormodel uændret.
+Ældre evalueringstal havde andre perioder, horisonter og intervaldefinitioner;
+de er ikke samlet til ét kalibreringsresultat her. Den aktuelle rapport skal
+læses pr. produkt og horisont. Sengeintervallerne er fortsat væsentligt for snævre
+på flere horisonter; fordel over en simpel reference ophæver ikke dette fund.
 
-**Idéen.** I stedet for en ny pris hver dag står prisen på ét af ni faste trin
-fra 0,80 til 1,48 gange dagens grundpris (sæson x ugedag). Trin 4 er 1,00 —
-referencetrinnet. Prisen flytter sig kun, når triggerne samlet siger det
-tydeligt nok. I en simulering over 45 dage skiftede faktormodellen pris 15-30
-gange pr. dato; stigen 2-5 gange, og altid i den retning efterspørgslen pegede.
+<a id="omsaetning-og-oekonomisk-effekt"></a>
+## Omsætning og økonomisk effekt
 
-**Triggerne**, hver skaleret til [-1; 1]:
+Forventet RevPAB er modelberegnet samlet logiomsætning divideret med
+`inventory.total_beds`. Allerede solgte enheder bruger indlæste beløb, hvis de
+findes; ellers skønnes værdien fra priser. Fremtidigt salg værdisættes med de
+foreslåede priser og et vægtet miks af resterende rumtyper. Tallet er en prognose.
 
-| Trigger | Vægt | Hvad den måler | Fuldt tryk ved |
-|---|---|---|---|
-| Prognose | 0,40 | Forventet slutbelægning mod målbelægning | 20 pp fra målet |
-| Tempo | 0,25 | Bookinger siden snapshot for ca. en uge siden, mod hvad kurven forventede i samme vindue — som Poisson-z-score | 2,5 standardafvigelser |
-| Marked | 0,20 | Konkurrentmedian x kvalitetsindeks mod vores referencetrin | 20 % over/under |
-| Lead time | 0,15 | De sidste 3 dage forstærkes prognosesignalet: ledige senge er værdiløse i morgen | — |
+Nye checkpoints gemmer også omsætningsskøn og moms-/pakkegrundlag.
+`validation.price_vat_basis: incl_25` og `accommodation_only_confirmed: true`
+afspejler bekræftelsen af, at modelpriser er inklusive 25 % moms og uden morgenmad.
+Sammenlignelige skøn divideres med 1,25 til logi eksklusive moms.
 
-```
-tryk     = sum(vægt x trigger)                          i [-1; 1]
-position = referencetrin + tryk / 0,15 + eventtrin      (0,15 tryk = ét trin)
-position udglattes 50/50 med gårsdagens (ikke de sidste 3 dage)
-```
+Denne omregning gælder **valideringen**, ikke automatisk motorens RevPAB-visning.
+Ældre checkpoints får ikke genskabt manglende økonomiprognoser. Checkpoints med
+allerede indlæste omsætningsbeløb spærrer foreløbig omregningen, fordi disse beløbs
+momsgrundlag ikke er registreret separat. Økonomisk reference og prognoseinterval
+for omsætning er endnu ikke implementeret.
 
-**Regler oven på positionen**, i denne rækkefølge:
+Faktiske økonomital kræver afsluttet og bekræftet logi eksklusive moms og morgenmad:
 
-1. **Hysterese.** Stigen skifter først når positionen er 0,75 trin fra det
-   nuværende, ikke 0,5. Ellers hopper prisen frem og tilbage om den samme grænse.
-2. **Trinbegrænsning.** Højst to trin op og ét ned pr. kørsel (to ned de sidste
-   tre dage). Op er billigt at fortryde; en for lav pris er solgt.
-3. **Skralde.** Ingen prisfald på en dato hvor prognosen er på eller over målet.
-4. **Knaphedsbeskyttelse.** Prognosen behandles som en normalfordeling hvis
-   spredning vokser med lead time (10 % ved ankomst, 35 % 60+ dage ude).
-   Risiko for udsolgt over 25 / 50 / 75 % lukker trinene under
-   reference+1 / +2 / +3. En seng solgt billigt i dag kan ikke sælges dyrt i
-   morgen — Littlewoods regel i forenklet form.
-5. **Ingen dyb rabat langt ude.** Over 60 dage ude aldrig under
-   referencetrin - 1. Uden signal er et prisfald et gæt.
-6. **Event.** Hver 10 % eventtillæg er ét trin op, og en eventdato går aldrig
-   under referencetrinnet.
-7. **Ændringsbremsen** (15 %) gælder stadig, men bremser til det nærmeste trin
-   inden for vinduet, så prisen bliver på stigen. En låst pris respekteres og
-   markeres som uden for stigen.
-
-**Hvad stigen husker.** Forrige trin og udglattet position læses fra seneste
-kørsel; tempo-snapshottet fra en kørsel 5-10 dage gammel. De første dage efter
-opstart er der intet tempo-signal, og dashboardet siger det.
-
-**På dashboardet.** Kolonnen **Trin v/s** viser værelsestrin / sengetrin, med ▲▼
-ved skift. Hold musen over for triggernes tryk, risiko for udsolgt og alle
-trinpriser. Begrundelsen for hvert skift står under **Bemærkning**, og
-`/api/prices` har det hele som JSON under `ladder`.
-
-**Hvad den ikke ved.** Stigen er ikke klogere end prognosen under den.
-Målbelægningen på 55 % ligger over hverdagshistorikken (39 %), så hverdage
-starter typisk et til to trin under reference. Det er en beslutning om mål,
-ikke en fejl i stigen — sænk `target_occupancy_rooms`, eller sæt forskellige
-mål for hverdag og weekend, hvis det ikke er meningen. Trinenes afstand og
-triggervægtene er kvalificerede gæt ligesom `k_forecast`; elasticitetsmålingen
-i roadmappens punkt 3 er det der gør dem til jeres egne tal.
-
----
-
-## Version 4 — bid price i stedet for målbelægning
-
-Slås til med `pricing.v4.enabled` i `config.yaml`. Kræver prisstigen tændt og en
-estimeret efterspørgselsfordeling. Mangler modelfilen, falder prissætningen
-tilbage på standardberegningen og siger det i `/health`.
-
-### Hvorfor
-
-Den tidligere målbelægningslogik styrer mod `target_occupancy_rooms: 0.55`.
-Det tal vejer 0,40 i stigens samlede tryk og er et gæt: historikken for
-hverdage er 0,39, så hverdage starter 1-2 trin under reference per konstruktion.
-Version 4 har ingen
-målbelægning. For hvert trin beregnes
-
-    forventet omsætning = nettopris x E[min(efterspørgsel, ledig kapacitet)]
-
-over hele fordelingen af resterende efterspørgsel, og det bedste trin vinder.
-Belægningen bliver et resultat, ikke et input.
-
-Stigen bliver: træghed, trinbegrænsning, eventtrin, ændringsbremse og
-forklaring er uændret. Knaphedsbeskyttelsen og ratchet'en slås derimod fra, når
-version 4 er aktiv — begge forsøger at gætte det bid price regner ud, og de
-ville lægge et ekstra gulv oven på et tal der allerede indeholder knapheden.
-
-### Sådan bygges grundlaget
-
-```
-python -m app.cube        # kali/cube.csv  — OTB(dato, lead) for hele historikken
-python -m app.demand      # config/demand_model.json — fordelingen af netto pickup
-python -m app.backtest --ud-af-stikproeve   # version 4 og version 5
+```text
+logi i alt     = værelsesomsætning + sengeomsætning + ufordelt afrunding
+dækningsbidrag  = logi i alt − faktisk provision − faktiske variable omkostninger
+faktisk RevPAB = logi i alt / faktisk tilgængelige senge
 ```
 
-`app/cube.py` rekonstruerer hvad der stod på bøgerne enhver historisk dag:
-oprettelsesdato og annulleringsdato er begge i reservationshistorikken, så
-tilstanden kan regnes eksakt. 731 datoer x 121 lead times. To forbehold står i
-modulets dokumentation og gælder hver gang kuben bruges: **ændringer fanges
-ikke** (en flyttet reservation ser ud som om den altid lå på den nye dato), og
-**udsolgte datoer er censurerede** (den sande efterspørgsel var højere; de er
-flaget og udelades).
+Ukendte omkostninger erstattes ikke med standardsatser. Dækningsbidrag er heller
+ikke årsoverskud efter husleje, faste lønninger, software og øvrige faste udgifter.
 
-`app/demand.py` estimerer fordelingen, ikke kun middelværdien:
+For at måle merindtjening skal en forsøgsplan fastlægge den normale prisstrategi
+som reference, tildeling til sammenlignelige perioder, faktisk priseksponering,
+bookingvinduer, annulleringer, grupper, events, ophold over flere datoer og
+økonomisk resultat. Praktisk relevant forbedring og usikkerhed vurderes sammen.
+Der er endnu ikke grundlag for at love merindtjening eller en bestemt dato for den.
 
-    netto pickup  ~  middelværdi(lead, ugedag) x sæson(måned) x niveau x form
+## Modelgrundlag og analyser
 
-Formen er den empiriske fordeling af forholdet mellem faktisk og forventet
-pickup, poolet pr. lead-interval. Den rummer gruppespring, skæve haler og
-negativ pickup (annulleringer der overstiger nysalg, 2 % af observationerne).
+Kommandoerne nedenfor køres fra projektmappen. Genopbygning af kube/model kan
+overskrive analysegrundlag; gennemgå historik, perioder og kapacitet før brug.
+Dokumentationsoprydning eller import af dagsresultater genoptræner ikke modellen.
 
-### Krympning mod kalenderen
+```sh
+.venv/bin/python -m app.cube
+.venv/bin/python -m app.demand
+.venv/bin/python -m app.forecast_validation
+.venv/bin/python -m app.evaluate
+.venv/bin/python -m app.backtest --ud-af-stikproeve
+```
 
-Målingen (`python -m app.evaluate`) viste noget ingen af versionerne kom godt ud
-af: fra 60 dage ude slog det rå gennemsnit for ugedagen i måneden begge modeller.
-Bookingerne på bøgerne så langt ude tilførte støj frem for information — 43 % af
-alle reservationslinjer ender annulleret, og en dato der ser stærk ud fordi en
-skoleklasse har booket tre måneder frem, er ikke stærk.
+`app.cube` rekonstruerer historisk salg på bøgerne fra oprettelses- og
+annulleringsdatoer. Historikken indeholder ikke fuld ændringshistorik;
+flyttede reservationer kan derfor ikke rekonstrueres perfekt. Udsolgte datoer
+skjuler afvist efterspørgsel. Historiske blokeringer og faktisk flexfordeling
+er ikke fuldt kendte. Samme-dags-salg er slut-på-dagen i historiske analyser.
 
-Prognosen krympes derfor mod sæsongennemsnittet:
+`app.evaluate` og `app.backtest` indeholder også simulationsanalyser af priser.
+Resultater afhænger af antaget prisfølsomhed og må ikke kaldes faktisk
+meromsætning. `app.calibration` er et separat værktøj til bookingkurver,
+kalenderfaktorer og grundpriser; det er ikke et skift til en ældre runtime.
+Det kræver eksplicit enhed, antal ved grupper, pris pr. enhed/nat og en komplet,
+afsluttet periode med korrekt historisk kapacitet. Se `--help` før brug.
 
-    prognose = w(lead) x (bøger + forventet pickup) + (1 - w(lead)) x sæsongennemsnit
+## Opstart
 
-Vægten er ikke valgt, den er estimeret pr. lead time ved mindste kvadraters
-metode på historikken, og bundet til [0; 1]:
+Projektet bruges aktuelt med Python 3.13. En lokal udviklingsinstallation:
 
-| lead | rum | senge |
-|---|---|---|
-| 3 | 0,87 | 1,00 |
-| 14 | 0,62 | 1,00 |
-| 30 | 0,49 | 1,00 |
-| 60 | 0,29 | 1,00 |
-| 120 | 0,21 | 0,11 |
+```sh
+python3.13 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
+cp .env.example .env
+```
 
-Senge holder vægten længere, fordi sengesalget er så sent, at bøgerne langt ude
-alligevel er næsten tomme — der er intet at krympe.
+Udfyld login i `.env`, før serveren startes på netværket. Miljøfilen indlæses
+ikke automatisk af enhver direkte uvicorn-kommando:
 
-Krympningen afhænger af belægningen på bøgerne, så modellen bindes til datoens
-OTB med `model.bind(otb)` før bid price-beregningen. Effekten på prognosefejlen
-står i afsnittet om backtesten.
+```sh
+set -a
+source .env
+set +a
+.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000
+```
 
-**Tallet der afviser Poisson.** Stigens tempo-trigger bruger en Poisson-z, som
-antager at variansen er lig middelværdien. På egne data er forholdet 6-11:
+Lokale eksempelfiler i `samples/` viser formater og kan indeholde gamle datoer;
+brug aktuelle, kontrollerede data til drift. Ved opstart indlæses konfiguration
+og modelgrundlag. Ændringer i YAML eller `.env` kræver genstart.
 
-| lead | rum | senge |
-|---|---|---|
-| 7 | 7,9 | 9,5 |
-| 30 | 9,2 | 10,8 |
-| 90 | 10,5 | 11,1 |
+## Drift og backup
 
-Nævneren i z-scoren er derfor 2,5-3,5 gange for lille, og triggeren slår ud på
-støj. Grunden er grupper: sovesalene sælges samlet, og én skoleklasse flytter
-tyve enheder på én dag.
+### Aktuel Mac og netværk
 
-### Hvad backtesten viste
+Projektmappe: `/Users/anderskinch/hostel`.
+`scripts/run-prismotor.sh` skifter til denne mappe, indlæser `.env` og starter
+uvicorn på **0.0.0.0:8000**. Appen kan derfor nås via serverens lokale IP,
+aktuelt `192.168.1.63`. Andre enheder bruger denne adresse, ikke deres egen localhost.
 
-Fordelingen estimeret på 2024 alene og målt på 2025, som den aldrig har set.
-Gennemsnitlig absolut fejl i prognosen for antal solgte værelser, med
-klyngebootstrap over datoer (`python -m app.evaluate`). "historik" er det rå
-gennemsnit for ugedagen i måneden — referencen enhver model skal slå:
+LaunchAgent ligger under `~/Library/LaunchAgents/`, med label
+`dk.danhostel.prismotor`. Genstart den allerede installerede tjeneste med:
 
-| lead | historik | version 4 | forskel historik − v4 |
-|---|---|---|---|
-| 3 | 10,3 | 4,8 | +5,5 |
-| 7 | 10,3 | 6,8 | +3,5 |
-| 14 | 10,3 | 7,8 | +2,5 |
-| 30 | 10,3 | 8,9 | +1,4 |
-| 60 | 10,3 | 9,7 | +0,6 |
-| 90 | 10,3 | 9,9 | +0,5 |
-| 120 | 10,3 | 9,9 | +0,4 |
+```sh
+launchctl kickstart -k gui/$(id -u)/dk.danhostel.prismotor
+```
 
-Med krympningen slår version 4 historik-referencen på alle lead times; uden den
-tabte den fra 60 dage og ud.
+IP-adressen kan findes med `ipconfig getifaddr en0`, hvis Wi-Fi/netværket bruger
+den grænseflade. Mac’en skal være tændt, vågen og på netværket.
+Natkørsel kræver en kørende proces og nye indlæste data for at være nyttig.
 
-Kalibreringen, altså om fordelingen har den bredde den lover:
+### Login og delte ændringer
 
-| Lovet | Faktisk |
+`RMS_USER` og `RMS_PASSWORD` ligger i `.env`, som er udeladt fra Git.
+Der er ét konfigureret login, ikke individuelle roller. Uden `RMS_USER` kræves
+intet login. HTTP Basic over lokal HTTP er ikke krypteret; ved adgang uden for
+det betroede lokalnet bruges en særskilt løsning med HTTPS eller privat netværk.
+Ingen sådan løsning oprettes af appen selv.
+
+Alle browserbrugere skriver til samme SQLite-database på serveren.
+Standard er `sqlite:///data/rms.db`; `RMS_DATABASE_URL` kan overstyre det.
+Andre miljøvalg er `RMS_CONFIG` og `RMS_CSV_INBOX`.
+
+### Backup og databaseversion
+
+Brug SQLite-backupfunktionen til en kørende database, så en eventuel journal/WAL
+håndteres korrekt. Eksempel fra projektmappen, til en ny dateret mappe:
+
+```sh
+.venv/bin/python - <<'PY'
+import sqlite3
+from datetime import datetime
+from pathlib import Path
+
+folder = Path('outputs') / ('backup-' + datetime.now().strftime('%Y%m%d-%H%M%S'))
+folder.mkdir(parents=True, exist_ok=False)
+with sqlite3.connect('data/rms.db') as source:
+    with sqlite3.connect(folder / 'rms.db') as target:
+        source.backup(target)
+print(folder)
+PY
+```
+
+Kopiér også konfiguration, modelgrundlag, niveaufil og arkiverede PDF’er som del
+af en fuld backup; databasen alene indeholder ikke alt dette. Beskyt `.env`
+særskilt. `outputs/` indeholder kun de backups, der faktisk er oprettet; mappen
+er ikke i sig selv en automatisk backupordning.
+
+Nuværende skemaversion er 3. Version 2 får additive felter og nye tabeller ved
+opstart. Version 1 med ét lager afvises og kræver særskilt håndtering; slet
+ikke den gamle base som standardløsning. Tag backup før databaseopgraderinger.
+
+## Sider og API
+
+Med undtagelse af `/health` er nedenstående beskyttet af det konfigurerede login.
+`GET` på priseksport har den tilsigtede sideeffekt at gemme de downloadede filer.
+
+| Metode og sti | Funktion |
 |---|---|
-| 50 % | 49 % |
-| 80 % | 79 % |
-| 90 % | 89 % |
+| `GET /` | Prisforslag og prognoser |
+| `GET /data` | Indlæsning af belægning og konkurrentpriser |
+| `POST /data/upload` | CSV eller understøttet Arrivals-PDF |
+| `GET /grupper` | Gruppetilbud til manuel vurdering |
+| `GET /events` | Eventkalender |
+| `GET /settings` | Parametre, comp set, log og seneste kørsler |
+| `POST /run` | Beregn priser |
+| `POST /decide` | Godkend eller afvis forslag |
+| `POST /lock` | Lås eller frigiv en dato |
+| `GET /export.csv` | Prisdownload og lokale kopier |
+| `GET /api/prices?days=90` | Priser, prognoser, faktorer og allokering |
+| `GET /api/group-quote?rooms=12&start=2026-10-18&nights=3` | Gruppeberegning |
+| `GET /resultater` | Resultatlog og import |
+| `POST /resultater/registrer` | Manuel pris-/resultatregistrering |
+| `POST /resultater/import` | Supplerende CSV-import |
+| `POST /resultater/rapporter` | Hotelmanager + produktomsætning til kontrol |
+| `GET /resultater/rapporter/{id}` | Afstemning og kontrolside |
+| `POST /resultater/rapporter/{id}/bekraeft` | Bekræft dagsresultat |
+| `GET /resultater/pdf/{hash}` | Arkiveret original-PDF |
+| `GET /resultater/export.csv` | Samlet resultatlog |
+| `GET /resultater/historik.csv` | Hele observationshistorikken |
+| `GET /resultater/skabelon.csv?kind=outcome` | CSV-skabelon; også `kind=applied` |
+| `GET /resultater/prognoser` | Prognosevalidering |
+| `GET /resultater/prognoser.csv` | Driftsmålinger |
+| `GET /resultater/afvigelser` | Graf og statistik |
+| `GET /resultater/afvigelser.csv` | Tal bag den valgte graf |
+| `GET /resultater/oekonomi` | Økonomi og datadækning |
+| `GET /health` | Driftstilstand og modelstatus uden login |
 
-Det er forudsætningen for bid price. Var fordelingen for smal, ville modellen se
-knaphed der ikke er der.
+`/health` viser blandt andet `pricing_version`, `v4_requested`, `v4_notes`,
+`exploration`, `elasticity_measured` og et niveau indlæst ved opstart.
+Friskhedsstatus i dette endpoint bruger aktuelt en fast 36-timersgrænse;
+ved ændring af konfigurationens `stale_hours` skal denne forskel håndteres.
+Endpointet er ikke dokumentation for økonomisk effekt eller fuldstændige data.
 
-**Om omsætning siger backtesten ingenting.** Historikken indeholder kun de
-priser der faktisk blev taget, så enhver sammenligning af omsætning hviler på en
-antagelse om hvordan gæsterne ville have reageret på en anden pris. Tallet
-beregnes og printes, men det er antagelsen der driver det. Det rigtige svar
-kommer fra eksplorationen.
+<a id="kendte-begraensninger"></a>
+## Kendte begrænsninger
 
-### Hvorfor elasticiteten ikke kan hentes fra historikken
+- **Ingen målt merindtjening eller målt priselasticitet.** Planlagt sammenligning
+  mod normal strategi, anvendte priser, salgsperioder og faktiske omkostninger mangler.
+- **Sengeintervaller kræver forbedring.** Den aktuelle historiske test viser
+  dårlig dækning på flere horisonter, selv når punktprognosen slår referencen.
+- **Flex er en tilnærmelse.** Rumstørrelser, spredte sengebookinger og hele
+  ophold kan ikke afgøres sikkert ud fra daglige totaler.
+- **Momsgrundlag er ikke ens overalt.** Nye sammenlignelige økonomiprognoser
+  omregnes; allerede bogførte beløbs grundlag kræver særskilt afklaring.
+- **Rapportformat og datoafgrænsning skal kontrolleres.** Andre PDF-layouts,
+  flyttede produkter, kredit og flerdagesophold kræver fortsat faglig kontrol.
+- **Ingen automatisk Picasso-/Lighthouse-integration.** CSV/PDF er det aktuelle grundlag.
+- **Ingen automatiseret minimumsopholdspolitik, segmentprognose eller kontrolleret
+  overbooking.** Historisk netto-pickup rummer annulleringer, men er ikke en
+  bookingvis annulleringsmodel.
+- **Konfigurationskommentarer er ikke funktionalitet.** Se forbeholdet om
+  `unbounded_daily_change`, ældre triggere og den aktuelle 15 %-bremse.
 
-Det nærliggende spørgsmål er, om elasticiteten ikke bare kan estimeres på de to
-års historik i stedet for at vente en sæson på eksplorationen. Svaret er nej, og
-`python -m app.evaluate` afsnit 4 viser hvorfor frem for at påstå det:
+## Kodekort
 
-| Metode | Estimat | Standardfejl |
-|---|---|---|
-| Naiv regression af log salg på log pris | **+1,97** | 0,11 |
-| Med kontrol for ugedag × måned | **+1,42** | 0,08 |
-
-Begge har forkert fortegn. Taget for pålydende siger det første, at 10 % højere
-pris giver 20 % **flere** solgte værelser. Grunden er, at priserne i historikken
-ikke blev sat tilfældigt: et menneske eller den tidligere logik hævede prisen netop
-når efterspørgslen var høj, så pris og salg bevæger sig sammen (korrelation
-+0,57). Regressionen måler den sammenhæng, ikke gæsternes prisfølsomhed.
-
-Kontrollen for ugedag og måned hjælper ikke nok, og det er pointen: selv på en
-bestemt lørdag i juli vidste den der satte prisen, om netop den lørdag var travl.
-Præcis den information står ikke i data og kan derfor ikke trækkes fra.
-
-Bemærk standardfejlene. De er små, så estimatet er ikke støjende — det er
-sikkert forkert. Mere historik gør det kun mere sikkert. Det er forskellen på et
-datamængdeproblem og et identifikationsproblem, og kun det første løses med tid.
-
-Eksplorationen flytter prisen af en grund der intet har med efterspørgslen at
-gøre — et møntkast mellem to trin der står lige godt. Først der er udsvinget
-rent. Prisen varierer til gengæld mindre (spredning 0,035 i log mod historikkens
-0,225), og det er derfor der skal en sæson til.
-
-### Den ene antagelse
-
-    efterspørgselsfaktor(trin) = (pris(trin) / pris(reference)) ^ (-elasticitet)
-
-Elasticiteten er ikke målt. Den er det eneste ukendte tal tilbage i
-prisbeslutningen, og det er med vilje: den tidligere logik havde fire triggervægte, to
-målbelægninger og en trinafstand, som alle var gæt. Standardværdierne (rum 1,6,
-senge 2,0) er litteraturniveau.
-
-**Derfor er rabatten bundet.** Med en konstant elasticitet over 1 og en lav
-variabel omkostning ligger det ubegrænsede optimum under prisgulvet: modellen
-vil stå på nederste trin på enhver dato hvor kapaciteten ikke binder. Det er en
-ekstrapolation langt væk fra de priser der er observeret, og den rammer den
-svageste delscore, værdi for pengene (7,1 mod 8,9). Indtil
-`elasticity_measured: true` må version 4 derfor ikke gå dybere end
-`max_discount_rungs` under referencetrinnet. Klemmes trinnet, står det i
-begrundelsen.
-
-### Bundet eksploration
-
-`pricing.ladder.explore`. Står to nabotrin omtrent lige godt — inden for
-`explore_band` af vippepunktet — vælges der tilfældigt mellem dem, og valget
-logges. Risikoen er loftet ved ét trin, mindre end den uro modellen laver i
-forvejen. Mønten er deterministisk pr. dato, så den samme dato giver det samme
-svar hver gang kørslen gentages; ellers flytter prisen sig hver gang nogen
-trykker på knappen, og eksperimentet bliver til støj.
-
-Det er roadmap punkt 3 gjort billigt: hundredvis af observationer pr. sæson i
-stedet for fyrre, og prisen er valgt tilfældigt, så målingen holder.
-
-### Tre mekanismer bliver til én beregning
-
-**Flex-allokering.** Et flex-rum solgt privat koster otte sengepladser. Sælg det
-som rum hvis
-
-    nettopris_rum x P(efterspørgsel_rum >= ledige_rum + 1)
-      >= sum over de otte senge af nettopris_seng x P(efterspørgsel_seng >= den seng)
-
-Summen er aftagende, fordi den ottende seng er mindre værd end den første.
-Det nuværende RevPAB-check sammenligner gennemsnit og fanger ikke den del.
-`flex_min_gain` (25 kr.) er der af driftshensyn, ikke af matematiske: uden den
-flytter modellen sovesale på datoer hvor begge lagre er tomme, fordi to en halv
-krone er mere end nul. Anbefalinger man lærer at ignorere er værre end ingen.
-
-**Gruppeforskydning.** Gulvet er summen af bid price for hver enkelt enhed over
-hver dato. De første værelser er næsten gratis, hvis der er rigeligt tilbage; de
-sidste er dyre. Et gennemsnit rammer ingen af delene.
-
-To ting er anderledes her end i trinvalget, og begge skyldes at **afgivne
-gruppetilbud er bindende**:
-
-*Ingen elasticitetsdæmpning.* Fortrængningen regnes på den udæmpede
-efterspørgsel, så længe `elasticity_measured: false`. Dæmper man med en
-antagelse ingen har målt, bliver gulvet lavere end det burde være. Et for højt
-gulv koster en forespørgsel; et for lavt gulv er bindende i et år.
-(`group_undamped_until_measured`.)
-
-*To tal, ikke ét.* `minimum_rate` er den forventede fortrængning over hele
-fordelingen — nogle gange fyldes datoen, nogle gange ikke. `minimum_rate_certain`
-er hvad gruppen koster, hvis punktprognosen rammer plet. For ti værelser den
-20. november 2026 er det 530 mod 730 kr. Det første er rigtigt i forventning;
-det andet viser downsiden. Tabet ved at forære en udsolgt dato væk er større end
-gevinsten ved at tage en gruppe med på en halvtom, så mennesket der afgiver
-tilbuddet skal se spændet og ikke et gennemsnit af to verdener.
-
-Værktøjet giver et gulv, ikke et tilbud.
-
-**Opholdslængde.** Værdien af et ophold er summen af nætternes bid price
-(`bidprice.stay_value`). En enkelt lørdag der blokerer tre nætter afvises af sig
-selv, når lørdagens bid price er høj og søndagens er lav. Minimumsophold holder
-op med at være en regel nogen skal vedligeholde. Bemærk: funktionen findes, men
-er endnu ikke koblet på bookingmotoren.
-
-### Adaptivt efterspørgselsniveau
-
-`app/level.py`, gemt i `data/demand_level.json`. Efter hver kørsel sammenlignes
-den pickup der faktisk kom med den fordelingen forventede:
-
-    niveau_ny = niveau_gammel x (faktisk / forventet) ^ 0,07,  bundet til [0,6 ; 1,6]
-
-Det fanger et strukturelt skift som efteråret 2025 (august −21 %, oktober −25 %,
-november −35 %) uden at nogen skal finde årsagen. Lille eksponent og hårde
-grænser, så en manglende kolonne i Picasso-eksporten ikke kan trække niveauet i
-bund. Niveauet erstatter ikke undersøgelsen af hvorfor efteråret faldt.
-
-### Rækkefølge i drift
-
-1. Byg kube og fordeling, kør backtesten og se på dækningen.
-2. Kør skyggedrift med version 4 og version 5 i mindst fire uger, og før log
-   over de datoer hvor de er uenige. `python -m app.skyggedrift` viser begge
-   versioners forslag side om side på dagens belægning og skriver dem til CSV
-   med `--csv`.
-3. Slå `explore: true` til, så elasticitetsmålingen begynder at samle data.
-4. Efter en sæson: mål elasticiteten, sæt `elasticity_measured: true`, og
-   løft `max_discount_rungs`.
-
-`/health` viser hvilken version der faktisk kører (`pricing_version`), om v4 var
-ønsket (`v4_requested`), hvorfor den eventuelt ikke kører (`v4_notes`), og hvor
-det adaptive niveau står. Uden den linje kan man tro man kører v4 i ugevis uden
-at gøre det.
-
-**Forvent en mærkbar forskel.** Version 5 fjerner den midlertidige rabatbinding,
-når elasticiteten er målt. Det er ikke en finjustering. Ændringsbremsen på 15 %
-om dagen betyder at prisen bevæger sig derhen over to-tre døgn og ikke på én nat.
-
-Risikovurderingens punkt 7 gælder uændret. Ingen modelforbedring erstatter
-rimelighedstjek, alarm på `/health`, skyggedrift og en aftale om hvem der kigger.
-
-
-## Rimelighedstjek og eksportformat
-
-Uploadet belægning gennemgår `app/sanity.py` før import. Tjekkene vurderer ikke
-om tallene er rigtige — det kan ingen maskine afgøre — men om de overhovedet kan
-passe: en kolonne der er nul hele vejen, mere solgt end huset har, spring over 80
-procentpoint på et døgn, priser i forkert enhed, datoer uden for horisonten, og
-**huller i datoserien**.
-
-Hullet er det nyeste tjek, hentet fra en gennemgang af en ekstern prototype
-(`claude/hotel-pricing-sammenligning.md`). Mangler der datoer mellem filens
-første og sidste dato, bliver de datoer aldrig prissat — rækkerne står bare ikke
-der, og motoren mærker intet. Det er værre end en tom kolonne, fordi der ikke er
-noget forkert tal at opdage. At filen slutter før horisontens ende er derimod
-normalt og håndteres af dødmandsknappen.
-
-`/xport.csv` skriver dansk Excel-format: semikolon som feltseparator,
-decimalkomma og UTF-8 med BOM. Uden kommaet læser Excel `900.00` som 90.000,
-fordi punktum er tusindtalsseparator på dansk — og det opdages først, når prisen
-er tastet ind i Picasso. Uden BOM bliver æ, ø og å forvansket i kolonnenavne og
-bemærkninger.
-
-## Guardrails
-
-- **Rimelighedstjek på import.** En uploadet belægningsfil afvises hvis den er
-  plausibel men forkert: en kolonne der er nul over hele horisonten, flere
-  solgte enheder end huset har, spring på over 40 procentpoint på ét døgn,
-  priser uden for et forventeligt interval, eller datoer der er læst med måned
-  og dag byttet om. Intet skrives i basen når importen stoppes. Et menneske kan
-  trumfe tjekket igennem med afkrydsningen på **Data**; det står i auditloggen
-  med navn. Tjekkene ligger i `app/sanity.py`.
-- **Friskhed på skærmen.** Hver side viser hvor gammel seneste kørsel er, og
-  skifter til rød advarsel efter `stale_hours`. En frossen side og en frisk side
-  ser ellers ens ud.
-- **Prisgulv og prisloft** for begge lagre, hver for sig.
-- **Afrunding bryder aldrig et gulv.** 165 kr. rundet til nærmeste ti bliver 160
-  — fem kroner under gulvet, hver eneste nat. Sådanne fejl er dyre, fordi de
-  rammer systematisk og i samme retning.
-- **Ændringsbremse** på 15 % i døgnet, på både basis-værelsespris og sengepris. Et fast 24-timers prisanker hindrer, at gentagne kørsler/importer flytter grænsen.
-- **Dødmandsknap** — hver dato kontrolleres separat. Gamle/manglende data fastfryser datoen; friske datoer kan stadig beregnes. Eksport og skrivning kontrollerer igen og kræver ny beregning, hvis belægningen er ændret.
-- **Eventloft** på 1,45, så en tastefejl ikke løber løbsk.
-- **Produktsammenligning** — hvis dormsenge underbyder familieværelset, vises en bemærkning. Den hæver ikke sengeprisen: privatliv og dormsenge er forskellige produkter.
-- **Manuel lås** på enkeltdatoer, med dine egne to priser. Afledte rumpriser og
-  prognosen genberegnes ved næste kørsel med låsepriserne.
-- **Modstridende prisgrænser** fastfryser datoen. Afrunding kan ikke bryde grænserne;
-  hvis intervallet ikke indeholder et helt afrundingstrin, beholdes et beløb indenfor intervallet.
-- Prisgulv, prisloft og ændringsbremse gælder basis-værelsesprisen og sengeprisen.
-  Afledte rum- og sengetyper følger de konfigurerede faktorer.
-
----
-
-## API
-
-| Endpoint | Hvad |
+| Fil | Ansvar |
 |---|---|
-| `GET /api/prices?days=90` | Priser, prognoser, flex-allokering og alle faktorer |
-| `GET /api/group-quote?rooms=12&start=2026-10-16&nights=3` | Minimumspris for en gruppe |
-| `GET /export.csv` | Godkendte priser til manuel import i Picasso |
-| `GET /health` | Til overvågning. `degraded` hvis sidste kørsel er over 36 timer gammel |
-| `POST /run` | Kør beregningen nu |
+| `app/engine.py` | Prisberegning, typepriser, kapacitet, RevPAB og gruppeberegning |
+| `app/bidprice.py` | Valg ud fra efterspørgselsfordeling, marginalværdi og opholdsværdi |
+| `app/ladder.py` | Pristrin, udglatning, markeds-/eventtrin og prisvariation |
+| `app/demand.py`, `app/cube.py` | Efterspørgselsmodel og rekonstruktion af historik |
+| `app/level.py` | Adaptivt niveau og fil-lås |
+| `app/service.py` | Indlæsning, beregning, friskhed, prisanker og lagring |
+| `app/exports.py`, `app/skyggedrift.py` | Prisdownload og v4/v5-sammenligning |
+| `app/picasso_belaegning.py` | Arrivals-PDF til belægning |
+| `app/picasso_results.py` | Rapportpar, afstemning og bekræftelse af dagsresultater |
+| `app/validation.py` | Resultatlog, historik, CSV og faktiske bidrag |
+| `app/forecast_validation.py` | Frosne prognoser og historisk validering |
+| `app/forecast_charts.py`, `app/forecast_metrics.py` | Grafgrundlag og statistik |
+| `app/economics.py`, `app/result_routes.py` | Økonomi og Resultater-sider |
+| `app/main.py`, `app/templates/` | Webapp, planlægning og skærmbilleder |
+| `app/db.py` | Database, log og additive opgraderinger |
+| `app/sanity.py`, `app/adapters/` | Importkontroller og dataadgang |
+| `app/evaluate.py`, `app/backtest.py`, `app/calibration.py` | Særskilte analyser |
 
----
-
-## Test
-
-```bash
-pytest -q
-```
-
-Testpakken kontrollerer blandt andet: at samme
-belægning prissættes modsat alt efter lead time, at de to lagre prissættes
-uafhængigt, og at flex-allokeringen faktisk flytter kapacitet mellem dem. Dertil
-guardrails, gruppeforskydning og hele vejen fra CSV-upload til godkendt pris.
-
----
-
-## Sådan ved du om det virker
-
-Etablér nulpunkt før du starter, og mål efter seks måneder:
-
-- **RevPAB** — det samlede tal. Værelsesprisen alene kan man pynte på ved at
-  sælge færre værelser.
-- **RevPAR-indeks mod comp set** (Benchmarking Alliance) — mål: +3 til 5 point.
-- **Belægning** — må ikke falde mere end 2 procentpoint mens priserne stiger.
-- **Review-score, værdi for pengene** — må ikke falde. Jeres laveste delscore på
-  Hostelworld er netop den (7,1 mod 8,9 på personale og beliggenhed). Markedet
-  siger allerede, at prisen opleves som høj i forhold til produktet, så hold øje
-  med den mens modellen leder efter loftet.
-
----
-
-## Databaseopgradering
-
-Version 2-databaser opgraderes automatisk med nye, nullable felter. Eksisterende
-priser, historik og godkendelser bevares. Tag sædvanlig backup før opgradering.
-Version 1 kræver fortsat særskilt håndtering som beskrevet ovenfor.
-
-## Hvad der endnu ikke er bygget
-
-Fra roadmappen, i den rækkefølge det giver mening:
-
-- **Elasticitetsmåling.** `k_forecast` og `k_market` er stadig kvalificerede gæt.
-  40 sammenlignelige datoer, halvdelen 5 % op og halvdelen 5 % ned, og efter en
-  sæson har I et rigtigt tal om jeres egne gæster.
-- **Opholdslængde.** Minimum-ophold på toppe og lukket-for-ankomst på datoer der
-  efterlader huller. Modellen advarer allerede når en dato forventes udsolgt.
-- **Annulleringsrisiko.** On-the-books er ikke netto. Vægt hver booking efter
-  kanal og ratetype, og overbook kontrolleret.
-- **Segmentopdelt prognose.** Danske og udenlandske gæster booker med vidt
-  forskelligt varsel.
-
----
-
-## Filer
-
-```
-app/engine.py             prismodellen: prognose, to lagre, flex-allokering, RevPAB
-app/ladder.py             prisstigen: trin, træghed, eksploration
-app/cube.py               bookingkuben: OTB(dato, lead) fra reservationshistorikken
-app/demand.py             fordelingen af resterende efterspørgsel
-app/bidprice.py           bid price: trinvalg, flex, gruppegulv, opholdsværdi
-app/level.py              adaptivt efterspørgselsniveau
-app/backtest.py           version 4 og version 5 på historikken
-app/evaluate.py           afgør hvilken version der er bedst, med usikkerhed
-app/skyggedrift.py        begge versioner side om side på dagens belægning
-app/service.py            kørslen: hent, beregn, gem, skriv tilbage
-app/calibration.py        begge bookingkurver og sæson fra egen historik
-app/adapters/             CSV ind; ingen skrivning tilbage til Picasso
-app/main.py               FastAPI: dashboard, grupper, upload, godkendelse, API
-app/sanity.py             rimelighedstjek på uploadet belægning
-config/config.yaml        lager og alle parametre, ingen kode
-samples/                  eksempeldata, inkl. reservationshistorik til kalibrering
-tests/                    motor-, service- og regressionstests
-```
+Kør relevante test efter kodeændringer med `.venv/bin/python -m pytest -q`.
+Dokumentationsændringer kontrolleres for korrekte links, kommandoer og overensstemmelse
+med implementationen; de kræver ikke genoptræning eller en ny prisberegning.

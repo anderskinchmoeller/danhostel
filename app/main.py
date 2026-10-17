@@ -11,6 +11,7 @@ from contextlib import asynccontextmanager
 from datetime import date, datetime, timedelta
 from pathlib import Path
 from urllib.parse import quote
+from zoneinfo import ZoneInfo
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
@@ -20,7 +21,7 @@ from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import desc, select
 
-from . import config, db, picasso_belaegning, service
+from . import config, db, economics, exports, picasso_belaegning, service, validation
 from .adapters import parse_comp, parse_inventory
 from .config import load_settings
 from .sanity import check_inventory
@@ -79,6 +80,9 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Prismotor", lifespan=lifespan)
 templates.env.globals["freshness"] = lambda: freshness()
+
+from .result_routes import router as results_router
+app.include_router(results_router(settings, templates, current_user))
 
 
 def seed_competitors():
@@ -199,11 +203,13 @@ def dashboard(request: Request, days: int = 60, user: str = Depends(current_user
         avg_bed = (sum(r["r"].bed_price for r in rows) / len(rows)) if rows else 0
         avg_revpab = (sum(r["r"].revpab for r in rows) / len(rows)) if rows else 0
         avg_flex = (sum(r["r"].flex_to_private for r in rows) / len(rows)) if rows else 0
+        economic_coverage = economics.coverage(session, run)
         return templates.TemplateResponse(request, "dashboard.html", {
             "rows": rows, "run": run, "settings": settings, "inv": settings.params.inventory,
             "pending": pending, "flagged": flagged, "days": days,
             "avg_room": avg_room, "avg_bed": avg_bed, "avg_revpab": avg_revpab,
             "avg_flex": avg_flex, "user": user,
+            "economic_coverage": economic_coverage,
         })
     finally:
         session.close()
@@ -376,14 +382,19 @@ def data_page(request: Request, message: str = "", error: str = "",
 
 @app.post("/data/upload")
 async def upload(kind: str = Form(...), file: UploadFile = File(...),
-                 override: str = Form(""), user: str = Depends(current_user)):
+                 override: str = Form(""), return_to: str = Form(""),
+                 user: str = Depends(current_user)):
     data = await file.read()
     notes: list[str] = []
+    pdf_observed = None
+    pdf_source_text = None
     session = db.get_session()
     try:
         if kind == "inventory" and data.startswith(b"%PDF"):
             # Picassos Arrivals-rapport (Rooms spec.) direkte, uden CSV-mellemtrin.
             raw, notes = picasso_belaegning.csv_from_pdf(data)
+            pdf_source_text = picasso_belaegning.pdf_text(data)
+            pdf_observed = validation.arrivals_time(pdf_source_text, settings.timezone)
         else:
             raw = data.decode("utf-8-sig", errors="replace")
         if kind == "inventory":
@@ -397,8 +408,13 @@ async def upload(kind: str = Form(...), file: UploadFile = File(...),
                 blocked = ("Importen er stoppet — filen ser ikke rigtig ud. "
                            + " ".join(f.message for f in findings))
                 return RedirectResponse(f"/data?error={quote(blocked)}", status_code=303)
-            n = service.upsert_inventory(session, rows, actor=user)
+            n = service.upsert_inventory(session, rows, actor=user, observed_at=pdf_observed)
             msg = f"{n} datoer med belægning importeret fra {file.filename}"
+            if data.startswith(b"%PDF"):
+                logged = validation.record_arrivals(session, data,
+                    filename=file.filename or "Arrivals.pdf", tz=settings.timezone, actor=user,
+                    text=pdf_source_text)
+                msg += f" — {logged} nye PDF-observationer gemt i resultatloggen"
             if findings:
                 db.log(session, "import_override", actor=user,
                        detail=f"{file.filename}: " + " · ".join(f.code for f in findings))
@@ -412,9 +428,18 @@ async def upload(kind: str = Form(...), file: UploadFile = File(...),
             n = service.upsert_comp(session, rows, actor=user)
             msg = f"{n} datoer med konkurrentpriser importeret fra {file.filename}"
         session.commit()
-        return RedirectResponse(f"/data?message={quote(msg)}", status_code=303)
+        target = "/resultater" if return_to == "resultater" else "/data"
+        return RedirectResponse(f"{target}?message={quote(msg)}", status_code=303)
     except ValueError as exc:
-        return RedirectResponse(f"/data?error={quote(str(exc))}", status_code=303)
+        session.rollback()
+        target = "/resultater" if return_to == "resultater" else "/data"
+        return RedirectResponse(f"{target}?error={quote(str(exc))}", status_code=303)
+    except OSError:
+        session.rollback()
+        target = "/resultater" if return_to == "resultater" else "/data"
+        return RedirectResponse(f"{target}?error="+quote(
+            "Importen blev ikke gemt. Original-PDF'en kunne ikke arkiveres; kontrollér adgang og ledig plads."),
+            status_code=303)
     finally:
         session.close()
 
@@ -544,6 +569,8 @@ def export_csv(only_approved: bool = True, user: str = Depends(current_user)):
         error = service.delivery_error(session, settings, run, recs)
         if error:
             raise HTTPException(409, error)
+        if not recs:
+            raise HTTPException(409, "Ingen godkendte priser at hente")
         buffer = io.StringIO()
         writer = csv.writer(buffer, delimiter=";")
         # Én kolonne pr. Picasso-kode: rumtyper, derefter sengekoder (B-typer)
@@ -557,9 +584,22 @@ def export_csv(only_approved: bool = True, user: str = Depends(current_user)):
                 + [_kr(prices.get(t, 0)) for t in types]
                 + [rec.flex_to_private, rec.status, rec.warnings]
             )
-        filename = f"priser_{date.today().isoformat()}.csv"
+        day = datetime.now(ZoneInfo(settings.timezone)).date().isoformat()
+        filename = f"priser_{day}.csv"
+        data = buffer.getvalue().encode("utf-8-sig")
+        try:
+            exports.ensure_shadow(session, settings, run, recs)
+            paths = exports.save_download(run, recs, data, day)
+        except (ValueError, KeyError) as exc:
+            raise HTTPException(409, f"Sammenligningen af v4/v5 kunne ikke dannes: {exc}") from exc
+        except OSError as exc:
+            raise HTTPException(500, "CSV-filerne kunne ikke gemmes i projektmapperne. "
+                                "Kontrollér adgang og ledig plads.") from exc
+        db.log(session, "export_csv", actor=user, detail=json.dumps(
+            {"run_id": run.id, "n_days": len(recs), **paths}, ensure_ascii=False))
+        session.commit()
         return StreamingResponse(
-            iter([buffer.getvalue().encode("utf-8-sig")]),
+            iter([data]),
             media_type="text/csv; charset=utf-8",
             headers={"Content-Disposition": f'attachment; filename="{filename}"'},
         )

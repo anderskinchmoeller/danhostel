@@ -1,0 +1,56 @@
+OPSÆTNING
+  Estimeret på 2024: 366 datoer
+  Bedømt på 2025 efter renoveringen: 299 datoer
+  Modellen har aldrig set testperioden.
+
+1. PROGNOSEPRÆCISION — gennemsnitlig absolut fejl i antal værelser
+ lead      nu  historik      v4   v4 bedre end historik       95 %-interval  v4 vinder
+    1     2.2      10.3     2.6                   +7.68      [+6.78; +8.65]        87%
+    3     6.6      10.3     4.8                   +5.51      [+4.63; +6.49]        78%
+    7    12.2      10.3     6.8                   +3.51      [+2.76; +4.33]        71%
+   14    18.0      10.3     7.8                   +2.50      [+1.77; +3.28]        65%
+   30    22.1      10.3     8.9                   +1.38      [+0.80; +1.97]        63%
+   60    24.4      10.3     9.7                   +0.58      [+0.16; +1.01]        61%
+   90    25.6      10.3     9.9                   +0.45      [+0.16; +0.73]        60%
+  120    27.0      10.3     9.9                   +0.39      [+0.16; +0.60]        56%
+  'nu' = antag at der ikke kommer flere. 'historik' = gennemsnittet for
+  den ugedag i den måned. Et interval der ikke rummer 0 betyder at
+  forskellen ville holde på et andet år med samme slags datoer.
+
+2. KALIBRERING — holder fordelingen det den lover?
+   lovet   faktisk        n
+     50%       49%     2344
+     80%       81%     2344
+     90%       90%     2344
+
+3. OMSÆTNING — 50 datoer, 45 dage ned mod ankomst
+   Prisskift pr. dato: v4 1.3, v5 2.5
+ elasticitet        v4        v5   forskel       95 %-interval
+         0.8     22634     22041     -2.6%      [-3.7%; -1.7%]
+         1.0     22800     22532     -1.2%      [-2.5%; -0.1%]
+         1.3     23051     23277     +1.0%      [-0.8%; +2.7%]
+         1.6     23362     24117     +3.2%      [+0.6%; +5.9%]
+         2.0     23801     25125     +5.6%      [+2.2%; +9.0%]
+         2.5     24426     26091     +6.8%     [+2.7%; +11.2%]
+  Dette er IKKE et bevis. Hver række er en antagelse om gæsterne.
+  Tabellen viser hvilken antagelse der skal holde, for at hver version vinder.
+
+  Dette tester ikke en færdig v5 på historiske gæster. Det tester effekten af
+  den v5-beslutning der først må tages efter forsøget: at behandle
+  elasticiteten som målt og fjerne v4's midlertidige rabatloft.
+
+4. KAN ELASTICITETEN ESTIMERES PÅ HISTORIKKEN?
+   656 datoer. Den ønskede elasticitet er negativ (højere pris → færre solgte).
+   Naiv regression:              +1.96  (SE 0.11)   FORKERT FORTEGN
+   Med kontrol for ugedag×måned: +1.42  (SE 0.08)   STADIG FORKERT FORTEGN
+   Korrelation log pris / log solgt: +0.57
+   Prisen blev sat højt netop når efterspørgslen var høj. Regressionen
+   måler den sammenhæng, ikke gæsternes prisfølsomhed. Standardfejlen er
+   lille, så mere data gør kun estimatet mere sikkert på noget forkert.
+
+5. HVOR MEGET DATA SKAL DER TIL?
+   Spredning på log pickup: 0.83
+   Prisvariation fra eksplorationen: 0.050 i log
+   Datoer for en standardfejl på 0.20: 6844
+   Ved 120 datoer i horisonten: 57 kørselsdage, hvis eksplorationen rammer alle datoer.
+   Realistisk rammer den en mindre del, så regn med en sæson.

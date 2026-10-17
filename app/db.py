@@ -101,6 +101,7 @@ class Run(Base):
     n_days: Mapped[int] = mapped_column(Integer, default=0)
     revpab: Mapped[float] = mapped_column(Float, default=0.0)
     note: Mapped[str] = mapped_column(Text, default="")
+    shadow_json: Mapped[str | None] = mapped_column(Text, nullable=True)
 
 
 class Recommendation(Base):
@@ -160,6 +161,36 @@ class Recommendation(Base):
     decided_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
 
+class ValidationRecord(Base):
+    """Append-only observations; approval never creates an applied-price record."""
+    __tablename__ = "validation_record"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    day: Mapped[date] = mapped_column(Date, index=True)
+    kind: Mapped[str] = mapped_column(String(24), index=True)
+    observed_at: Mapped[datetime] = mapped_column(DateTime)
+    recorded_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+    actor: Mapped[str] = mapped_column(String(80))
+    source: Mapped[str] = mapped_column(String(240))
+    run_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    payload: Mapped[str] = mapped_column(Text)
+    fingerprint: Mapped[str] = mapped_column(String(64), unique=True)
+
+
+class ForecastSnapshot(Base):
+    """First operational forecast at each checkpoint; never reconstructed later."""
+    __tablename__ = "forecast_snapshot"
+    __table_args__ = (UniqueConstraint("day", "lead", "product"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    day: Mapped[date] = mapped_column(Date, index=True)
+    lead: Mapped[int] = mapped_column(Integer)
+    product: Mapped[str] = mapped_column(String(12))
+    run_id: Mapped[int] = mapped_column(Integer)
+    observed_at: Mapped[datetime] = mapped_column(DateTime)
+    payload: Mapped[str] = mapped_column(Text)
+
+
 class AuditLog(Base):
     __tablename__ = "audit_log"
 
@@ -209,6 +240,7 @@ def init_db(database_url: str):
     Base.metadata.create_all(_engine)
     # Version 2 -> 3: nullable additions preserve all existing prices and history.
     additions = {
+        "run": {"shadow_json": "TEXT"},
         "day_state": {"flex_private_min": "INTEGER", "flex_private_max": "INTEGER",
                       "booked_room_revenue": "FLOAT", "booked_bed_revenue": "FLOAT",
                       "room_type_otb": "TEXT", "anchor_room_price": "FLOAT",

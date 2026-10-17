@@ -1,6 +1,7 @@
 """Skyggedrift skal kunne starte i en ny proces uden webappen."""
 
 import os
+import csv
 from datetime import date, timedelta
 from pathlib import Path
 import subprocess
@@ -38,9 +39,10 @@ def test_skyggedrift_som_selvstaendig_kommando(tmp_path, with_data):
     config = tmp_path / "config.yaml"
     config.write_text(yaml.safe_dump(raw), encoding="utf-8")
     result = subprocess.run(
-        [sys.executable, "-m", "app.skyggedrift", "--alle", "--dage", "2"],
+        [sys.executable, "-m", "app.skyggedrift", "--alle", "--dage", "2",
+         "--csv", "~/skygge-v4-v5/skygge.csv"],
         cwd=root, env={**os.environ, "RMS_DATABASE_URL": database_url,
-                       "RMS_CONFIG": str(config)},
+                       "RMS_CONFIG": str(config), "HOME": str(tmp_path)},
         capture_output=True, text=True, timeout=30,
     )
     assert "Traceback" not in result.stderr, result.stderr
@@ -48,6 +50,11 @@ def test_skyggedrift_som_selvstaendig_kommando(tmp_path, with_data):
         assert result.returncode == 0, result.stderr
         assert "1 datoer," in result.stdout
         assert (date.today() + timedelta(days=1)).isoformat() in result.stdout
+        csv_path = tmp_path / "skygge-v4-v5" / "skygge.csv"
+        with csv_path.open(encoding="utf-8-sig", newline="") as fh:
+            rows = list(csv.DictReader(fh, delimiter=";"))
+        assert len(rows) == 1
+        assert rows[0]["dato"] == (date.today() + timedelta(days=1)).isoformat()
     else:
         assert result.returncode != 0
         assert "Ingen belægningsdata. Upload dagens fil først." in result.stderr

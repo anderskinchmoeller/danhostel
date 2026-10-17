@@ -1,0 +1,254 @@
+{
+ "rooms": 1.3119,
+ "beds": 0.6,
+ "updated": "2026-10-16",
+ "history": [
+  {
+   "dato": "2026-10-03",
+   "rum": {
+    "fra": 1.0,
+    "til": 1.0007,
+    "hvorfor": "faktisk/forventet 1.01 over 130 forventede enheder"
+   },
+   "senge": {
+    "fra": 1.0,
+    "til": 0.96,
+    "hvorfor": "faktisk/forventet 0.56 over 67 forventede enheder"
+   }
+  },
+  {
+   "dato": "2026-10-03",
+   "rum": {
+    "fra": 1.0007,
+    "til": 1.0014,
+    "hvorfor": "faktisk/forventet 1.01 over 130 forventede enheder"
+   },
+   "senge": {
+    "fra": 0.96,
+    "til": 0.9216,
+    "hvorfor": "faktisk/forventet 0.56 over 67 forventede enheder"
+   }
+  },
+  {
+   "dato": "2026-10-04",
+   "rum": {
+    "fra": 1.0014,
+    "til": 1.0041,
+    "hvorfor": "faktisk/forventet 1.04 over 126 forventede enheder"
+   },
+   "senge": {
+    "fra": 0.9216,
+    "til": 0.9029,
+    "hvorfor": "faktisk/forventet 0.75 over 50 forventede enheder"
+   }
+  },
+  {
+   "dato": "2026-10-04",
+   "rum": {
+    "fra": 1.0041,
+    "til": 1.0289,
+    "hvorfor": "faktisk/forventet 1.42 over 211 forventede enheder"
+   },
+   "senge": {
+    "fra": 0.9029,
+    "til": 0.8835,
+    "hvorfor": "faktisk/forventet 0.73 over 51 forventede enheder"
+   }
+  },
+  {
+   "dato": "2026-10-05",
+   "rum": {
+    "fra": 1.0289,
+    "til": 1.053,
+    "hvorfor": "faktisk/forventet 1.39 over 245 forventede enheder"
+   },
+   "senge": {
+    "fra": 0.8835,
+    "til": 0.8571,
+    "hvorfor": "faktisk/forventet 0.65 over 59 forventede enheder"
+   }
+  },
+  {
+   "dato": "2026-10-08",
+   "rum": {
+    "fra": 1.053,
+    "til": 1.0744,
+    "hvorfor": "faktisk/forventet 1.33 over 204 forventede enheder"
+   },
+   "senge": {
+    "fra": 0.8571,
+    "til": 0.8241,
+    "hvorfor": "faktisk/forventet 0.57 over 53 forventede enheder"
+   }
+  },
+  {
+   "dato": "2026-10-08",
+   "rum": {
+    "fra": 1.0744,
+    "til": 1.0962,
+    "hvorfor": "faktisk/forventet 1.33 over 204 forventede enheder"
+   },
+   "senge": {
+    "fra": 0.8241,
+    "til": 0.7924,
+    "hvorfor": "faktisk/forventet 0.57 over 53 forventede enheder"
+   }
+  },
+  {
+   "dato": "2026-10-08",
+   "rum": {
+    "fra": 1.0962,
+    "til": 1.1185,
+    "hvorfor": "faktisk/forventet 1.33 over 204 forventede enheder"
+   },
+   "senge": {
+    "fra": 0.7924,
+    "til": 0.7619,
+    "hvorfor": "faktisk/forventet 0.57 over 53 forventede enheder"
+   }
+  },
+  {
+   "dato": "2026-10-09",
+   "rum": {
+    "fra": 1.1185,
+    "til": 1.1375,
+    "hvorfor": "faktisk/forventet 1.27 over 206 forventede enheder"
+   },
+   "senge": {
+    "fra": 0.7619,
+    "til": 0.7198,
+    "hvorfor": "faktisk/forventet 0.44 over 64 forventede enheder"
+   }
+  },
+  {
+   "dato": "2026-10-09",
+   "rum": {
+    "fra": 1.1375,
+    "til": 1.1722,
+    "hvorfor": "faktisk/forventet 1.54 over 229 forventede enheder"
+   },
+   "senge": {
+    "fra": 0.7198,
+    "til": 0.7012,
+    "hvorfor": "faktisk/forventet 0.69 over 64 forventede enheder"
+   }
+  },
+  {
+   "dato": "2026-10-10",
+   "rum": {
+    "fra": 1.1722,
+    "til": 1.2067,
+    "hvorfor": "faktisk/forventet 1.51 over 224 forventede enheder"
+   },
+   "senge": {
+    "fra": 0.7012,
+    "til": 0.6777,
+    "hvorfor": "faktisk/forventet 0.61 over 66 forventede enheder"
+   }
+  },
+  {
+   "dato": "2026-10-10",
+   "rum": {
+    "fra": 1.2067,
+    "til": 1.2422,
+    "hvorfor": "faktisk/forventet 1.51 over 224 forventede enheder"
+   },
+   "senge": {
+    "fra": 0.6777,
+    "til": 0.655,
+    "hvorfor": "faktisk/forventet 0.61 over 66 forventede enheder"
+   }
+  },
+  {
+   "dato": "2026-10-10",
+   "rum": {
+    "fra": 1.2422,
+    "til": 1.2798,
+    "hvorfor": "faktisk/forventet 1.53 over 227 forventede enheder"
+   },
+   "senge": {
+    "fra": 0.655,
+    "til": 0.6392,
+    "hvorfor": "faktisk/forventet 0.70 over 66 forventede enheder"
+   }
+  },
+  {
+   "dato": "2026-10-15",
+   "rum": {
+    "fra": 1.2798,
+    "til": 1.2938,
+    "hvorfor": "faktisk/forventet 1.17 over 127 forventede enheder"
+   },
+   "senge": {
+    "fra": 0.6392,
+    "til": 0.6,
+    "hvorfor": "ved grænsen (0.60) — kontrollér datagrundlaget"
+   }
+  },
+  {
+   "dato": "2026-10-15",
+   "rum": {
+    "fra": 1.2938,
+    "til": 1.308,
+    "hvorfor": "faktisk/forventet 1.17 over 127 forventede enheder"
+   },
+   "senge": {
+    "fra": 0.6,
+    "til": 0.6,
+    "hvorfor": "ved grænsen (0.60) — kontrollér datagrundlaget"
+   }
+  },
+  {
+   "dato": "2026-10-15",
+   "rum": {
+    "fra": 1.308,
+    "til": 1.3223,
+    "hvorfor": "faktisk/forventet 1.17 over 127 forventede enheder"
+   },
+   "senge": {
+    "fra": 0.6,
+    "til": 0.6,
+    "hvorfor": "ved grænsen (0.60) — kontrollér datagrundlaget"
+   }
+  },
+  {
+   "dato": "2026-10-16",
+   "rum": {
+    "fra": 1.3223,
+    "til": 1.3121,
+    "hvorfor": "faktisk/forventet 0.89 over 111 forventede enheder"
+   },
+   "senge": {
+    "fra": 0.6,
+    "til": 0.6,
+    "hvorfor": "ved grænsen (0.60) — kontrollér datagrundlaget"
+   }
+  },
+  {
+   "dato": "2026-10-16",
+   "rum": {
+    "fra": 1.3121,
+    "til": 1.312,
+    "hvorfor": "faktisk/forventet 1.00 over 116 forventede enheder"
+   },
+   "senge": {
+    "fra": 0.6,
+    "til": 0.6,
+    "hvorfor": "ved grænsen (0.60) — kontrollér datagrundlaget"
+   }
+  },
+  {
+   "dato": "2026-10-16",
+   "rum": {
+    "fra": 1.312,
+    "til": 1.3119,
+    "hvorfor": "faktisk/forventet 1.00 over 116 forventede enheder"
+   },
+   "senge": {
+    "fra": 0.6,
+    "til": 0.6,
+    "hvorfor": "ved grænsen (0.60) — kontrollér datagrundlaget"
+   }
+  }
+ ]
+}

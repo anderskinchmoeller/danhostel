@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% set page = "results" %}
+{% block title %}Prognosevalidering · Prismotor{% endblock %}
+{% macro metric_table(rows) %}
+{% if rows %}
+<div style="overflow-x:auto"><table>
+<thead><tr><th>Lager</th><th>Dage før</th><th>Datoer</th><th>Modelfejl</th><th>Referencefejl</th><th>Fordel og 95 %-interval</th><th>Skævhed</th><th>Dækning 50 / 80 / 90 %</th></tr></thead>
+<tbody>{% for r in rows %}<tr>
+<td>{{ products[r.product][0] }}</td><td>{{ r.lead }}</td><td>{{ r.n }}{% if r.n_baseline != r.n %}<br>{{ r.n_baseline }} med reference{% endif %}</td>
+<td>{{ '%.2f'|format(r.mae) }}</td><td>{{ '%.2f'|format(r.baseline_mae) if r.baseline_mae is not none else 'Mangler' }}</td>
+<td>{% if r.advantage is not none %}{{ '%+.2f'|format(r.advantage) }}{% endif %}<br>
+{% if r.advantage_ci %}[{{ '%+.2f'|format(r.advantage_ci[0]) }}; {{ '%+.2f'|format(r.advantage_ci[1]) }}]{% else %}Utilstrækkeligt datagrundlag{% endif %}</td>
+<td>{{ '%+.2f'|format(r.bias) }}</td>
+<td>{% for level in ['50','80','90'] %}{{ '%.0f%%'|format(r.coverage[level]*100) if r.coverage[level] is not none else '–' }}{{ ' / ' if not loop.last }}{% endfor %}</td>
+</tr>{% endfor %}</tbody></table></div>
+{% else %}<p>Ingen afsluttede målinger i denne gruppe endnu.</p>{% endif %}
+{% endmacro %}
+{% block body %}
+<h1>Hvor godt rammer prognoserne?</h1>
+<p><a href="/resultater/afvigelser">Se graf: model mod faktiske tal og statistik →</a></p>
+<p><a href="/resultater">← Resultatlog</a></p>
+<p class="sub">Værelser og senge vurderes hver for sig, 30, 14, 7 og 1 dag før opholdet.</p>
+<form method="get"><label for="segment">Vis datoer</label>
+<select id="segment" name="segment">{% for key, label in segments.items() %}<option value="{{ key }}" {{ 'selected' if key == segment }}>{{ label }}</option>{% endfor %}</select>
+<button type="submit">Vis</button></form>
+<div class="panel" style="margin-top:16px">
+<h2>Ny drift · gemte prognoser</h2>
+<p>{{ n_snapshots }} prognoser gemt for {{ n_dates }} opholdsdatoer. {{ n_scored }} kan sammenlignes med indberettet endeligt salg.</p>
+{{ metric_table(live) }}
+<p><a href="/resultater/prognoser.csv">Hent afsluttede driftsmålinger som CSV</a></p>
+<p>Den første vellykkede prisberegning på hver af de fire dage gemmes med model, niveau,
+reference og intervaller. Gentagne beregninger overskriver den ikke. Springes en dag over,
+mangler målingen; den genskabes ikke bagefter. Det endelige salg registreres i resultatloggen.
+Arrivals med aktive reservationer tæller ikke som endeligt salg.</p>
+</div>
+<div class="panel" style="margin-top:16px">
+<h2>Historisk test · holdt adskilt fra ny drift</h2>
+{% if history %}
+<p>Træning: {{ history.training }} ({{ history.training_dates }} datoer).
+Test: {{ history.test }} ({{ history.test_dates }} datoer). Genkørt {{ history.created_at[:10] }}.</p>
+{{ metric_table(historical) }}
+<details><summary>Forudsætninger</summary><ul>{% for note in history.caveats %}<li>{{ note }}</li>{% endfor %}</ul></details>
+{% else %}<p>Den historiske analyse er endnu ikke kørt.</p>{% endif %}
+</div>
+<div class="panel" style="margin-top:16px">
+<h2>Sådan læses tallene</h2>
+<p>Modelfejl og referencefejl er gennemsnitlig absolut fejl i antal enheder (MAE); lavere er bedre.
+Referencen er historisk salg på samme ugedag i samme måned. En positiv fordel betyder mindre fejl
+for modellen på datoer med en reference. Intervallet bør ligge helt over nul, før en fordel er tydelig;
+intervallet kræver mindst 60 parrede datoer og 8 kalenderblokke. Det er et tilnærmet 95 %-interval med korrektion for afhængighed op til max(7, horisont−1) kalenderdage. Delgrupper er en fejlanalyse, ikke en selvstændig godkendelse.</p>
+<p>Positiv skævhed betyder for høje prognoser. Et 80 %-interval bør indeholde det faktiske salg
+omkring 80 % af gangene; dækningen vises særskilt for 50, 80 og 90 %.
+Prognoserne gælder referenceprisen før virkningen af prisændringer.
+Dette vurderer prognoserne og dokumenterer ikke, at den valgte pris giver højere indtjening.</p>
+</div>
+{% endblock %}

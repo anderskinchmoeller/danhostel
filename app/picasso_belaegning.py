@@ -32,6 +32,8 @@ ROW = re.compile(
 PERIOD = re.compile(r"Arrivals on period:\s*(\d\d-\d\d-\d{4})\s*to\s*(\d\d-\d\d-\d{4})")
 # Udskriftstidspunktet i sidehovedet, fx "LENE 21-09-2026 kl. 21:41".
 PRINTED = re.compile(r"(\d\d-\d\d-\d{4}) kl\. \d\d:\d\d")
+PRINTED_TIME = re.compile(r"(\d\d-\d\d-\d{4}) kl\. (\d\d:\d\d)")
+AMOUNT = re.compile(r"-?(?:\d{1,3}(?:\.\d{3})+|\d+),\d{2}")
 # Kun bindende bookinger tæller: Confirmed, Guaranteed, In-House. Tentative,
 # Provisional og WaitingList er optioner; medregnet giver de overbooking (fx
 # 77 af 70 rum den 20-11-2026). Annulleret, no-show og afrejst tæller aldrig.
@@ -67,7 +69,10 @@ def parse(text: str, today: date | None = None) -> tuple[date, date, list[dict]]
     if (end - start).days > 330:
         raise ValueError("Perioden er for lang til at gætte årstal; hold den under 11 måneder")
     rows = []
+    agency_column = None
     for line in text.splitlines():
+        if "Product" in line and "Price" in line and "Agency" in line:
+            agency_column = line.index("Agency")
         r = ROW.match(line)
         if not r:
             continue
@@ -89,8 +94,15 @@ def parse(text: str, today: date | None = None) -> tuple[date, date, list[dict]]
             if depart < today:
                 depart = date(today.year + 1, dm_, dd_)
             days = (depart - arrival).days
+        # Total Price is an amount for the reservation line, not an asking rate.
+        # Stop before Agency/Balance so a missing total is never replaced by balance.
+        tail = line[r.end():agency_column] if agency_column is not None else line[r.end():]
+        amount = AMOUNT.search(tail)
+        total = float(amount.group().replace(".", "").replace(",", ".")) if amount else None
+        product = tail[:amount.start()].strip() if amount else tail.strip()
         rows.append({"type": r["type"], "st": r["st"], "ref": r["ref"], "arrival": arrival,
-                     "days": days, "pcs": int(r["pcs"])})
+                     "days": days, "pcs": int(r["pcs"]), "total_price": total,
+                     "product": product})
     if not rows:
         raise ValueError("Ingen reservationslinjer fundet i filen")
     return start, end, rows

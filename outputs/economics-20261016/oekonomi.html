@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Økonomi og prisfølsomhed · Prismotor</title>
+<style>
+:root{
+  --ground:#F4F6F3; --surface:#fff; --surface-2:#EDF0EC;
+  --ink:#15222A; --ink-2:#3D4E55; --muted:#6E7F81;
+  --line:#D6DCD6; --line-strong:#B6C0B8;
+  --accent:#0E6E72; --accent-soft:#DCEBEA;
+  --flag:#A8481A; --flag-soft:#F6E6DC;
+  --good:#2F6B3C; --good-soft:#E2EFE4;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --ground:#0E1518; --surface:#151F23; --surface-2:#1B272B;
+    --ink:#E6EDE9; --ink-2:#B7C6C4; --muted:#8A9C9C;
+    --line:#27353A; --line-strong:#3A4C51;
+    --accent:#59B7B4; --accent-soft:#12312F;
+    --flag:#DE8B5C; --flag-soft:#2C1D14;
+    --good:#7BB98A; --good-soft:#16281B;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);
+  font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+a{color:var(--accent)}
+header.top{background:var(--surface);border-bottom:1px solid var(--line);
+  padding:0 20px;display:flex;align-items:center;gap:24px;flex-wrap:wrap;
+  position:sticky;top:0;z-index:20}
+.brand{font-weight:700;font-size:16px;padding:14px 0;letter-spacing:-.01em}
+.brand small{display:block;font-weight:400;font-size:11px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+nav{display:flex;gap:2px;flex-wrap:wrap}
+nav a{padding:14px 12px;text-decoration:none;color:var(--ink-2);font-size:14px;
+  border-bottom:2px solid transparent}
+nav a.on{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
+.mode{margin-left:auto;padding:14px 0;font-size:12px;color:var(--muted)}
+.mode b{color:var(--flag)}
+main{max-width:1280px;margin:0 auto;padding:22px 20px 64px}
+h1{font-size:22px;margin:0 0 4px;letter-spacing:-.01em}
+h2{font-size:16px;margin:28px 0 10px}
+.sub{color:var(--muted);font-size:13.5px;margin:0 0 18px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:16px 0 22px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:13px 15px}
+.card .k{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.card .v{font-size:23px;font-weight:600;font-variant-numeric:tabular-nums;margin-top:3px}
+.card .n{font-size:12px;color:var(--muted)}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 16px}
+button,.btn{font:inherit;font-size:13.5px;padding:8px 14px;border-radius:5px;
+  border:1px solid var(--line-strong);background:var(--surface);color:var(--ink);
+  cursor:pointer;text-decoration:none;display:inline-block}
+button:hover,.btn:hover{border-color:var(--accent);color:var(--accent)}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+button.primary:hover{opacity:.9;color:#fff}
+button.small{padding:4px 9px;font-size:12px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+form.inline{display:inline}
+.wrapx{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:6px}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th{position:sticky;top:0;background:var(--surface);text-align:left;
+  font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);
+  font-weight:600;padding:9px 10px;border-bottom:1px solid var(--line-strong);white-space:nowrap}
+td{padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr.we td{background:var(--surface-2)}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+.tag{display:inline-block;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;
+  padding:2px 7px;border-radius:100px;white-space:nowrap}
+.tag.pending{background:var(--surface-2);color:var(--muted)}
+.tag.approved{background:var(--good-soft);color:var(--good)}
+.tag.published{background:var(--accent-soft);color:var(--accent)}
+.tag.rejected,.tag.locked{background:var(--flag-soft);color:var(--flag)}
+.up{color:var(--good)} .down{color:var(--flag)}
+.warn{font-size:11.5px;color:var(--flag);white-space:normal;max-width:230px;display:block}
+.msg{padding:11px 14px;border-radius:5px;margin:0 0 16px;font-size:13.5px}
+.msg.ok{background:var(--good-soft);color:var(--good)}
+.msg.err{background:var(--flag-soft);color:var(--flag)}
+.msg.info{background:var(--accent-soft);color:var(--accent)}
+input[type=text],input[type=date],input[type=datetime-local],input[type=number],input[type=file],select,textarea{
+  font:inherit;font-size:13.5px;padding:7px 9px;border:1px solid var(--line-strong);
+  border-radius:5px;background:var(--surface);color:var(--ink);max-width:100%}
+label{font-size:12px;color:var(--muted);display:block;margin-bottom:3px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:18px}
+.field{margin-bottom:12px}
+code{background:var(--surface-2);padding:1px 5px;border-radius:3px;font-size:12.5px}
+pre{background:var(--surface-2);padding:12px;border-radius:5px;overflow-x:auto;font-size:12.5px}
+.foot{color:var(--muted);font-size:12px;margin-top:26px;line-height:1.7}
+.fresh{padding:13px 0;font-size:12px;color:var(--muted);text-align:right;line-height:1.3}
+.fresh .k{display:block;font-size:10px;letter-spacing:.08em;text-transform:uppercase}
+.fresh b{color:var(--ink);font-size:13px;font-weight:600}
+.fresh.stale b{color:var(--flag)}
+.stalebar{background:var(--flag-soft);color:var(--flag);border-bottom:1px solid var(--flag);
+  padding:10px 20px;font-size:13.5px}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand">Prismotor<small>Danhostel Aarhus City</small></div>
+  <nav>
+    <a href="/" class="">Priser</a>
+    <a href="/grupper" class="">Grupper</a>
+    <a href="/data" class="">Data</a>
+    <a href="/resultater" class="on">Resultater</a>
+    <a href="/events" class="">Events</a>
+    <a href="/settings" class="">Indstillinger</a>
+  </nav>
+  <div class="mode">
+    Skyggedrift
+    · csv
+  </div>
+  
+  <div class="fresh">
+    <span class="k">Sidst opdateret</span>
+    <b>for 20 min. siden</b>
+  </div>
+</header>
+
+<main>
+
+<h1>Økonomi og prisfølsomhed</h1>
+<p><a href="/resultater">← Resultatlog</a></p>
+<div class="msg info"><b>Økonomisk effekt er ikke målt.</b> Ingen beregning på denne side beviser,
+at modellen øger omsætningen eller indtjeningen. Historiske prisstigninger på travle datoer
+kan ikke alene fortælle, hvor prisfølsomme gæsterne er.</div>
+<div class="panel">
+<h2>Aktuelle antagelser</h2>
+<p>Prisfølsomhed: værelser 1.60,
+senge 2.00. Det er konfigurerede værdier;
+den nye opfølgning har ikke estimeret dem fra et gennemført prisforsøg.</p>
+<p>Den eksisterende prisvariation er fortsat slået til.
+Fra nye beregninger gemmes begge mulige priser, valget og eventuel efterfølgende bremse/lås.
+En prisbekræftelse med valgt beregning gemmer også, om den anvendte pris stemte med forsøgsvalget.
+Ældre beregninger får ikke genskabt manglende forsøgsoplysninger.</p>
+<p>Der mangler stadig et dokumenteret kontrolforløb med faktisk anvendte priser,
+tidsafgrænset salg, annulleringer og økonomiske resultater. Ændringer undervejs og forskelle i
+opholdsdatoer skal håndteres, før prisfølsomhed eller merindtjening kan vurderes.</p>
+</div>
+<div class="panel" style="margin-top:16px">
+<h2>Datadækning · seneste færdige beregning #39</h2>
+<p>Hele kørslen: 121 datoer. Aktuelt indlæst værelsesomsætning: 0;
+sengeomsætning: 0. Begge felter er udfyldt på 0 datoer.
+121 omsætningsprognoser i beregningen mangler fuldt datagrundlag.</p>
+<p>Nul tæller som et oplyst tal; tomt er ukendt. Dækningen viser de senest indlæste data,
+og kan derfor være ændret siden prisberegningen.</p>
+<p>Endelig bogført omsætning foreligger først for afsluttede datoer.
+Manglende bogførte tal på fremtidige opholdsdatoer kan ikke udfyldes med en historisk rapport.
+Reservationsværdi frem i tiden er et særskilt prognosegrundlag.</p>
+<table><thead><tr><th>Forslagslog i denne kørsel</th><th>Oprindelig pris valgt</th><th>Nabopris valgt</th><th>Bremset/låst</th></tr></thead>
+<tbody>
+<tr><td>Værelser</td><td>0</td><td>0</td><td>0</td></tr>
+<tr><td>Senge</td><td>0</td><td>0</td><td>0</td></tr></tbody></table>
+<p class="foot">Kun nye logposter med to forskellige priser tælles. Forslag er ikke dokumentation for
+anvendelse, og samme opholdsdato er ikke et nyt uafhængigt forsøg ved hver beregning.</p>
+</div>
+<div class="panel" style="margin-top:16px">
+<h2>Sådan finder du rapporterne i Picasso</h2>
+<ol>
+<li><b>Management (F5) → Bogføringsrapport / Accounts.</b> Vælg en afsluttet dag efter natkørslen,
+kontoniveau og Total. Gem som Excel eller udskriv som PDF.</li>
+<li><b>Reports (F7) → Statistik → Produkter.</b> Supplerer med produktsalg.
+Opdelingen i værelser og senge skal kontrolleres mod jeres konti og produkter.</li>
+</ol>
+<p>Statistik Pro → Omsætning er reservationsværdi efter ankomstdag, ikke dagsomsætning.</p>
+<p class="foot">Techotels offentlige hovedmanual er version 8.3, s. 131, 162–163;
+version 12 har separate ændringsvejledninger. Menunavne i jeres installation kan afvige.
+<a href="https://techotel.dk/wp-content/uploads/2025/10/Picasso_manual_version_8.3.pdf#page=132" target="_blank" rel="noopener">Manual</a> ·
+<a href="https://techotel.dk/release-notes/" target="_blank" rel="noopener">Version 12 og ændringer</a>.</p>
+<p>Start med én afsluttet dato. Før import skal dato, afgrænsning af logi, momsgrundlag og
+fortegn på krediteringer afstemmes. En rå Picasso-økonomirapport kan endnu ikke uploades direkte
+som Arrivals; den eksisterende resultatimport kræver de aftalte kolonner.</p>
+</div>
+<div class="panel" style="margin-top:16px">
+<h2>Faktiske økonomiske resultater</h2>
+<form class="bar" method="get"><label>Fra <input type="date" name="start" value="2026-09-16"></label>
+<label>Til <input type="date" name="end" value="2027-02-13"></label><button type="submit">Vis periode</button></form>
+<p>0 afsluttede datoer; 0 med begge omsætningstal,
+0 med tilstrækkelige oplysninger til dækningsbidrag.</p>
+<div style="overflow-x:auto"><table><thead><tr><th>Dato</th><th>Logiomsætning</th><th>RevPAB faktisk</th><th>Dækningsbidrag</th><th>Bidrag pr. tilgængelig seng</th><th>Kilde</th></tr></thead><tbody>
+<tr><td colspan="6">Ingen afsluttede resultater registreret endnu.</td></tr></tbody></table></div>
+<p>RevPAB kræver faktisk tilgængelige senge. Dækningsbidrag kræver begge omsætningstal,
+provision og variable omkostninger. Ukendte beløb beregnes ikke med standardsatser.
+Faktisk indtjening er ikke i sig selv dokumentation for en forbedring fra modellen.</p>
+<p><a href="/resultater">Registrér eller importér faktiske resultater</a> ·
+<a href="/resultater/export.csv?start=2026-09-16&amp;end=2027-02-13">Hent resultatlog</a></p>
+</div>
+
+</main>
+</body>
+</html>

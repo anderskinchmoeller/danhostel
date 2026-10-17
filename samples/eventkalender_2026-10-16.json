@@ -1,0 +1,531 @@
+{
+  "verified_at": "2026-10-16",
+  "area": "Aarhus",
+  "scope": "Aktuel prishorisont til 13. februar 2027; fulde ferieperioder medtages.",
+  "uplift_policy": "0 %: verificerede kalenderoplysninger, ingen målt effekt på husets salg eller pris.",
+  "excluded": [
+    {
+      "name": "Scandinavian Sports Medicine Congress 2027",
+      "reason": "Arrangøren oplyser København, ikke Aarhus.",
+      "source": "https://sportskongres.dk/"
+    },
+    {
+      "name": "Den Danske Dommerforenings årsmøde 2026",
+      "reason": "Arrangørens årsberetning oplyser Nyborg, ikke Aarhus.",
+      "source": "https://dommerforeningen.dk/wp-content/uploads/dommerforeningens-aarsberetning-2023-2024.pdf"
+    }
+  ],
+  "limitations": [
+    "Udvalgte relevante begivenheder, ikke en komplet liste over alle aktiviteter i byen.",
+    "AGF: kun verificerede hjemmebanedatoer. Ikke fastlagte kampe er udeladt.",
+    "Aarhus skoleferier er med; udenlandske ferier er ikke kortlagt.",
+    "Datoer er arrangementsdatoer, ikke estimerede ankomst- eller afrejsedage.",
+    "Koncerter er grupperet i ét interval kun når der er optræden på alle datoer i intervallet."
+  ],
+  "events": [
+    {
+      "name": "Efterårsferie – Aarhus skoler",
+      "start": "2026-10-10",
+      "end": "2026-10-18",
+      "uplift": 0.0,
+      "source": "https://aarhus.dk/borger/pasning-skole-og-uddannelse/skole-sfo-og-klub/naar-dit-barn-gaar-i-skole/ferier-og-fridage/",
+      "category": "skoleferie",
+      "venue": "Aarhus",
+      "verified_at": "2026-10-16",
+      "note": "Kommunens ferieplan; ikke dokumentation for øget overnatningsefterspørgsel."
+    },
+    {
+      "name": "Halloween i Friheden – efterårsferien",
+      "start": "2026-10-10",
+      "end": "2026-10-18",
+      "uplift": 0.0,
+      "source": "https://friheden.dk/begivenheder/halloween",
+      "category": "oplevelse",
+      "venue": "Tivoli Friheden",
+      "verified_at": "2026-10-16"
+    },
+    {
+      "name": "Kaizers Orchestra – TRAIN",
+      "start": "2026-10-16",
+      "end": "2026-10-17",
+      "uplift": 0.0,
+      "source": "https://train.dk/kalender/kaizers-orchestra-2026-2",
+      "category": "koncert",
+      "venue": "TRAIN",
+      "verified_at": "2026-10-16"
+    },
+    {
+      "name": "Gavin DeGraw – TRAIN",
+      "start": "2026-10-21",
+      "end": "2026-10-21",
+      "uplift": 0.0,
+      "source": "https://train.dk/kalender/gavin-degraw-2026",
+      "category": "koncert",
+      "venue": "TRAIN",
+      "verified_at": "2026-10-16"
+    },
+    {
+      "name": "AGF – KF Egnatia (Conference League)",
+      "start": "2026-10-22",
+      "end": "2026-10-22",
+      "uplift": 0.0,
+      "source": "https://www.agf.dk/nyheder/2026/august/efterarets-europaeiske-kampe-fastlagt",
+      "category": "sport",
+      "venue": "Ceres Park Vejlby",
+      "verified_at": "2026-10-16"
+    },
+    {
+      "name": "August Høyen – TRAIN",
+      "start": "2026-10-24",
+      "end": "2026-10-24",
+      "uplift": 0.0,
+      "source": "https://train.dk/kalender/august-h%C3%B8yen-2026",
+      "category": "koncert",
+      "venue": "TRAIN",
+      "verified_at": "2026-10-16"
+    },
+    {
+      "name": "Halloween i Friheden – sidste weekend",
+      "start": "2026-10-24",
+      "end": "2026-10-25",
+      "uplift": 0.0,
+      "source": "https://friheden.dk/begivenheder/halloween",
+      "category": "oplevelse",
+      "venue": "Tivoli Friheden",
+      "verified_at": "2026-10-16"
+    },
+    {
+      "name": "Pil – Musikhuset",
+      "start": "2026-10-24",
+      "end": "2026-10-24",
+      "uplift": 0.0,
+      "source": "https://www.musikhuset.dk/kalender?genres=pop-rock",
+      "category": "koncert",
+      "venue": "Musikhuset Aarhus",
+      "verified_at": "2026-10-16"
+    },
+    {
+      "name": "AGF – Viborg FF (Superliga)",
+      "start": "2026-10-25",
+      "end": "2026-10-25",
+      "uplift": 0.0,
+      "source": "https://www.agf.dk/nyheder/2026/september/runde-10-14-i-3f-superliga-fastlagt",
+      "category": "sport",
+      "venue": "Ceres Park Vejlby",
+      "verified_at": "2026-10-16"
+    },
+    {
+      "name": "SAVEUS – Aarhus Congress Center",
+      "start": "2026-10-29",
+      "end": "2026-10-29",
+      "uplift": 0.0,
+      "source": "https://aarhuscongresscenter.dk/besoegende/",
+      "category": "koncert",
+      "venue": "Aarhus Congress Center",
+      "verified_at": "2026-10-16"
+    },
+    {
+      "name": "Barselona – TRAIN",
+      "start": "2026-10-30",
+      "end": "2026-10-30",
+      "uplift": 0.0,
+      "source": "https://train.dk/kalender/barselona-2026",
+      "category": "koncert",
+      "venue": "TRAIN",
+      "verified_at": "2026-10-16"
+    },
+    {
+      "name": "AGF – SC Braga (Conference League)",
+      "start": "2026-11-05",
+      "end": "2026-11-05",
+      "uplift": 0.0,
+      "source": "https://www.agf.dk/nyheder/2026/august/efterarets-europaeiske-kampe-fastlagt",
+      "category": "sport",
+      "venue": "Ceres Park Vejlby",
+      "verified_at": "2026-10-16"
+    },
+    {
+      "name": "Guldimund – Musikhuset",
+      "start": "2026-11-05",
+      "end": "2026-11-07",
+      "uplift": 0.0,
+      "source": "https://www.musikhuset.dk/kalender?genres=pop-rock",
+      "category": "koncert",
+      "venue": "Musikhuset Aarhus",
+      "verified_at": "2026-10-16"
+    },
+    {
+      "name": "Aarhus Symposium 2026",
+      "start": "2026-11-06",
+      "end": "2026-11-06",
+      "uplift": 0.0,
+      "source": "https://aarhus-symposium.org/events",
+      "category": "konference",
+      "venue": "Aarhus Universitet, bygning 1790",
+      "verified_at": "2026-10-16"
+    },
+    {
+      "name": "Søren Huss – TRAIN",
+      "start": "2026-11-06",
+      "end": "2026-11-06",
+      "uplift": 0.0,
+      "source": "https://train.dk/kalender/soeren-huss-2026",
+      "category": "koncert",
+      "venue": "TRAIN",
+      "verified_at": "2026-10-16"
+    },
+    {
+      "name": "AGF – AC Horsens (Superliga)",
+      "start": "2026-11-08",
+      "end": "2026-11-08",
+      "uplift": 0.0,
+      "source": "https://www.agf.dk/nyheder/2026/september/runde-10-14-i-3f-superliga-fastlagt",
+      "category": "sport",
+      "venue": "Ceres Park Vejlby",
+      "verified_at": "2026-10-16"
+    },
+    {
+      "name": "Folkeklubben og Danmarks Underholdningsorkester – Musikhuset",
+      "start": "2026-11-12",
+      "end": "2026-11-13",
+      "uplift": 0.0,
+      "source": "https://www.musikhuset.dk/kalender?genres=pop-rock",
+      "category": "koncert",
+      "venue": "Musikhuset Aarhus",
+      "verified_at": "2026-10-16"
+    },
+    {
+      "name": "Turboweekend – Aarhus Congress Center",
+      "start": "2026-11-13",
+      "end": "2026-11-13",
+      "uplift": 0.0,
+      "source": "https://aarhuscongresscenter.dk/besoegende/",
+      "category": "koncert",
+      "venue": "Aarhus Congress Center",
+      "verified_at": "2026-10-16"
+    },
+    {
+      "name": "Jul i Den Gamle By",
+      "start": "2026-11-14",
+      "end": "2026-12-31",
+      "uplift": 0.0,
+      "source": "https://www.dengamleby.dk/planlaeg-besog/program/jul-i-den-gamle-by/",
+      "category": "oplevelse",
+      "venue": "Den Gamle By",
+      "verified_at": "2026-10-16"
+    },
+    {
+      "name": "Jul i Friheden – sæson (udvalgte åbningsdage)",
+      "start": "2026-11-14",
+      "end": "2026-12-30",
+      "uplift": 0.0,
+      "source": "https://friheden.dk/begivenheder/jul-i-friheden",
+      "category": "oplevelse",
+      "venue": "Tivoli Friheden",
+      "verified_at": "2026-10-16",
+      "note": "Sæsoninterval. Parken er kun åben på udvalgte dage; intervallet er ikke en daglig åbningsplan."
+    },
+    {
+      "name": "Mumle – Aarhus Congress Center",
+      "start": "2026-11-14",
+      "end": "2026-11-14",
+      "uplift": 0.0,
+      "source": "https://aarhuscongresscenter.dk/besoegende/",
+      "category": "koncert",
+      "venue": "Aarhus Congress Center",
+      "verified_at": "2026-10-16"
+    },
+    {
+      "name": "Poul Krebs – Musikhuset",
+      "start": "2026-11-14",
+      "end": "2026-11-14",
+      "uplift": 0.0,
+      "source": "https://www.musikhuset.dk/kalender?genres=pop-rock",
+      "category": "koncert",
+      "venue": "Musikhuset Aarhus",
+      "verified_at": "2026-10-16"
+    },
+    {
+      "name": "Beth Hart – Musikhuset",
+      "start": "2026-11-18",
+      "end": "2026-11-18",
+      "uplift": 0.0,
+      "source": "https://www.musikhuset.dk/kalender?genres=pop-rock",
+      "category": "koncert",
+      "venue": "Musikhuset Aarhus",
+      "verified_at": "2026-10-16"
+    },
+    {
+      "name": "Carpark North – TRAIN",
+      "start": "2026-11-21",
+      "end": "2026-11-21",
+      "uplift": 0.0,
+      "source": "https://train.dk/kalender/carpark-north-2026",
+      "category": "koncert",
+      "venue": "TRAIN",
+      "verified_at": "2026-10-16"
+    },
+    {
+      "name": "Umbraco DK Festival",
+      "start": "2026-11-25",
+      "end": "2026-11-25",
+      "uplift": 0.0,
+      "source": "https://umbracodkfestival.dk/",
+      "category": "konference",
+      "venue": "Tivoli Friheden",
+      "verified_at": "2026-10-16"
+    },
+    {
+      "name": "Aarhus Immunotherapy Symposium (AIS12)",
+      "start": "2026-11-26",
+      "end": "2026-11-26",
+      "uplift": 0.0,
+      "source": "https://conferences.au.dk/ais",
+      "category": "konference",
+      "venue": "Aarhus Universitet",
+      "verified_at": "2026-10-16"
+    },
+    {
+      "name": "URO – TRAIN",
+      "start": "2026-11-27",
+      "end": "2026-11-28",
+      "uplift": 0.0,
+      "source": "https://train.dk/kalender/uro-2026",
+      "category": "koncert",
+      "venue": "TRAIN",
+      "verified_at": "2026-10-16"
+    },
+    {
+      "name": "Blaue Blume – Aarhus Congress Center",
+      "start": "2026-11-28",
+      "end": "2026-11-28",
+      "uplift": 0.0,
+      "source": "https://aarhuscongresscenter.dk/besoegende/",
+      "category": "koncert",
+      "venue": "Aarhus Congress Center",
+      "verified_at": "2026-10-16"
+    },
+    {
+      "name": "Hogwards Magic Symphony – Aarhus Congress Center",
+      "start": "2026-12-02",
+      "end": "2026-12-02",
+      "uplift": 0.0,
+      "source": "https://aarhuscongresscenter.dk/besoegende/",
+      "category": "koncert",
+      "venue": "Aarhus Congress Center",
+      "verified_at": "2026-10-16"
+    },
+    {
+      "name": "Godsbanens julemarked",
+      "start": "2026-12-05",
+      "end": "2026-12-06",
+      "uplift": 0.0,
+      "source": "https://godsbanen.dk/julemarked/",
+      "category": "marked",
+      "venue": "Godsbanen",
+      "verified_at": "2026-10-16"
+    },
+    {
+      "name": "AGF – FC Twente (Conference League)",
+      "start": "2026-12-10",
+      "end": "2026-12-10",
+      "uplift": 0.0,
+      "source": "https://www.agf.dk/nyheder/2026/august/efterarets-europaeiske-kampe-fastlagt",
+      "category": "sport",
+      "venue": "Ceres Park Vejlby",
+      "verified_at": "2026-10-16"
+    },
+    {
+      "name": "EC² Conference",
+      "start": "2026-12-11",
+      "end": "2026-12-12",
+      "uplift": 0.0,
+      "source": "https://econ.au.dk/ace/show-ace-seminars/artikel/ec2-conference",
+      "category": "konference",
+      "venue": "Aarhus Universitet, Aulaen og Vandrehallen",
+      "verified_at": "2026-10-16"
+    },
+    {
+      "name": "Stig Rossen – julekoncert – Musikhuset",
+      "start": "2026-12-13",
+      "end": "2026-12-13",
+      "uplift": 0.0,
+      "source": "https://www.musikhuset.dk/kalender?genres=pop-rock",
+      "category": "koncert",
+      "venue": "Musikhuset Aarhus",
+      "verified_at": "2026-10-16"
+    },
+    {
+      "name": "Sissel Kyrkjebø – Sissels jul – Musikhuset",
+      "start": "2026-12-14",
+      "end": "2026-12-14",
+      "uplift": 0.0,
+      "source": "https://www.musikhuset.dk/kalender?genres=pop-rock",
+      "category": "koncert",
+      "venue": "Musikhuset Aarhus",
+      "verified_at": "2026-10-16"
+    },
+    {
+      "name": "Pretty Maids – TRAIN",
+      "start": "2026-12-18",
+      "end": "2026-12-18",
+      "uplift": 0.0,
+      "source": "https://train.dk/kalender/pretty-maids-2026",
+      "category": "koncert",
+      "venue": "TRAIN",
+      "verified_at": "2026-10-16"
+    },
+    {
+      "name": "Juleferie – Aarhus skoler",
+      "start": "2026-12-19",
+      "end": "2027-01-03",
+      "uplift": 0.0,
+      "source": "https://aarhus.dk/borger/pasning-skole-og-uddannelse/skole-sfo-og-klub/naar-dit-barn-gaar-i-skole/ferier-og-fridage/",
+      "category": "skoleferie",
+      "venue": "Aarhus",
+      "verified_at": "2026-10-16",
+      "note": "Kommunens ferieplan; ikke dokumentation for øget overnatningsefterspørgsel."
+    },
+    {
+      "name": "Luftens Helte – juleshow – Musikhuset",
+      "start": "2026-12-20",
+      "end": "2026-12-21",
+      "uplift": 0.0,
+      "source": "https://www.musikhuset.dk/kalender?genres=pop-rock",
+      "category": "koncert",
+      "venue": "Musikhuset Aarhus",
+      "verified_at": "2026-10-16"
+    },
+    {
+      "name": "Infernal – TRAIN",
+      "start": "2026-12-28",
+      "end": "2026-12-28",
+      "uplift": 0.0,
+      "source": "https://train.dk/kalender/infernal-2026",
+      "category": "koncert",
+      "venue": "TRAIN",
+      "verified_at": "2026-10-16"
+    },
+    {
+      "name": "Magtens Korridorer – TRAIN",
+      "start": "2026-12-29",
+      "end": "2026-12-29",
+      "uplift": 0.0,
+      "source": "https://train.dk/kalender/magtens-korridorer-2026",
+      "category": "koncert",
+      "venue": "TRAIN",
+      "verified_at": "2026-10-16"
+    },
+    {
+      "name": "Jonah Blacksmith – Aarhus Congress Center",
+      "start": "2027-01-23",
+      "end": "2027-01-23",
+      "uplift": 0.0,
+      "source": "https://aarhuscongresscenter.dk/besoegende/",
+      "category": "koncert",
+      "venue": "Aarhus Congress Center",
+      "verified_at": "2026-10-16"
+    },
+    {
+      "name": "Tina Dickow – Musikhuset",
+      "start": "2027-01-24",
+      "end": "2027-01-24",
+      "uplift": 0.0,
+      "source": "https://www.musikhuset.dk/kalender?genres=pop-rock",
+      "category": "koncert",
+      "venue": "Musikhuset Aarhus",
+      "verified_at": "2026-10-16"
+    },
+    {
+      "name": "Executive Insights – Aarhus BSS",
+      "start": "2027-01-26",
+      "end": "2027-01-26",
+      "uplift": 0.0,
+      "source": "https://bss.au.dk/executive-insights/vibe",
+      "category": "konference",
+      "venue": "Aarhus BSS",
+      "verified_at": "2026-10-16"
+    },
+    {
+      "name": "Thor Farlov – TRAIN",
+      "start": "2027-01-30",
+      "end": "2027-01-30",
+      "uplift": 0.0,
+      "source": "https://train.dk/kalender/thor-farlov-2027",
+      "category": "koncert",
+      "venue": "TRAIN",
+      "verified_at": "2026-10-16"
+    },
+    {
+      "name": "Bryllupsmesse – Aarhus Congress Center",
+      "start": "2027-01-31",
+      "end": "2027-01-31",
+      "uplift": 0.0,
+      "source": "https://bryllup.dk/bryllupsmesser/arhus/",
+      "category": "messe",
+      "venue": "Aarhus Congress Center",
+      "verified_at": "2026-10-16"
+    },
+    {
+      "name": "Den Fantastiske Bus – Musikhuset",
+      "start": "2027-02-04",
+      "end": "2027-02-07",
+      "uplift": 0.0,
+      "source": "https://www.musikhuset.dk/kalender?genres=familie-born",
+      "category": "teater",
+      "venue": "Musikhuset Aarhus",
+      "verified_at": "2026-10-16"
+    },
+    {
+      "name": "Hugorm – TRAIN",
+      "start": "2027-02-04",
+      "end": "2027-02-06",
+      "uplift": 0.0,
+      "source": "https://train.dk/kalender/hugorm-2027-4",
+      "category": "koncert",
+      "venue": "TRAIN",
+      "verified_at": "2026-10-16"
+    },
+    {
+      "name": "Wiener Johann Strauss Koncert-Galla – Musikhuset",
+      "start": "2027-02-06",
+      "end": "2027-02-06",
+      "uplift": 0.0,
+      "source": "https://www.musikhuset.dk/kalender?genres=klassisk",
+      "category": "koncert",
+      "venue": "Musikhuset Aarhus",
+      "verified_at": "2026-10-16"
+    },
+    {
+      "name": "Warhaus – TRAIN",
+      "start": "2027-02-10",
+      "end": "2027-02-10",
+      "uplift": 0.0,
+      "source": "https://train.dk/kalender/warhaus-2027",
+      "category": "koncert",
+      "venue": "TRAIN",
+      "verified_at": "2026-10-16"
+    },
+    {
+      "name": "Eee Gee – TRAIN",
+      "start": "2027-02-12",
+      "end": "2027-02-12",
+      "uplift": 0.0,
+      "source": "https://train.dk/kalender/eee-gee-2027",
+      "category": "koncert",
+      "venue": "TRAIN",
+      "verified_at": "2026-10-16"
+    },
+    {
+      "name": "Vinterferie – Aarhus skoler",
+      "start": "2027-02-13",
+      "end": "2027-02-21",
+      "uplift": 0.0,
+      "source": "https://aarhus.dk/borger/pasning-skole-og-uddannelse/skole-sfo-og-klub/naar-dit-barn-gaar-i-skole/ferier-og-fridage/",
+      "category": "skoleferie",
+      "venue": "Aarhus",
+      "verified_at": "2026-10-16",
+      "note": "Kommunens ferieplan; ikke dokumentation for øget overnatningsefterspørgsel."
+    }
+  ]
+}

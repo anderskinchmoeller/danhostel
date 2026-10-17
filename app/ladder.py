@@ -147,6 +147,7 @@ class LadderResult:
     reasons: list = field(default_factory=list)
     off_ladder: bool = False  # sand hvis bremse/lås gav en pris mellem trinene
     explored: bool = False    # sand hvis trinnet blev valgt tilfældigt mellem to lige gode
+    exploration: dict | None = None  # Both choices, including unchanged/control assignments.
     bid: dict | None = None   # bid price-beregningen bag trinnet (version 4)
 
     @property
@@ -300,17 +301,26 @@ def ladder_step(*, base: float, rungs: Sequence[float], rounder, cfg: LadderConf
 
     # -- bundet eksploration ----------------------------------------------
     explored = False
+    exploration = None
     if (cfg.explore and explore_seed is not None
             and 0 <= lead_days <= cfg.explore_max_lead):
         distance = abs(position - rung)
         if distance <= cfg.explore_band:
             direction = 1 if position >= rung else -1
             other = rung + direction
-            if min_rung <= other <= n - 1 and other >= 0 and _coin(explore_seed):
-                rung, explored = other, True
-                reasons.append(
-                    f"Eksploration: trin {rung + 1} valgt tilfældigt mellem to "
-                    f"lige gode trin — bidrager til elasticitetsmålingen")
+            if min_rung <= other <= n - 1 and other >= 0:
+                chosen = _coin(explore_seed)
+                exploration = dict(scheme="neighbor-v1", seed=explore_seed,
+                    unit="stay_date_product", control_rung=rung, alternative_rung=other,
+                    control_price=prices[rung], alternative_price=prices[other],
+                    distinct_prices=abs(prices[rung]-prices[other]) > .01,
+                    probability_alternative=.5, assigned_arm="alternative" if chosen else "control",
+                    assigned_price=prices[other] if chosen else prices[rung])
+                if chosen:
+                    rung, explored = other, True
+                    reasons.append(
+                        f"Eksploration: trin {rung + 1} valgt tilfældigt mellem to "
+                        f"nabopunkter — effekten er endnu ikke målt")
 
     # -- begrundelse ------------------------------------------------------
     if previous_rung is not None and rung != previous_rung:
@@ -337,7 +347,7 @@ def ladder_step(*, base: float, rungs: Sequence[float], rounder, cfg: LadderConf
         smoothed_position=round(smoothed, 4),
         triggers=triggers, p_sellout=round(p_sellout, 4), min_rung=min_rung,
         previous_rung=previous_rung, reasons=reasons,
-        explored=explored, bid=bid,
+        explored=explored, exploration=exploration, bid=bid,
     )
 
 

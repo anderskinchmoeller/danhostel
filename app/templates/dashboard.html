@@ -4,6 +4,13 @@
 {% block body %}
 
 <h1>Anbefalede priser</h1>
+<p class="sub">Belægningsprognosen bruger samme efterspørgselsmodel som prisforslaget.
+Den viser forventet belægning ved grundprisen, før effekten af en prisændring.</p>
+<div class="msg info"><b>Økonomisk effekt er ikke målt.</b>
+Prisfølsomheden er fortsat en antagelse.
+{% if economic_coverage.total %}Indlæst omsætning mangler helt eller delvist på {{ economic_coverage.missing }} af {{ economic_coverage.total }} datoer i hele kørslen.{% endif %}
+RevPAB er en prognose, også når bogførte tal indgår.
+<a href="/resultater/oekonomi">Se datadækning, faktiske resultater og Picasso-vejledning</a>.</div>
 {% if not inv.confirmed %}
 <div class="msg err"><b>Eksempellager — ikke klar til live brug.</b>
 Den offentligt oplyste kapacitet er 330 senge. Denne ubekræftede opdeling giver
@@ -69,6 +76,8 @@ Prisforslag kan vurderes her; eksport og skrivning kræver bekræftet lager.</di
     Vis: <a href="/?days=30">30</a> · <a href="/?days=60">60</a> · <a href="/?days=90">90</a> dage
   </span>
 </div>
+<p class="sub">Når du henter CSV’en, gemmes den også i dagens_priser og en
+sammenligning af v4 og v5 i skygge-v4-v5. Der gemmes en kopi pr. kørsel.</p>
 
 <div class="wrapx">
 <table>

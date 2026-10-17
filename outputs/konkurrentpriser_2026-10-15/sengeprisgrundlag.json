@@ -1,0 +1,327 @@
+{
+  "basis": "Efter brugerens valg: laveste offentlige bookbare sengepris i blandet sovesal hos Roberta’s, én voksen, to nætter uden morgenmad, opholdets total divideret med to. Afrundet til hele kroner i CSV. Værelsesmedianen er uændret: Cabinn, Wakeup, Roberta’s og Aarhus Hostel og Hotel, to voksne, én nat.",
+  "quotes": [
+    {
+      "price": 157.46,
+      "total_two_nights": 314.92,
+      "room": "Queen Bed in Mixed Dorm (32-Bed)",
+      "rate": 142,
+      "checkin": "2026-10-15",
+      "checkout": "2026-10-17",
+      "adults": 1,
+      "nights": 2,
+      "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-15&nrNights=2&nrAdults=1&amount=1"
+    },
+    {
+      "price": null,
+      "checkin": "2026-10-16",
+      "checkout": "2026-10-18",
+      "adults": 1,
+      "nights": 2,
+      "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-16&nrNights=2&nrAdults=1&amount=1"
+    },
+    {
+      "price": null,
+      "checkin": "2026-10-17",
+      "checkout": "2026-10-19",
+      "adults": 1,
+      "nights": 2,
+      "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-17&nrNights=2&nrAdults=1&amount=1"
+    },
+    {
+      "price": 153.425,
+      "total_two_nights": 306.85,
+      "room": "Single Bed in Mixed Dorm (10-Bed)",
+      "rate": 142,
+      "checkin": "2026-10-18",
+      "checkout": "2026-10-20",
+      "adults": 1,
+      "nights": 2,
+      "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-18&nrNights=2&nrAdults=1&amount=1"
+    },
+    {
+      "price": 169.58,
+      "total_two_nights": 339.16,
+      "room": "Queen Bed in Mixed Dorm (32-Bed)",
+      "rate": 142,
+      "checkin": "2026-10-19",
+      "checkout": "2026-10-21",
+      "adults": 1,
+      "nights": 2,
+      "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-19&nrNights=2&nrAdults=1&amount=1"
+    },
+    {
+      "price": 169.58,
+      "total_two_nights": 339.16,
+      "room": "Queen Bed in Mixed Dorm (32-Bed)",
+      "rate": 142,
+      "checkin": "2026-10-20",
+      "checkout": "2026-10-22",
+      "adults": 1,
+      "nights": 2,
+      "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-20&nrNights=2&nrAdults=1&amount=1"
+    },
+    {
+      "price": 169.58,
+      "total_two_nights": 339.16,
+      "room": "Queen Bed in Mixed Dorm (32-Bed)",
+      "rate": 142,
+      "checkin": "2026-10-21",
+      "checkout": "2026-10-23",
+      "adults": 1,
+      "nights": 2,
+      "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-21&nrNights=2&nrAdults=1&amount=1"
+    },
+    {
+      "price": 163.52,
+      "total_two_nights": 327.04,
+      "room": "Queen Bed in Mixed Dorm (32-Bed)",
+      "rate": 142,
+      "checkin": "2026-10-22",
+      "checkout": "2026-10-24",
+      "adults": 1,
+      "nights": 2,
+      "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-22&nrNights=2&nrAdults=1&amount=1"
+    },
+    {
+      "price": null,
+      "checkin": "2026-10-23",
+      "checkout": "2026-10-25",
+      "adults": 1,
+      "nights": 2,
+      "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-23&nrNights=2&nrAdults=1&amount=1"
+    },
+    {
+      "price": null,
+      "checkin": "2026-10-24",
+      "checkout": "2026-10-26",
+      "adults": 1,
+      "nights": 2,
+      "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-24&nrNights=2&nrAdults=1&amount=1"
+    },
+    {
+      "price": 147.37,
+      "total_two_nights": 294.74,
+      "room": "Queen Bed in Mixed Dorm (32-Bed)",
+      "rate": 142,
+      "checkin": "2026-10-25",
+      "checkout": "2026-10-27",
+      "adults": 1,
+      "nights": 2,
+      "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-25&nrNights=2&nrAdults=1&amount=1"
+    },
+    {
+      "price": 151.41,
+      "total_two_nights": 302.82,
+      "room": "Queen Bed in Mixed Dorm (32-Bed)",
+      "rate": 142,
+      "checkin": "2026-10-26",
+      "checkout": "2026-10-28",
+      "adults": 1,
+      "nights": 2,
+      "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-26&nrNights=2&nrAdults=1&amount=1"
+    },
+    {
+      "price": 153.43,
+      "total_two_nights": 306.86,
+      "room": "Queen Bed in Mixed Dorm (32-Bed)",
+      "rate": 142,
+      "checkin": "2026-10-27",
+      "checkout": "2026-10-29",
+      "adults": 1,
+      "nights": 2,
+      "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-27&nrNights=2&nrAdults=1&amount=1"
+    },
+    {
+      "price": 155.445,
+      "total_two_nights": 310.89,
+      "room": "Queen Bed in Mixed Dorm (32-Bed)",
+      "rate": 142,
+      "checkin": "2026-10-28",
+      "checkout": "2026-10-30",
+      "adults": 1,
+      "nights": 2,
+      "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-28&nrNights=2&nrAdults=1&amount=1"
+    },
+    {
+      "price": 157.46,
+      "total_two_nights": 314.92,
+      "room": "Queen Bed in Mixed Dorm (32-Bed)",
+      "rate": 142,
+      "checkin": "2026-10-29",
+      "checkout": "2026-10-31",
+      "adults": 1,
+      "nights": 2,
+      "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-29&nrNights=2&nrAdults=1&amount=1"
+    },
+    {
+      "price": null,
+      "checkin": "2026-10-30",
+      "checkout": "2026-11-01",
+      "adults": 1,
+      "nights": 2,
+      "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-30&nrNights=2&nrAdults=1&amount=1"
+    },
+    {
+      "price": null,
+      "checkin": "2026-10-31",
+      "checkout": "2026-11-02",
+      "adults": 1,
+      "nights": 2,
+      "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-31&nrNights=2&nrAdults=1&amount=1"
+    },
+    {
+      "price": 147.37,
+      "total_two_nights": 294.74,
+      "room": "Queen Bed in Mixed Dorm (32-Bed)",
+      "rate": 142,
+      "checkin": "2026-11-01",
+      "checkout": "2026-11-03",
+      "adults": 1,
+      "nights": 2,
+      "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-01&nrNights=2&nrAdults=1&amount=1"
+    },
+    {
+      "price": 151.41,
+      "total_two_nights": 302.82,
+      "room": "Queen Bed in Mixed Dorm (32-Bed)",
+      "rate": 142,
+      "checkin": "2026-11-02",
+      "checkout": "2026-11-04",
+      "adults": 1,
+      "nights": 2,
+      "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-02&nrNights=2&nrAdults=1&amount=1"
+    },
+    {
+      "price": 153.43,
+      "total_two_nights": 306.86,
+      "room": "Single Bed in Mixed Dorm (10-Bed)",
+      "rate": 142,
+      "checkin": "2026-11-03",
+      "checkout": "2026-11-05",
+      "adults": 1,
+      "nights": 2,
+      "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-03&nrNights=2&nrAdults=1&amount=1"
+    },
+    {
+      "price": 155.445,
+      "total_two_nights": 310.89,
+      "room": "Single Bed in Mixed Dorm (10-Bed)",
+      "rate": 142,
+      "checkin": "2026-11-04",
+      "checkout": "2026-11-06",
+      "adults": 1,
+      "nights": 2,
+      "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-04&nrNights=2&nrAdults=1&amount=1"
+    },
+    {
+      "price": 157.46,
+      "total_two_nights": 314.92,
+      "room": "Single Bed in Mixed Dorm (10-Bed)",
+      "rate": 142,
+      "checkin": "2026-11-05",
+      "checkout": "2026-11-07",
+      "adults": 1,
+      "nights": 2,
+      "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-05&nrNights=2&nrAdults=1&amount=1"
+    },
+    {
+      "price": null,
+      "checkin": "2026-11-06",
+      "checkout": "2026-11-08",
+      "adults": 1,
+      "nights": 2,
+      "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-06&nrNights=2&nrAdults=1&amount=1"
+    },
+    {
+      "price": null,
+      "checkin": "2026-11-07",
+      "checkout": "2026-11-09",
+      "adults": 1,
+      "nights": 2,
+      "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-07&nrNights=2&nrAdults=1&amount=1"
+    },
+    {
+      "price": 149.39,
+      "total_two_nights": 298.78,
+      "room": "Single Bed in Mixed Dorm (10-Bed)",
+      "rate": 142,
+      "checkin": "2026-11-08",
+      "checkout": "2026-11-10",
+      "adults": 1,
+      "nights": 2,
+      "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-08&nrNights=2&nrAdults=1&amount=1"
+    },
+    {
+      "price": 153.43,
+      "total_two_nights": 306.86,
+      "room": "Single Bed in Mixed Dorm (10-Bed)",
+      "rate": 142,
+      "checkin": "2026-11-09",
+      "checkout": "2026-11-11",
+      "adults": 1,
+      "nights": 2,
+      "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-09&nrNights=2&nrAdults=1&amount=1"
+    },
+    {
+      "price": 153.43,
+      "total_two_nights": 306.86,
+      "room": "Single Bed in Mixed Dorm (10-Bed)",
+      "rate": 142,
+      "checkin": "2026-11-10",
+      "checkout": "2026-11-12",
+      "adults": 1,
+      "nights": 2,
+      "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-10&nrNights=2&nrAdults=1&amount=1"
+    },
+    {
+      "price": 155.445,
+      "total_two_nights": 310.89,
+      "room": "Single Bed in Mixed Dorm (10-Bed)",
+      "rate": 142,
+      "checkin": "2026-11-11",
+      "checkout": "2026-11-13",
+      "adults": 1,
+      "nights": 2,
+      "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-11&nrNights=2&nrAdults=1&amount=1"
+    },
+    {
+      "price": 155.445,
+      "total_two_nights": 310.89,
+      "room": "Single Bed in Mixed Dorm (10-Bed)",
+      "rate": 142,
+      "checkin": "2026-11-12",
+      "checkout": "2026-11-14",
+      "adults": 1,
+      "nights": 2,
+      "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-12&nrNights=2&nrAdults=1&amount=1"
+    },
+    {
+      "price": null,
+      "checkin": "2026-11-13",
+      "checkout": "2026-11-15",
+      "adults": 1,
+      "nights": 2,
+      "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-13&nrNights=2&nrAdults=1&amount=1"
+    },
+    {
+      "price": null,
+      "checkin": "2026-11-14",
+      "checkout": "2026-11-16",
+      "adults": 1,
+      "nights": 2,
+      "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-14&nrNights=2&nrAdults=1&amount=1"
+    },
+    {
+      "price": 147.37,
+      "total_two_nights": 294.74,
+      "room": "Queen Bed in Mixed Dorm (32-Bed)",
+      "rate": 142,
+      "checkin": "2026-11-15",
+      "checkout": "2026-11-17",
+      "adults": 1,
+      "nights": 2,
+      "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-15&nrNights=2&nrAdults=1&amount=1"
+    }
+  ]
+}

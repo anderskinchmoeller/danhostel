@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% set page = "results" %}
+{% block title %}Model mod faktiske tal · Prismotor{% endblock %}
+{% macro number(value) %}{{ ('%.2f'|format(value)).replace('.', ',') if value is not none else 'Mangler' }}{% endmacro %}
+{% macro pvalue(value) %}{% if value is none %}Ikke beregnet{% elif value < 0.001 %}&lt;0,001{% else %}{{ ('%.3f'|format(value)).replace('.', ',') }}{% endif %}{% endmacro %}
+{% block body %}
+<h1>Model mod faktiske tal</h1>
+<p><a href="/resultater">← Resultatlog</a> · <a href="/resultater/prognoser">Prognoser og intervaldækning</a> · <a href="/resultater/oekonomi">Økonomi</a></p>
+<p>Forskel = prognose minus faktisk resultat. Over nul betyder, at modellen forventede for meget; under nul, at den forventede for lidt.</p>
+<form method="get" class="panel">
+<div class="grid2">
+<div class="field"><label for="source">Datagrundlag</label><select id="source" name="source">
+<option value="live" {{ 'selected' if source=='live' }}>Ny drift · gemt før opholdet</option>
+<option value="historical" {{ 'selected' if source=='historical' }}>Historisk test · 2025</option></select></div>
+<div class="field"><label for="measure">Tal der sammenlignes</label><select id="measure" name="measure">{% for key,label in measures.items() %}<option value="{{ key }}" {{ 'selected' if measure==key }}>{{ label[0] }}</option>{% endfor %}</select></div>
+<div class="field"><label for="lead">Prognose gemt</label><select id="lead" name="lead">{% for horizon in horizons %}<option value="{{ horizon }}" {{ 'selected' if lead==horizon }}>{{ horizon }} dage før opholdet</option>{% endfor %}</select></div>
+<div class="field"><label>Fra opholdsdato <input type="date" name="start" value="{{ start }}"></label><label>Til opholdsdato <input type="date" name="end" value="{{ end }}"></label></div>
+</div><button class="primary" type="submit">Vis graf og statistik</button>
+<p class="foot"><a href="/resultater/afvigelser?source=live&amp;measure={{ measure }}&amp;lead={{ lead }}">Skift til ny drift med standardperiode</a> ·
+<a href="/resultater/afvigelser?source=historical&amp;measure={{ measure }}&amp;lead={{ lead }}">Skift til historisk test med standardperiode</a>.
+Ny drift bruger datoer med gemte prognoser og bekræftede afsluttede resultater.</p>
+</form>
+{% if source=='historical' %}<div class="msg info" style="margin-top:16px"><b>Historisk test.</b> Trænet på 2024 og testet på afsluttede datoer i 2025. Denne graf viser ikke nye driftsresultater eller en målt prisgevinst.</div>{% else %}<div class="msg info" style="margin-top:16px"><b>Ny drift.</b> Kun prognoser gemt før opholdet sammenlignes med bekræftede endelige resultater. Ingen efterfølgende rekonstruktion af manglende prognoser.</div>{% endif %}
+{% if measure=='revenue' %}<div class="msg info"><b>Omsætning kræver samme grundlag.</b> Prognose og faktisk logi skal være eksklusive moms og morgenmad.
+{% if settings.raw.get('validation', {}).get('price_vat_basis') == 'incl_25' and settings.raw.get('validation', {}).get('accommodation_only_confirmed') %}
+Modelpriserne er bekræftet inklusive 25 % moms og uden morgenmad. Nye prognoser omregnes derfor ved at dividere med 1,25.
+Dashboardets RevPAB har prisernes momsgrundlag; denne sammenligning bruger logi eksklusive moms.
+{% else %}Moms-/morgenmadsgrundlaget for modellens priser er endnu ikke fuldt bekræftet.{% endif %}
+Prognoserne gemmes fra nye beregninger med deres daværende forudsætninger;
+ukendt momsgrundlag, blandede bogførte beløb eller uafklarede pakker spærrer sammenligningen. Ældre skøn omregnes ikke stiltiende.
+Historikken indeholder ikke en omsætningstest. {{ pending }} afsluttede økonomimålinger mangler et sammenligneligt grundlag.</div>{% endif %}
+<div class="panel" style="margin-top:16px">
+<h2>Afvigelse pr. opholdsdato · {{ measures[measure][0] }} · {{ lead }} dage før</h2>
+{% if chart %}
+<svg viewBox="0 0 930 320" role="img" aria-labelledby="chart-title chart-description" style="width:100%;height:auto;min-width:280px;max-height:440px">
+<title id="chart-title">Forskel mellem prognose og faktisk {{ measures[measure][0] }}</title>
+<desc id="chart-description">{{ summary.n }} opholdsdatoer. Nul betyder korrekt prognose. Orange over nul er for høj prognose, blå under nul er for lav prognose. De præcise tal findes også i tabellen nedenfor.</desc>
+{% for tick in chart.ticks %}<line x1="70" x2="870" y1="{{ tick.y }}" y2="{{ tick.y }}" stroke="currentColor" opacity="0.12"/><text x="60" y="{{ tick.y+4 }}" text-anchor="end" fill="currentColor" font-size="12">{{ number(tick.value) }}</text>{% endfor %}
+<line x1="70" x2="870" y1="{{ chart.zero }}" y2="{{ chart.zero }}" stroke="currentColor" opacity="0.8" stroke-dasharray="5 4"/>
+{% for point in chart.points %}<g><title>{{ point.day }} · Model {{ number(point.forecast) }} · Faktisk {{ number(point.actual) }} · Forskel {{ number(point.error) }} {{ measures[measure][1] }}</title>
+<line x1="{{ point.x }}" x2="{{ point.x }}" y1="{{ chart.zero }}" y2="{{ point.y }}" stroke="{{ '#fbad55' if point.positive else '#65bfff' }}" stroke-width="2"/>
+<circle cx="{{ point.x }}" cy="{{ point.y }}" r="3" fill="{{ '#fbad55' if point.positive else '#65bfff' }}"/></g>{% endfor %}
+<text x="70" y="295" fill="currentColor" font-size="12">{{ chart.first }}</text><text x="870" y="295" fill="currentColor" font-size="12" text-anchor="end">{{ chart.last }}</text>
+</svg>
+<p class="foot">En markering pr. opholdsdato. Peg på en markering for model, faktisk tal og forskel. Manglende datoer er ikke nul.</p>
+{% else %}<p><b>Ingen sammenlignelige datoer i dette udvalg endnu.</b> Importér og bekræft afsluttede resultater, og vælg en periode med prognoser gemt før opholdet.</p>
+{% if source=='live' %}<p><a href="/resultater/afvigelser?source=historical&amp;measure=rum&amp;lead=7">Se den eksisterende historiske graf for værelser</a></p>{% endif %}
+{% endif %}
+</div>
+<div class="panel" style="margin-top:16px">
+<h2>Hvor stor er fejlen?</h2>
+<p>{{ summary.n }} datoer · enhed: {{ measures[measure][1] }}. {{ summary.n_baseline }} datoer har også en enkel reference.</p>
+<table><thead><tr><th>Typisk fejl (MAE)</th><th>Store fejl vægtes højere (RMSE)</th><th>Gennemsnitlig skævhed</th><th>Referencefejl på parrede datoer</th><th>Dækning af 80 %-interval</th></tr></thead>
+<tbody><tr><td>{{ number(summary.mae) }}</td><td>{{ number(summary.rmse) }}</td><td>{{ number(summary.bias.mean) }}</td><td>{{ number(summary.baseline_mae) }}</td><td>{{ ('%.0f%%'|format(summary.coverage80*100)) if summary.coverage80 is not none else 'Mangler' }}</td></tr></tbody></table>
+<p>MAE er gennemsnitlig absolut fejl. Skævhed omkring nul kan godt skjule store positive og negative fejl; se derfor begge tal.
+Referencen er historisk gennemsnit på samme ugedag og i samme måned, beregnet uden facit fra testperioden. For omsætning mangler endnu en fast reference.</p>
+</div>
+<div class="panel" style="margin-top:16px">
+<h2>Statistisk støtte · ikke en godkendelse af modellen</h2>
+<div class="wrapx"><table><thead><tr><th>Spørgsmål</th><th>Forskel</th><th>Tilnærmet 95 %-interval</th><th>P-værdi</th><th>Korrigeret p-værdi</th></tr></thead><tbody>
+{% for key,label in [('bias','Rammer modellen systematisk for højt eller lavt?'),('advantage','Er modellen mere præcis end referencen?')] %}{% set test=summary[key] %}
+<tr><td>{{ label }}</td><td>{{ number(test.mean) }}</td><td>{% if test.ci %}[{{ number(test.ci[0]) }}; {{ number(test.ci[1]) }}]{% else %}{{ test.reason }}{% endif %}</td><td>{{ pvalue(test.p) }}</td><td>{{ pvalue(test.get('adjusted_p')) }}</td></tr>{% endfor %}
+</tbody></table></div>
+<p>For referencefordelen betyder et positivt tal færre fejl for modellen; negativt betyder flere fejl. Sammenligningen bruger præcis de samme datoer for model og reference.
+En lille p-værdi handler om uforenelighed med nul forskel under testens antagelser. Den fortæller ikke sandsynligheden for, at modellen er rigtig.
+En stor p-værdi beviser ikke, at modellen er præcis. Se altid fejlens størrelse, retning og interval sammen.</p>
+<details><summary>Metode og begrænsninger</summary>
+<p>To-sidet, tilnærmet normaltest af gennemsnitlig fejl og forskel i absolut fejl. Newey–West/HAC med Bartlett-vægte tager højde for afhængighed op til max(7, horisont−1) kalenderdage.
+Faktiske datoafstande bruges; huller tæller ikke som nye observationer. Mindst 60 datoer og 8 kalenderblokke kræves. Ingen test ved manglende variation. Det er en praktisk grænse, ikke garanti for tilstrækkeligt datagrundlag.</p>
+<p>Holm-korrektion bruger en på forhånd fastlagt familie på 24 test: 3 målinger × 4 horisonter × 2 spørgsmål inden for samme datakilde og valgte periode. Manglende test tælles med konservativt.
+95 %-intervallerne er punktvise, ikke korrigeret for alle test. Resultater på skiftende perioder og gentagne kig kræver yderligere forsigtighed; dette er ikke en sekventiel beslutningsregel.
+Grupper, sæsoner og ændret kapacitet kan give længere afhængighed, som denne korrektion ikke fjerner.</p>
+<p>God prognosepræcision dokumenterer ikke, at prisændringer øger indtjeningen. Det kræver et særskilt sammenligneligt prisforsøg med faktisk anvendte priser og økonomi.</p>
+<p><a href="https://www.amstat.org/asa/files/pdfs/P-ValueStatement.pdf" target="_blank" rel="noopener">ASA om fortolkning af p-værdier</a> · <a href="https://www.itl.nist.gov/div898/handbook/eda/section3/eda35c.htm" target="_blank" rel="noopener">NIST om tidsafhængighed</a></p>
+</details>
+</div>
+<details class="panel" style="margin-top:16px"><summary>Se tallene bag grafen</summary>
+<p><a href="/resultater/afvigelser.csv?source={{ source }}&amp;start={{ start }}&amp;end={{ end }}&amp;measure={{ measure }}&amp;lead={{ lead }}">Hent som CSV</a></p>
+<div class="wrapx"><table><thead><tr><th>Opholdsdato</th><th>Model</th><th>Faktisk</th><th>Forskel</th><th>Reference</th></tr></thead><tbody>
+{% for row in rows %}<tr><td>{{ row.day }}</td><td>{{ number(row.forecast) }}</td><td>{{ number(row.actual) }}</td><td>{{ number(row.forecast-row.actual) }}</td><td>{{ number(row.get('baseline')) }}</td></tr>{% else %}<tr><td colspan="5">Ingen målinger i udvalget.</td></tr>{% endfor %}
+</tbody></table></div></details>
+<script>
+document.getElementById('source').addEventListener('change', function () {
+  this.form.elements.start.value = '';
+  this.form.elements.end.value = '';
+});
+</script>
+{% endblock %}

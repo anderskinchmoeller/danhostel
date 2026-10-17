@@ -1,0 +1,158 @@
+{
+  "run": {
+    "status": "done",
+    "run_id": 35,
+    "n_days": 121,
+    "quality_index": 1.000445,
+    "avg_revpab": 92.6627554184661,
+    "notes": [
+      "Belægning: Ingen indbakke konfigureret — brug upload i dashboardet",
+      "Konkurrentpriser: Manuel rate shopping: upload konkurrentpriser i dashboardet"
+    ]
+  },
+  "learning": {
+    "rooms": 1.1173,
+    "beds": 0.7409,
+    "updated": "2026-10-16",
+    "history": [
+      {
+        "dato": "2026-10-03",
+        "rum": {
+          "fra": 1.0,
+          "til": 1.0058,
+          "hvorfor": "faktisk/forventet 1.09 over 120 forventede enheder"
+        },
+        "senge": {
+          "fra": 1.0,
+          "til": 0.979,
+          "hvorfor": "faktisk/forventet 0.74 over 50 forventede enheder"
+        }
+      },
+      {
+        "dato": "2026-10-04",
+        "rum": {
+          "fra": 1.0058,
+          "til": 1.013,
+          "hvorfor": "faktisk/forventet 1.11 over 118 forventede enheder"
+        },
+        "senge": {
+          "fra": 0.979,
+          "til": 0.9664,
+          "hvorfor": "faktisk/forventet 0.83 over 45 forventede enheder"
+        }
+      },
+      {
+        "dato": "2026-10-05",
+        "rum": {
+          "fra": 1.013,
+          "til": 1.0366,
+          "hvorfor": "faktisk/forventet 1.39 over 242 forventede enheder"
+        },
+        "senge": {
+          "fra": 0.9664,
+          "til": 0.9454,
+          "hvorfor": "faktisk/forventet 0.73 over 52 forventede enheder"
+        }
+      },
+      {
+        "dato": "2026-10-08",
+        "rum": {
+          "fra": 1.0366,
+          "til": 1.0594,
+          "hvorfor": "faktisk/forventet 1.36 over 192 forventede enheder"
+        },
+        "senge": {
+          "fra": 0.9454,
+          "til": 0.9137,
+          "hvorfor": "faktisk/forventet 0.61 over 46 forventede enheder"
+        }
+      },
+      {
+        "dato": "2026-10-09",
+        "rum": {
+          "fra": 1.0594,
+          "til": 1.0807,
+          "hvorfor": "faktisk/forventet 1.33 over 193 forventede enheder"
+        },
+        "senge": {
+          "fra": 0.9137,
+          "til": 0.8747,
+          "hvorfor": "faktisk/forventet 0.54 over 51 forventede enheder"
+        }
+      },
+      {
+        "dato": "2026-10-10",
+        "rum": {
+          "fra": 1.0807,
+          "til": 1.1138,
+          "hvorfor": "faktisk/forventet 1.54 over 212 forventede enheder"
+        },
+        "senge": {
+          "fra": 0.8747,
+          "til": 0.8529,
+          "hvorfor": "faktisk/forventet 0.70 over 49 forventede enheder"
+        }
+      },
+      {
+        "dato": "2026-10-15",
+        "rum": {
+          "fra": 1.1138,
+          "til": 1.122,
+          "hvorfor": "faktisk/forventet 1.11 over 116 forventede enheder"
+        },
+        "senge": {
+          "fra": 0.8529,
+          "til": 0.7939,
+          "hvorfor": "faktisk/forventet 0.36 over 60 forventede enheder"
+        }
+      },
+      {
+        "dato": "2026-10-16",
+        "rum": {
+          "fra": 1.122,
+          "til": 1.1173,
+          "hvorfor": "faktisk/forventet 0.94 over 101 forventede enheder"
+        },
+        "senge": {
+          "fra": 0.7939,
+          "til": 0.7409,
+          "hvorfor": "faktisk/forventet 0.37 over 58 forventede enheder"
+        }
+      }
+    ]
+  },
+  "market_snapshot": "2026-10-15",
+  "prices": [
+    {
+      "day": "2026-10-16",
+      "room": 680.0,
+      "bed": 320.0,
+      "forecast_rooms": 46.8217121616515,
+      "forecast_beds": 4.185673723777834,
+      "room_bid_sales": 3.55,
+      "status": "pending",
+      "warnings": "Ankomstdag: resterende salg er et skøn fra historisk dags-pickup, fordelt jævnt frem til midnat; bookingtidspunkter mangler · Flex er et dagsforslag: kontrollér konkrete rum og alle opholdsnætter i Picasso · Ingen konkurrentpris på senge — F_marked sat til 1,000 · Stige værelse: Trin op 3 → 4, drevet mest af prognose (+0.59) · Stige seng: Trin op 1 → 3, knaphed/gulv på stigen · RevPAB er et skøn: mangler bekræftet typemiks eller bogført værelses-/sengeomsætning"
+    },
+    {
+      "day": "2026-10-17",
+      "room": 700.0,
+      "bed": 330.0,
+      "forecast_rooms": 38.69778094462541,
+      "forecast_beds": 4.209560344827587,
+      "room_bid_sales": 5.1,
+      "status": "pending",
+      "warnings": "Flex er et dagsforslag: kontrollér konkrete rum og alle opholdsnætter i Picasso · Ingen konkurrentpris på senge — F_marked sat til 1,000 · Stige værelse: Trin op 2 → 4, drevet mest af marked (+0.43) · Stige seng: Trin op 1 → 3, knaphed/gulv på stigen · Ændringsbremse på sengepris: 350 → 330 kr. · RevPAB er et skøn: mangler bekræftet typemiks eller bogført værelses-/sengeomsætning"
+    },
+    {
+      "day": "2026-10-18",
+      "room": 530.0,
+      "bed": 250.0,
+      "forecast_rooms": 8.678031088082903,
+      "forecast_beds": 5.7289180327868845,
+      "room_bid_sales": 3.28,
+      "status": "pending",
+      "warnings": "Flex er et dagsforslag: kontrollér konkrete rum og alle opholdsnætter i Picasso · Stige værelse: Trin ned 6 → 5, drevet mest af prognose (-1.00) · Stige værelse: Eksploration: trin 5 valgt tilfældigt mellem to lige gode trin — bidrager til elasticitetsmålingen · Stige seng: Trin ned 3 → 2, drevet mest af marked (-1.00) · Ændringsbremse på værelsespris: 490 → 530 kr. · Ændringsbremse på sengepris: 230 → 250 kr. · RevPAB er et skøn: mangler bekræftet typemiks eller bogført værelses-/sengeomsætning · Værelser langt under mål — kampagne virker bedre end prisfald alene"
+    }
+  ],
+  "stale_market_dates": 82
+}

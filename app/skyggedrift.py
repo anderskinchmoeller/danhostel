@@ -22,6 +22,7 @@ import argparse
 import csv
 from dataclasses import replace
 from datetime import date, timedelta
+from pathlib import Path
 
 from sqlalchemy import select
 
@@ -47,7 +48,8 @@ def compare(settings, today: date | None = None) -> list[dict]:
         params = service.effective_params(session, settings)
         events = service.load_events(session)
         inputs = service.build_inputs(states, settings)
-        inputs = service.with_ladder_history(session, inputs, today, current_run_id=-1)
+        inputs = service.with_ladder_history(session, inputs, today, current_run_id=-1,
+                                             timezone=settings.timezone)
     finally:
         session.close()
 
@@ -57,13 +59,22 @@ def compare(settings, today: date | None = None) -> list[dict]:
             "og byg fordelingen med:\n"
             "  python -m app.cube && python -m app.demand")
 
+    return compare_inputs(params, inputs, events, today)
+
+
+def compare_inputs(params, inputs, events, today, recommendations=None) -> list[dict]:
+    """Compare the exact inputs/parameters of a pricing run, without new learning."""
     p4 = params
     p5 = replace(params, v4=replace(params.v4, elasticity_measured=True))
+    actual = {r.day: r for r in recommendations} if recommendations is not None else None
+    events = list(events)
 
     rows = []
     for item in inputs:
         try:
-            a = price_day(item, p4, events, today=today)
+            a = actual.get(item.day) if actual is not None else price_day(item, p4, events, today=today)
+            if a is None:
+                continue
             b = price_day(item, p5, events, today=today)
         except ValueError:
             continue    # fastfrosne datoer håndteres af kørslen selv
@@ -129,13 +140,15 @@ def main(argv: list[str] | None = None) -> int:
         print("det er den eneste måde de fire uger bliver til viden.")
 
     if args.csv:
-        with open(args.csv, "w", newline="", encoding="utf-8-sig") as fh:
+        csv_path = Path(args.csv).expanduser()
+        csv_path.parent.mkdir(parents=True, exist_ok=True)
+        with csv_path.open("w", newline="", encoding="utf-8-sig") as fh:
             writer = csv.DictWriter(fh, fieldnames=list(rows[0]), delimiter=";")
             writer.writeheader()
             for r in rows:
                 writer.writerow({k: (str(v).replace(".", ",") if isinstance(v, float) else v)
                                  for k, v in r.items()})
-        print(f"\nSkrevet til {args.csv}")
+        print(f"\nSkrevet til {csv_path}")
     return 0
 
 

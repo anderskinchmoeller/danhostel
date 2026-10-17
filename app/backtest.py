@@ -34,10 +34,10 @@ from . import bidprice, cube, demand
 from .config import load_settings
 from .engine import DayInput, price_day
 
-LEADS = (0, 3, 7, 14, 21, 30, 45, 60, 90, 120)
+LEADS = (0, 1, 3, 7, 14, 21, 30, 45, 60, 90, 120)
 
 
-def forecast_comparison(rows, models, *, leads=LEADS) -> list:
+def forecast_comparison(rows, models, *, leads=LEADS, capacity=float("inf")) -> list:
     """Prognosepræcision pr. lead time. Ingen antagelser om priser."""
     by_lead = {lead: {"v4": [], "inside": 0, "n": 0} for lead in leads}
     for row in rows:
@@ -48,9 +48,9 @@ def forecast_comparison(rows, models, *, leads=LEADS) -> list:
         actual = row["endelig_rum"]
         otb = row["otb_rum"]
 
-        v4 = otb + models["rum"].expected(lead, day)
-        low = otb + models["rum"].quantile(0.10, lead, day)
-        high = otb + models["rum"].quantile(0.90, lead, day)
+        forecast = demand.sales_forecast(models["rum"], otb, lead, day, capacity)
+        v4 = forecast["forecast"]
+        low, high = forecast["intervals"]["80"]
 
         bucket = by_lead[lead]
         bucket["v4"].append(abs(v4 - actual))
@@ -133,7 +133,8 @@ def main(argv: list[str] | None = None) -> int:
     settings = load_settings()
     base_params = settings.params
     v4cfg = replace(base_params.v4 or bidprice.V4Config(), enabled=True)
-    p4 = replace(base_params, v4=v4cfg, demand_models=models)
+    p4 = replace(base_params, v4=v4cfg, demand_models=models,
+                 demand_level=(1.0, 1.0) if args.ud_af_stikproeve else base_params.demand_level)
     p5 = replace(p4, v4=replace(v4cfg, elasticity_measured=True))
     if not p4.v4_active:
         print("Version 4 kunne ikke aktiveres — mangler stigen eller modelfilen")
@@ -141,7 +142,7 @@ def main(argv: list[str] | None = None) -> int:
 
     print("PROGNOSEPRÆCISION — værelser, i enheder. Ingen antagelser om priser.")
     print(f"{'lead':>5}{'n':>8}{'v4 MAE':>9}{'dækning 80 %':>14}")
-    for line in forecast_comparison(rows, models):
+    for line in forecast_comparison(rows, models, capacity=base_params.inventory.max_room_capacity):
         print(f"{line['lead']:>5}{line['n']:>8}{line['v4_mae']:>9.1f}"
               f"{line['daekning_80']:>14.0%}")
     print("# Dækning tæt på 80 % betyder at fordelingen har den rigtige bredde.")

@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% set page = "results" %}
+{% block title %}Resultater · Prismotor{% endblock %}
+{% block body %}
+<h1>Resultatlog</h1>
+<p><a href="/resultater/afvigelser">Se graf: model mod faktiske tal og statistik →</a></p>
+<p><a href="/resultater/prognoser">Se prognosernes præcision og historisk validering →</a></p>
+<p><a href="/resultater/oekonomi">Se økonomi, datamangler og Picasso-vejledning →</a></p>
+<p class="sub">Følg prisforslag, priser lagt ind i Picasso og det efterfølgende salg.
+Godkendelse og download er ikke en bekræftelse af, at priserne er lagt ind.</p>
+{% if message %}<div class="msg ok">{{ message }}</div>{% endif %}
+{% if error %}<div class="msg err">{{ error }}</div>{% endif %}
+
+<div class="panel" style="margin-bottom:16px">
+<h2>Importér afsluttet dagsresultat</h2>
+<p>Upload to PDF’er for samme afsluttede opholdsdato: Hotelmanager (part 1 og part 2 med Room/Bed)
+og produktomsætning opdelt pr. rumtype. Du får en kontrolside før tallene registreres som faktiske resultater.</p>
+<form method="post" action="/resultater/rapporter" enctype="multipart/form-data">
+<div class="grid2">
+<div class="field"><label for="hotelmanager">Hotelmanager-PDF</label><input id="hotelmanager" type="file" name="hotelmanager" accept=".pdf" required></div>
+<div class="field"><label for="products">Produktomsætnings-PDF</label><input id="products" type="file" name="products" accept=".pdf" required></div>
+</div><button class="primary" type="submit">Indlæs og kontrollér dagsresultat</button>
+</form>
+<p class="foot">Eksklusive moms; produktudtræk med Overnight og Confirmed, Guaranteed, In-House, Out of House.
+Fjern venteliste, tentative, provisional, annullerede og no-show. Morgenmad kontrolleres på næste side.
+Accounts-rapporten er valgfri til yderligere afstemning.</p>
+{% if report_pairs %}<details><summary>Seneste rapportpar til kontrol</summary><ul>
+{% for pair in report_pairs %}<li><a href="/resultater/rapporter/{{ pair.id }}">{{ pair.day.strftime('%d-%m-%Y') }} · rapportpar {{ pair.id }}</a> · {{ pair.actor }}</li>{% endfor %}
+</ul></details>{% endif %}
+</div>
+
+<div class="panel">
+  <h2 style="margin-top:0">Upload Arrivals fra Picasso</h2>
+  <p>Brug samme Arrivals / Rooms spec.-PDF som under Data. Udskriftstidspunktet,
+  belægningen, rumtyperne og rapportens reservationsbeløb gemmes som historik.
+  Original-PDF’en bevares, og genindlæsning af samme PDF giver ingen dubletter.</p>
+  <form method="post" action="/data/upload" enctype="multipart/form-data">
+    <input type="hidden" name="kind" value="inventory">
+    <input type="hidden" name="return_to" value="resultater">
+    <div class="field"><label for="arrivals">Arrivals-PDF</label>
+      <input id="arrivals" type="file" name="file" accept=".pdf" required></div>
+    <button class="primary" type="submit">Indlæs PDF og gem historik</button>
+  </form>
+  <p class="foot">PDF’en viser reservationsbeløb, ikke nødvendigvis den offentlige salgspris.
+  Beløb fordelt over opholdsnætterne er et skøn. Manglende provision, omkostninger,
+  nye bookinger, annulleringer og endelige resultater udfyldes ikke automatisk.
+  Brug en rapport, der starter mindst 30 dage tilbage, med In-House slået til.</p>
+</div>
+
+<details class="panel" style="margin-top:16px">
+<summary><b>Bekræft priser, du har lagt ind</b></summary>
+<p>Arrivals dokumenterer ikke, hvornår du ændrede salgsprisen. Registrér det her,
+når du har lagt den ind. Normalprisen er den pris, du ellers ville have valgt.</p>
+<form method="post" action="/resultater/registrer">
+<input type="hidden" name="kind" value="applied">
+<div class="grid2">
+  <div class="field"><label for="applied_day">Opholdsdato</label><input id="applied_day" type="date" name="day" value="{{ today }}" required></div>
+  <div class="field"><label for="applied_time">Lagt ind i Picasso (lokal tid)</label><input id="applied_time" type="datetime-local" step="1" name="observed_at" value="{{ now }}" required></div>
+  <div class="field"><label for="run">Sammenhold med prisforslag</label><select id="run" name="run_id">
+    <option value="">Ingen valgt beregning</option>
+    {% for run in runs %}<option value="{{ run.id }}" {% if loop.first %}selected{% endif %}>Beregning {{ run.id }} · {{ time_local(run.started) }}</option>{% endfor %}
+  </select></div>
+  <div></div>
+  {% for key, label in [('baseline_room','Normal værelsespris (D2)'),('baseline_bed','Normal sengepris'),('applied_room','Værelsespris lagt ind (D2)'),('applied_bed','Sengepris lagt ind')] %}
+  <div class="field"><label for="{{ key }}">{{ label }} · kr.</label><input id="{{ key }}" type="number" step="0.01" min="0.01" name="{{ key }}"></div>
+  {% endfor %}
+</div>
+<div class="field"><label for="applied_note">Begrundelse / manuel ændring</label><textarea id="applied_note" name="note" rows="2"></textarea></div>
+<button class="primary" type="submit">Registrér som lagt ind</button>
+</form>
+</details>
+
+<details class="panel" style="margin-top:16px">
+<summary><b>Supplér med faktiske resultater</b></summary>
+<p>Udfyld kun tal, du har fra Picasso eller regnskabet. Tom betyder ukendt; nul
+betyder, at tallet er kontrolleret til nul. Beløbene skal bruge samme momsgrundlag.</p>
+<form method="post" action="/resultater/registrer">
+<input type="hidden" name="kind" value="outcome">
+<div class="grid2">
+  <div class="field"><label for="outcome_day">Opholdsdato</label><input id="outcome_day" type="date" name="day" required></div>
+  <div class="field"><label for="outcome_time">Opgjort pr. (lokal tid)</label><input id="outcome_time" type="datetime-local" step="1" name="observed_at" value="{{ now }}" required></div>
+  {% for key, label in [('window_start','Bookingperiode fra'),('window_end','Bookingperiode til')] %}
+  <div class="field"><label for="{{ key }}">{{ label }}</label><input id="{{ key }}" type="datetime-local" step="1" name="{{ key }}"></div>{% endfor %}
+  {% for key, label in [('new_rooms','Nye værelsesenheder i perioden'),('new_beds','Nye sengeenheder i perioden'),('cancelled_rooms','Annullerede værelsesenheder i perioden'),('cancelled_beds','Annullerede sengeenheder i perioden'),('final_rooms','Endeligt solgte værelsesenheder'),('final_beds','Endeligt solgte sengeenheder'),('group_rooms','Heraf værelser til grupper'),('group_beds','Heraf senge til grupper'),('blocked_rooms','Blokerede værelser'),('blocked_beds','Blokerede senge'),('available_beds','Faktisk tilgængelige senge i hele huset')] %}
+  <div class="field"><label for="{{ key }}">{{ label }}</label><input id="{{ key }}" type="number" step="1" min="0" name="{{ key }}"></div>{% endfor %}
+  {% for key, label in [('room_revenue','Faktisk logiomsætning fra hele værelser'),('bed_revenue','Faktisk logiomsætning fra senge'),('commission','Faktisk provision i alt'),('variable_cost','Faktiske variable omkostninger i alt')] %}
+  <div class="field"><label for="{{ key }}">{{ label }} · kr.</label><input id="{{ key }}" type="number" step="0.01" name="{{ key }}"></div>{% endfor %}
+</div>
+<div class="field"><label for="events">Events på datoen</label><input id="events" name="events"></div>
+<div class="field"><label for="outcome_note">Noter / rettelse til tidligere registrering</label><textarea id="outcome_note" name="note" rows="2"></textarea></div>
+<div class="field"><label><input type="checkbox" name="final" value="ja"> Datoen er afsluttet, og salgstallene er endelige (omsætning kan tilføjes senere)</label></div>
+<button class="primary" type="submit">Gem faktisk resultat</button>
+</form>
+<p class="foot">Dækningsbidrag beregnes kun fra afsluttede resultater med begge
+omsætningstal, provision og variable omkostninger. Der bruges ingen standardsatser.</p>
+</details>
+
+<details class="panel" style="margin-top:16px">
+<summary>Valgfri CSV-import af supplerende oplysninger</summary>
+<p><a href="/resultater/skabelon.csv?kind=applied">Priser lagt ind · CSV-skabelon</a> ·
+<a href="/resultater/skabelon.csv?kind=outcome">Faktiske resultater · CSV-skabelon</a></p>
+<form method="post" action="/resultater/import" enctype="multipart/form-data">
+  <div class="field"><label for="import_kind">Oplysninger i filen</label><select id="import_kind" name="kind"><option value="applied">Priser lagt ind</option><option value="outcome">Faktiske resultater</option></select></div>
+  <div class="field"><label for="csv_file">CSV-fil</label><input id="csv_file" type="file" name="file" accept=".csv,.txt" required></div>
+  <button type="submit">Importér supplerende oplysninger</button>
+</form>
+</details>
+
+<h2>Prisforslag og registreret resultat</h2>
+<form class="bar" method="get" action="/resultater">
+  <label>Fra <input type="date" name="start" value="{{ start }}"></label>
+  <label>Til <input type="date" name="end" value="{{ end }}"></label>
+  <button type="submit">Vis periode</button>
+  <a class="btn" href="/resultater/export.csv?start={{ start }}&amp;end={{ end }}">Hent resultatlog som CSV</a>
+  <a class="btn" href="/resultater/historik.csv?start={{ start }}&amp;end={{ end }}">Hent hele historikken</a>
+</form>
+<div class="wrapx"><table>
+<thead><tr><th>Dato</th><th>Model · D2 / seng</th><th>Normalpris</th><th>Lagt ind</th><th>Seneste PDF · værelser / senge</th><th>PDF-beløb fordelt pr. nat</th><th>Endeligt solgt</th><th>Dækningsbidrag</th><th>Historik</th></tr></thead>
+<tbody>
+{% macro price(value) %}{% if value is not none %}{{ '%.2f'|format(value) }}{% else %}—{% endif %}{% endmacro %}
+{% for row in rows %}
+{% set a = row.get('applied', {}).get('data', {}) %}
+{% set o = row.get('outcome', {}).get('data', {}) %}
+{% set pdf = row.get('pdf', {}) %}
+<tr>
+  <td style="white-space:nowrap">{{ row.day.strftime('%d-%m-%Y') }}</td>
+  <td>{% if a and a.get('model_room') is not none %}{{ price(a.get('model_room')) }} / {{ price(a.get('model_bed')) }}<br><small>Beregning {{ row.applied.record.run_id }}</small>{% elif row.rec %}{{ price(row.rec.room_price) }} / {{ price(row.rec.bed_price) }}<br><small>Seneste forslag · {{ row.rec.run_id }}</small>{% else %}—{% endif %}</td>
+  <td>{{ price(a.get('baseline_room')) }} / {{ price(a.get('baseline_bed')) }}</td>
+  <td>{% if a %}{{ price(a.get('applied_room')) }} / {{ price(a.get('applied_bed')) }}<br><small>{{ time_local(row.applied.record.observed_at) }}</small>{% else %}<span class="tag pending">Ikke registreret</span>{% endif %}</td>
+  <td>{% if pdf %}{{ pdf.data.rooms_otb }} / {{ pdf.data.beds_otb }}<br><small>{{ time_local(pdf.record.observed_at) }}</small>{% else %}—{% endif %}</td>
+  <td>{% if pdf %}{{ price(pdf.data.reservation_amount_allocated) }}<br><small>Reservationsbeløb · skøn</small>{% else %}—{% endif %}</td>
+  <td>{% if o.get('final') %}{{ o.final_rooms }} / {{ o.final_beds }}{% else %}Ikke afsluttet{% endif %}</td>
+  <td>{{ price(row.contribution) }}{% if row.per_bed is not none %}<br><small>{{ price(row.per_bed) }} pr. tilgængelig seng</small>{% endif %}</td>
+  <td><details><summary>{{ row.history|length }} registreringer</summary>
+    {% for entry in row.history %}<div style="min-width:260px;margin:10px 0">
+    <b>{{ {'applied':'Priser meldt lagt ind','outcome':'Faktisk resultat','inventory':'Indlæst belægning','pdf':'Arrivals-PDF','report_pair':'Dagsrapporter til kontrol'}.get(entry.record.kind, entry.record.kind) }}</b><br>
+    {{ time_local(entry.record.observed_at) }} · {{ entry.record.source }} · {{ entry.record.actor }}
+    {% if entry.data.get('pdf_hash') %}<br><a href="/resultater/pdf/{{ entry.data.pdf_hash }}" target="_blank" rel="noopener">Se original Arrivals-PDF</a>{% endif %}
+    {% if entry.record.kind == 'report_pair' %}<br><a href="/resultater/rapporter/{{ entry.record.id }}">Se afstemning og kontrollér rapportpar</a>
+    {% else %}
+    {% if entry.data.get('result_report_id') %}<br><a href="/resultater/rapporter/{{ entry.data.result_report_id }}">Se kilder og afstemning</a>{% endif %}
+    {% if entry.data.get('revenue_report_id') and entry.data.get('revenue_report_id') != entry.data.get('result_report_id') %}<br><a href="/resultater/rapporter/{{ entry.data.revenue_report_id }}">Se rapportgrundlag for omsætning</a>{% endif %}
+    <dl>{% for key, value in entry.data.items() if value is not none and key not in ['pdf_hash','hotel_pdf_hash','product_pdf_hash','amounts_by_type'] %}<dt>{{ labels.get(key, key) }}</dt><dd style="margin-left:0">{{ value }}</dd>{% endfor %}</dl>{% endif %}
+    </div>{% endfor %}
+  </details></td>
+</tr>
+{% else %}<tr><td colspan="9">Ingen data i perioden endnu. Upload Arrivals-PDF’en for at begynde historikken.</td></tr>{% endfor %}
+</tbody></table></div>
+<p class="foot">Alle registreringer bevares med tidspunkt, kilde og bruger. Rettelser
+gemmes som nye registreringer. Ændring i belægning er netto og dokumenterer ikke
+antallet af nye bookinger og annulleringer hver for sig.</p>
+{% endblock %}

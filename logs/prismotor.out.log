@@ -73,3 +73,225 @@ INFO:     127.0.0.1:58296 - "GET / HTTP/1.1" 200 OK
 INFO:     127.0.0.1:58297 - "POST /decide HTTP/1.1" 303 See Other
 INFO:     127.0.0.1:58297 - "GET / HTTP/1.1" 200 OK
 INFO:     127.0.0.1:58297 - "GET /export.csv HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57714 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58321 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58321 - "GET /data HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58402 - "POST /data/upload HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:58402 - "GET /data?message=121%20datoer%20med%20bel%C3%A6gning%20importeret%20fra%20Arrivals_on_10-09-2026_to_07-02-202710.pdf%20%E2%80%94%20Ikke%20medregnet%3A%20194%20enheder%20p%C3%A5%20tentative/forel%C3%B8bige/venteliste-bookinger. HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58417 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58461 - "POST /run HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:58461 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58760 - "POST /decide HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:58760 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58760 - "GET /export.csv HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54343 - "GET / HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54352 - "GET / HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54355 - "GET / HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54361 - "GET / HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54416 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54416 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:54419 - "GET /data HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54424 - "POST /data/upload HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:54424 - "GET /data?message=121%20datoer%20med%20bel%C3%A6gning%20importeret%20fra%20Arrivals_on_15-08-2026_to_12-02-202710.pdf%20%E2%80%94%20Ikke%20medregnet%3A%20177%20enheder%20p%C3%A5%20tentative/forel%C3%B8bige/venteliste-bookinger. HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54424 - "GET /grupper HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54424 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54424 - "POST /run HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:54424 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54424 - "POST /decide HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:54424 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54424 - "GET /export.csv HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55696 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55720 - "GET /events HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55889 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56177 - "GET /events HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56177 - "GET /data HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56218 - "POST /data/upload HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:56218 - "GET /data?error=Mangler%20priskolonne.%20Forventede%20fx%3A%20dato%3Bmedianpris_vaerelse%3Bmedianpris_seng HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56597 - "POST /data/upload HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:56597 - "GET /data?message=32%20datoer%20med%20konkurrentpriser%20importeret%20fra%20konkurrentpriser_2026-10-15.csv HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56605 - "POST /data/upload HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:56605 - "GET /data?message=121%20datoer%20med%20bel%C3%A6gning%20importeret%20fra%20Arrivals_on_15-08-2026_to_12-02-202710.pdf%20%E2%80%94%20Ikke%20medregnet%3A%20177%20enheder%20p%C3%A5%20tentative/forel%C3%B8bige/venteliste-bookinger. HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56605 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56605 - "POST /run HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:56605 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56609 - "POST /decide HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:56609 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56609 - "GET /export.csv HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56765 - "GET /data HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56949 - "POST /data/upload HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:56949 - "GET /data?message=32%20datoer%20med%20konkurrentpriser%20importeret%20fra%20konkurrentpriser_2026-10-15.csv HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56954 - "POST /data/upload HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:56954 - "GET /data?message=121%20datoer%20med%20bel%C3%A6gning%20importeret%20fra%20Arrivals_on_15-08-2026_to_12-02-202710.pdf%20%E2%80%94%20Ikke%20medregnet%3A%20177%20enheder%20p%C3%A5%20tentative/forel%C3%B8bige/venteliste-bookinger. HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56954 - "GET /grupper HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56954 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56954 - "POST /run HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:56954 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56960 - "GET /export.csv HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56960 - "POST /decide HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:56960 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56960 - "GET /export.csv HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61444 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61454 - "GET /data HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61461 - "POST /data/upload HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:61461 - "GET /data?message=121%20datoer%20med%20bel%C3%A6gning%20importeret%20fra%20Arrivals_on_16-09-2026_to_13-02-202710.pdf%20%E2%80%94%20Ikke%20medregnet%3A%20178%20enheder%20p%C3%A5%20tentative/forel%C3%B8bige/venteliste-bookinger. HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61464 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61467 - "POST /decide HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:61467 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61467 - "GET /export.csv HTTP/1.1" 409 Conflict
+INFO:     127.0.0.1:61475 - "POST /run HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:61475 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61479 - "POST /decide HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:61479 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61482 - "GET /data HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61485 - "POST /data/upload HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:61485 - "GET /data?message=121%20datoer%20med%20bel%C3%A6gning%20importeret%20fra%20Arrivals_on_16-09-2026_to_13-02-202710.pdf%20%E2%80%94%20Ikke%20medregnet%3A%20178%20enheder%20p%C3%A5%20tentative/forel%C3%B8bige/venteliste-bookinger. HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61485 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61485 - "POST /run HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:61485 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61485 - "POST /decide HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:61485 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61485 - "GET /export.csv HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63070 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63164 - "GET / HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:63172 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63176 - "POST /decide HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:63176 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63179 - "GET /export.csv HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63447 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63448 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63450 - "GET /api/prices?days=120 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63585 - "GET / HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:63588 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63592 - "POST /decide HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:63592 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63599 - "GET /export.csv HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63656 - "GET /data HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63659 - "POST /data/upload HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:63659 - "GET /data?message=121%20datoer%20med%20bel%C3%A6gning%20importeret%20fra%20Arrivals_on_16-09-2026_to_13-02-202710.pdf%20%E2%80%94%20Ikke%20medregnet%3A%20178%20enheder%20p%C3%A5%20tentative/forel%C3%B8bige/venteliste-bookinger. HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63659 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63659 - "POST /run HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:63659 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63694 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64064 - "GET /export.csv HTTP/1.1" 409 Conflict
+INFO:     127.0.0.1:64072 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64109 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64113 - "POST /decide HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:64113 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64113 - "GET /export.csv HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65268 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65269 - "GET /resultater/export.csv HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65270 - "GET /resultater/historik.csv HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65464 - "GET /resultater?start=2026-10-16&end=2026-10-22 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49236 - "GET /resultater HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:49243 - "GET /events HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49243 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49294 - "GET /resultater/skabelon.csv?kind=applied HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49322 - "POST /data/upload HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:49322 - "GET /resultater?message=121%20datoer%20med%20bel%C3%A6gning%20importeret%20fra%20Arrivals_on_16-09-2026_to_13-02-202710.pdf%20%E2%80%94%20151%20nye%20PDF-observationer%20gemt%20i%20resultatloggen%20%E2%80%94%20Ikke%20medregnet%3A%20178%20enheder%20p%C3%A5%20tentative/forel%C3%B8bige/venteliste-bookinger. HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49346 - "GET /resultater/skabelon.csv?kind=outcome HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50060 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50062 - "POST /run HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:50063 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50064 - "GET /resultater/prognoser HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50065 - "GET /resultater/prognoser?segment=groups HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50066 - "GET /resultater/prognoser.csv HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50094 - "GET /resultater/prognoser HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:50607 - "GET /events HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50609 - "GET /events HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:50989 - "GET /resultater/oekonomi HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50990 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50991 - "GET /resultater/oekonomi HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:51098 - "GET /events HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51098 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51110 - "GET /resultater/oekonomi HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51174 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51175 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51176 - "GET /events HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51177 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51178 - "GET /resultater/prognoser HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51179 - "GET /resultater/oekonomi HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51420 - "GET /settings HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51442 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51447 - "GET /resultater/prognoser HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51456 - "GET /resultater/prognoser?segment=all HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51456 - "GET /resultater/prognoser.csv HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51475 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51478 - "POST /data/upload HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:51478 - "GET /resultater?message=121%20datoer%20med%20bel%C3%A6gning%20importeret%20fra%20Arrivals_on_16-09-2026_to_13-02-202710.pdf%20%E2%80%94%200%20nye%20PDF-observationer%20gemt%20i%20resultatloggen%20%E2%80%94%20Ikke%20medregnet%3A%20178%20enheder%20p%C3%A5%20tentative/forel%C3%B8bige/venteliste-bookinger. HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51533 - "GET /resultater/oekonomi HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51552 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51571 - "GET /resultater/skabelon.csv?kind=applied HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51587 - "GET /resultater/skabelon.csv?kind=outcome HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51601 - "GET /settings HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51608 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51678 - "GET /resultater/oekonomi HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51722 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51783 - "GET /resultater/prognoser HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51791 - "GET /resultater/prognoser.csv HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51802 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51802 - "GET /resultater/oekonomi HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55522 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55560 - "GET /resultater/oekonomi HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59378 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59380 - "GET /resultater/rapporter/847 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59381 - "GET /resultater/oekonomi HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59382 - "GET /resultater/export.csv HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59383 - "GET /resultater/historik.csv HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59384 - "GET /resultater/rapporter/847 HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:59481 - "GET /resultater/rapporter/847 HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:49240 - "GET /resultater/rapporter/847 HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:49246 - "GET /resultater/rapporter/847 HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:49246 - "GET /resultater/rapporter/847 HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:49247 - "GET /resultater/rapporter/847 HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:49254 - "GET /resultater/rapporter/847 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49254 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:49378 - "POST /resultater/rapporter/847/bekraeft HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:49378 - "GET /resultater/rapporter/847?message=Kontrolleret%20resultat%20gemt HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49412 - "GET /resultater HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:49412 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49418 - "GET /data HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49418 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49423 - "GET /data HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49445 - "POST /data/upload HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:49445 - "GET /data?message=121%20datoer%20med%20bel%C3%A6gning%20importeret%20fra%20Arrivals_on_17-09-2026_to_14-02-202710.pdf%20%E2%80%94%20151%20nye%20PDF-observationer%20gemt%20i%20resultatloggen%20%E2%80%94%20Rapporten%20er%20fra%2016-10-2026%20%281%20dag%20gammel%29%3B%20bookinger%20siden%20da%20er%20ikke%20med.%20Ikke%20medregnet%3A%20184%20enheder%20p%C3%A5%20tentative/forel%C3%B8bige/venteliste-bookinger. HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49469 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49476 - "POST /run HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:49476 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49496 - "POST /decide HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:49496 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49511 - "GET /export.csv HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49566 - "GET /grupper HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49566 - "GET /data HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49566 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49595 - "POST /resultater/rapporter HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:49595 - "GET /resultater/rapporter/847 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49657 - "POST /resultater/rapporter/847/bekraeft HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:49657 - "GET /resultater/rapporter/847?message=Resultatet%20er%20allerede%20gemt HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49657 - "GET /resultater/oekonomi HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49715 - "GET /settings HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50574 - "GET /resultater/afvigelser HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50575 - "GET /resultater/afvigelser?source=historical&measure=senge&lead=30 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50576 - "GET /resultater/afvigelser?source=live&measure=revenue HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50577 - "GET /resultater/afvigelser.csv?source=historical HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50578 - "GET /resultater/prognoser HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50579 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50581 - "GET /resultater/oekonomi HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50659 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50676 - "GET /resultater/afvigelser HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50687 - "GET /resultater/prognoser HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50697 - "GET /resultater/afvigelser HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50697 - "GET /resultater/oekonomi HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50697 - "GET /resultater/afvigelser HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50705 - "GET /resultater/afvigelser?source=historical&measure=rum&lead=7&start=2025-03-08&end=2025-12-31 HTTP/1.1" 200 OK
+INFO:     192.168.1.63:52106 - "GET / HTTP/1.1" 401 Unauthorized
+INFO:     192.168.1.63:52106 - "GET / HTTP/1.1" 401 Unauthorized
+INFO:     192.168.1.63:52107 - "GET / HTTP/1.1" 401 Unauthorized
+INFO:     192.168.1.63:52114 - "GET / HTTP/1.1" 401 Unauthorized
+INFO:     192.168.1.63:52129 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.63:52129 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     192.168.1.63:52437 - "GET /apple-touch-icon-precomposed.png HTTP/1.1" 404 Not Found
+INFO:     192.168.1.63:52438 - "GET /apple-touch-icon.png HTTP/1.1" 404 Not Found
+INFO:     192.168.1.63:52439 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     192.168.1.63:52449 - "GET / HTTP/1.1" 401 Unauthorized
+INFO:     192.168.1.63:52456 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.63:52457 - "GET /resultater HTTP/1.1" 200 OK

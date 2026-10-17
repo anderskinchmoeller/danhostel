@@ -47,6 +47,21 @@ from datetime import date
 from pathlib import Path
 from typing import Sequence
 
+
+def sales_forecast(model, otb, lead, day, capacity, level=1.0):
+    """Reference-price sales forecast shared by operations and validation."""
+    bound = model.bind(otb)
+    clip = lambda value: max(0.0, min(float(capacity), float(value)))
+    intervals = {}
+    for coverage in (50, 80, 90):
+        tail = (1 - coverage / 100) / 2
+        intervals[str(coverage)] = [
+            clip(otb + bound.quantile(tail, lead, day, level)),
+            clip(otb + bound.quantile(1-tail, lead, day, level)),
+        ]
+    return {"forecast": clip(otb + bound.expected(lead, day, level)),
+            "intervals": intervals, "capacity": capacity, "otb": otb}
+
 LEAD_BUCKETS = ((0, 1), (2, 3), (4, 6), (7, 10), (11, 17), (18, 30),
                 (31, 45), (46, 70), (71, 365))
 """Form-fordelingen pooles over disse lead-intervaller.
@@ -140,6 +155,9 @@ class DemandModel:
     shrink: dict = field(default_factory=dict)          # lead -> vægt på bøgerne
     n_dates: int = 0
     note: str = ""
+    # Runtime only. Lead 1 in the end-of-day cube is pickup during arrival day.
+    # Historical lead 0 remains the final count; do not change backtest semantics.
+    same_day_fraction: float | None = None
 
     # -- opslag ----------------------------------------------------------
     def bind(self, otb: float) -> BoundDemand:
@@ -181,6 +199,8 @@ class DemandModel:
         slutbelægningen mod sæsongennemsnittet, og den resterende pickup er
         forskellen mellem den krympede prognose og det der allerede står.
         """
+        if lead == 0 and self.same_day_fraction is not None:
+            return self._raw_expected(1, day, level) * self.same_day_fraction
         raw = self._raw_expected(lead, day, level)
         if otb is None or not self.shrink:
             return raw

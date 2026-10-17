@@ -36,7 +36,7 @@ from .config import load_settings
 
 from .engine import DayInput, price_day
 
-LEADS = (3, 7, 14, 30, 60, 90, 120)
+LEADS = (1, 3, 7, 14, 30, 60, 90, 120)
 ELASTICITIES = (0.8, 1.0, 1.3, 1.6, 2.0, 2.5)
 RENOVATION = ("2025-01-01", "2025-03-07")
 
@@ -60,7 +60,7 @@ def _baseline_history(train_rows) -> dict:
     return {k: sums[k] / counts[k] for k in sums}
 
 
-def errors_by_date(test_rows, models, history: dict, leads=LEADS) -> dict:
+def errors_by_date(test_rows, models, history: dict, leads=LEADS, capacity=float("inf")) -> dict:
     """Absolutte fejl pr. (dato, lead) for v4 og to simple referencer.
 
     Fejlene holdes samlet pr. dato, fordi lead times inden for samme dato er
@@ -74,9 +74,11 @@ def errors_by_date(test_rows, models, history: dict, leads=LEADS) -> dict:
             continue
         day = date.fromisoformat(row["dato"])
         actual, otb = row["endelig_rum"], row["otb_rum"]
-        v4 = otb + models["rum"].expected(lead, day, otb=otb)
+        v4 = demand.sales_forecast(models["rum"], otb, lead, day, capacity)["forecast"]
         naive = otb
-        hist = history.get((row["ugedag"], row["maaned"]), actual)
+        hist = history.get((row["ugedag"], row["maaned"]))
+        if hist is None:
+            continue  # Missing training reference must never be replaced by the answer.
         out.setdefault(row["dato"], {}).setdefault(lead, {}).update({
             "v4": abs(v4 - actual),
             "nu": abs(naive - actual), "historik": abs(hist - actual),
@@ -111,7 +113,7 @@ def bootstrap_difference(errors: dict, lead: int, *, draws: int = 2000,
     }
 
 
-def calibration(test_rows, models, leads=LEADS, levels=(0.5, 0.8, 0.9)) -> list:
+def calibration(test_rows, models, leads=LEADS, levels=(0.5, 0.8, 0.9), capacity=float("inf")) -> list:
     """Rammer fordelingen den bredde den lover?
 
     Et 80 %-interval skal indeholde det faktiske tal i 80 % af tilfældene. Er
@@ -127,8 +129,8 @@ def calibration(test_rows, models, leads=LEADS, levels=(0.5, 0.8, 0.9)) -> list:
                 continue
             day = date.fromisoformat(row["dato"])
             otb = row["otb_rum"]
-            low = otb + models["rum"].quantile(low_q, row["lead"], day, otb=otb)
-            high = otb + models["rum"].quantile(high_q, row["lead"], day, otb=otb)
+            low = max(0, min(capacity, otb + models["rum"].quantile(low_q, row["lead"], day, otb=otb)))
+            high = max(0, min(capacity, otb + models["rum"].quantile(high_q, row["lead"], day, otb=otb)))
             inside += int(low <= row["endelig_rum"] <= high)
             total += 1
         out.append({"lovet": level, "faktisk": inside / max(1, total), "n": total})
@@ -355,7 +357,7 @@ def main(argv: list[str] | None = None) -> int:
     settings = load_settings()
     base_params = settings.params
     v4cfg = replace(base_params.v4 or bidprice.V4Config(), enabled=True)
-    p4 = replace(base_params, v4=v4cfg, demand_models=models)
+    p4 = replace(base_params, v4=v4cfg, demand_models=models, demand_level=(1.0, 1.0))
     v5cfg = replace(v4cfg, elasticity_measured=True)
     p5 = replace(p4, v4=v5cfg)
     capacity = base_params.inventory.max_room_capacity
@@ -367,7 +369,7 @@ def main(argv: list[str] | None = None) -> int:
     print()
 
     history = _baseline_history(train)
-    errors = errors_by_date(test, models, history)
+    errors = errors_by_date(test, models, history, capacity=capacity)
 
     print("1. PROGNOSEPRÆCISION — gennemsnitlig absolut fejl i antal værelser")
     print(f"{'lead':>5}{'nu':>8}{'historik':>10}{'v4':>8}"
@@ -391,7 +393,7 @@ def main(argv: list[str] | None = None) -> int:
 
     print("2. KALIBRERING — holder fordelingen det den lover?")
     print(f"{'lovet':>8}{'faktisk':>10}{'n':>9}")
-    for line in calibration(test, models):
+    for line in calibration(test, models, capacity=capacity):
         print(f"{line['lovet']:>8.0%}{line['faktisk']:>10.0%}{line['n']:>9}")
     print()
 

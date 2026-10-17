@@ -25,13 +25,13 @@ Ren beregning: ingen database, intet netværk, ingen sideeffekter.
 from __future__ import annotations
 
 import math
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass, field, replace
 from datetime import date
 from typing import Iterable, Sequence
 
 from . import bidprice
 from .bidprice import V4Config
-from .demand import DemandModel
+from .demand import DemandModel, sales_forecast
 from .ladder import LadderConfig, ladder_step
 
 
@@ -369,6 +369,8 @@ class DayInput:
     rooms_otb_prior: int | None = None
     beds_otb_prior: int | None = None
     prior_days: int | None = None
+    same_day_fraction: float | None = None
+    market_notes: tuple = ()
 
 
 @dataclass
@@ -532,7 +534,15 @@ def price_day(item: DayInput, params: Params, events: Iterable[EventUplift] = ()
     lead = (item.day - today).days
     weekend = params.is_weekend(item.day)
     inv = params.inventory
-    warnings: list = []
+    warnings: list = list(item.market_notes)
+    if lead == 0 and item.same_day_fraction is not None and params.v4_active:
+        if not math.isfinite(item.same_day_fraction) or not 0 <= item.same_day_fraction <= 1:
+            raise ValueError("Resterende andel af ankomstdagen skal være mellem 0 og 1")
+        params = replace(params, demand_models={
+            name: replace(model, same_day_fraction=item.same_day_fraction)
+            for name, model in params.demand_models.items()})
+        warnings.append("Ankomstdag: resterende salg er et skøn fra historisk dags-pickup, "
+                        "fordelt jævnt frem til midnat; bookingtidspunkter mangler")
     if not inv.confirmed:
         warnings.append("Lageret er et ubekræftet eksempel — afstem med Picasso før live brug")
     if inv.flex_rooms:
@@ -553,10 +563,21 @@ def price_day(item: DayInput, params: Params, events: Iterable[EventUplift] = ()
     room_occ_now = rooms_otb / max_rooms if max_rooms else 0
     bed_occ_now = beds_otb / max_beds if max_beds else 0
 
-    room_forecast = forecast_occupancy(room_occ_now, lead, weekend, params.booking_curve)
-    bed_forecast = forecast_occupancy(bed_occ_now, lead, weekend, params.booking_curve_beds)
-    forecast_rooms = room_forecast * max_rooms
-    forecast_beds = bed_forecast * max_beds
+    if params.v4_active:
+        # Reference-price forecast from the very same bound demand models and
+        # adaptive levels used by bid price. Price elasticity is applied to
+        # candidate prices in _bid_choices, not to this reference forecast.
+        forecast_rooms = sales_forecast(params.demand_models["rum"], rooms_otb, lead,
+                                        item.day, max_rooms, params.demand_level[0])["forecast"]
+        forecast_beds = sales_forecast(params.demand_models["senge"], beds_otb, lead,
+                                       item.day, max_beds, params.demand_level[1])["forecast"]
+        room_forecast = forecast_rooms / max_rooms if max_rooms else 0
+        bed_forecast = forecast_beds / max_beds if max_beds else 0
+    else:
+        room_forecast = forecast_occupancy(room_occ_now, lead, weekend, params.booking_curve)
+        bed_forecast = forecast_occupancy(bed_occ_now, lead, weekend, params.booking_curve_beds)
+        forecast_rooms = room_forecast * max_rooms
+        forecast_beds = bed_forecast * max_beds
 
     # 2. Foreløbige priser, så allokeringen har noget at regne på
     base_room, base_bed = base_prices(item.day, params)
@@ -615,6 +636,9 @@ def price_day(item: DayInput, params: Params, events: Iterable[EventUplift] = ()
     # ellers starter morgendagens hysterese fra et trin der aldrig blev brugt.
     for ladder, final in ((room_ladder, room_price), (bed_ladder, bed_price)):
         if ladder is not None:
+            if ladder.exploration is not None:
+                ladder.exploration.update(proposed_price=final,
+                    assignment_preserved=abs(ladder.exploration["assigned_price"]-final) <= .01)
             nearest = min(range(ladder.n_rungs),
                           key=lambda i: (abs(ladder.rung_prices[i] - final), -i))
             ladder.off_ladder = abs(ladder.rung_prices[nearest] - final) > 0.01

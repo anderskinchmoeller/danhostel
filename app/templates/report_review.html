@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% set page = "results" %}
+{% block title %}Kontrollér dagsresultat · Prismotor{% endblock %}
+{% block body %}
+<h1>Kontrollér dagsresultat · {{ record.day.strftime('%d-%m-%Y') }}</h1>
+<p><a href="/resultater">← Resultatlog og upload</a> · <a href="/resultater/oekonomi">Økonomi</a></p>
+{% if message %}<div class="msg ok">{{ message }}</div>{% endif %}
+{% if error %}<div class="msg err">{{ error }}</div>{% endif %}
+{% if latest.get('result_report_id') == record.id %}<div class="msg ok">Salgstallene fra dette rapportpar er registreret som endelige.
+{{ 'Omsætningen er også bekræftet.' if latest.get('revenue_report_id') == record.id else 'Omsætningen er endnu ikke bekræftet fra dette rapportpar; eventuelle tidligere økonomital er bevaret med deres kilde.' }}</div>
+{% else %}<div class="msg info">Rapporterne er gemt til kontrol. Tallene bruges først som faktiske resultater, når du bekræfter dem nedenfor.</div>{% endif %}
+<div class="panel">
+<h2>Kilder og endeligt salg</h2>
+<p><a href="/resultater/pdf/{{ payload.hotel_pdf_hash }}" target="_blank" rel="noopener">Hotelmanager · original PDF</a> · udskrevet {{ time_local(payload.hotelmanager.printed_at) }}<br>
+<a href="/resultater/pdf/{{ payload.product_pdf_hash }}" target="_blank" rel="noopener">Produktomsætning · original PDF</a> · udskrevet {{ time_local(payload.products.printed_at) }}</p>
+<p><b>{{ payload.hotelmanager.rooms if payload.hotelmanager.rooms is not none else 'Ukendt' }} værelser og {{ payload.hotelmanager.beds if payload.hotelmanager.beds is not none else 'Ukendt' }} senge.</b>
+{% if payload.hotelmanager.rooms is none or payload.hotelmanager.beds is none %}<br>Et antal mangler i rapporten. Registrér begge endelige antal manuelt i Resultatlog; en tom celle tolkes ikke som nul.{% endif %}
+Antallene kommer fra Hotelmanager, Room Inhouse / Today. Pax, Pcs og antal i produktudtrækket bruges ikke som endeligt salg.</p>
+<p>{{ payload.hotelmanager.choices }}.</p>
+</div>
+<div class="panel" style="margin-top:16px">
+<h2>Logiomsætning eksklusive moms</h2>
+<p>Rumtypen afgør, om salget er hele værelser eller enkelte senge. YP og andre produktnavne bruges ikke til denne opdeling.</p>
+<div class="wrapx"><table><thead><tr><th>Rumtype</th><th>Salgsenhed</th><th>Logi</th><th>Foreslået fradrag: morgenmad</th><th>Uafklaret</th><th>Type-total minus produktlinjer</th></tr></thead><tbody>
+{% for row in report.by_type %}<tr><td>{{ row.code }}</td><td>{{ {'room':'Værelse','bed':'Seng'}.get(row.inventory, 'Ukendt') }}</td><td>{{ row.lodging }}</td><td>{{ row.breakfast }}</td><td>{{ row.unknown }}</td><td>{{ row.line_difference }}</td></tr>{% endfor %}
+</tbody></table></div>
+<p>Værelser: <b>{{ report.room }} kr.</b> · Senge: <b>{{ report.bed }} kr.</b><br>
+Ufordelt afrunding mellem rumtypetotaler og Grand Total: <b>{{ report.difference }} kr.</b><br>
+Logi i alt inklusive ufordelt afrunding: <b>{{ report.total_lodging }} kr.</b><br>
+Foreslået fradrag af morgenmad: {{ report.breakfast }} kr. · Produktudtræk før fradrag: {{ payload.products.total }} kr.</p>
+<p>Hotelmanager viser afrundet {{ payload.hotelmanager.total_price_rounded }} kr. Forskel: {{ report.hotel_difference }} kr.
+Både total og gennemsnitspris pr. værelse/seng afstemmes. Forskelle over 50 øre i de afrundede sammenligningstal spærrer økonomiimport.</p>
+<p class="foot">Der bruges trykte rumtypetotaler. Produktlinjer og totaler kan afrunde forskelligt; forskellen vises særskilt.
+Morgenmad foreslås kun fratrukket på linjer med morgenmad i beskrivelsen og uden antal gæster, nætter eller rum.
+Produkter med samme navn og opholdsantal beholdes som logi. Kontrollér de foreslåede fradrag i originalen.</p>
+{% for issue in report.issues %}<div class="msg err">{{ issue }}</div>{% endfor %}
+<div class="msg info"><b>Kontrollér datogrundlaget.</b> Produktudtrækkets fodtekst siger “{{ payload.products.date_basis }}”.
+Afstemningen understøtter tallene for denne dato, men beviser ikke alene, at udtrækket fordeler flerdagesophold pr. opholdsnat.
+Bekræft derfor dato og fradrag før økonomital gemmes. Rapporten udelader desuden produkter flyttet til bilag uden tilknytning til reservationer; kontrollér eventuelle sådanne posteringer særskilt.</div>
+</div>
+<div class="panel" style="margin-top:16px">
+<h2>Gem kontrolleret resultat</h2>
+<form method="post" action="/resultater/rapporter/{{ record.id }}/bekraeft">
+<div class="field"><label><input type="checkbox" name="final_counts" value="true" required> Jeg har kontrolleret, at opholdsdatoen er afsluttet, og at antal værelser og senge er endelige.</label></div>
+<div class="field"><label><input type="checkbox" name="accept_revenue" value="true" {% if not report.revenue_ready %}disabled{% endif %}> Medtag de afstemte økonomital og opdelingen pr. rumtype.</label></div>
+<div class="field"><label><input type="checkbox" name="date_confirmed" value="true"> Jeg har kontrolleret, at beløbene gælder denne opholdsdato, at logi er komplet, og at morgenmad er fratrukket korrekt. Beløbene er eksklusive moms.</label></div>
+<p>Du kan gemme endelige salgstal først og bekræfte omsætningen senere. Omkostninger forbliver ukendte, indtil du oplyser dem.</p>
+<div class="grid2">
+{% for key, label in [('commission','Faktisk provision i alt · kr.'),('variable_cost','Faktiske variable omkostninger · kr.'),('available_beds','Faktisk tilgængelige senge i hele huset')] %}
+<div class="field"><label for="{{ key }}">{{ label }} (valgfrit)</label><input id="{{ key }}" name="{{ key }}" type="number" step="{{ '1' if key == 'available_beds' else '0.01' }}" min="0" value="{{ latest.get(key, '') }}"></div>
+{% endfor %}
+</div>
+<div class="field"><label for="note">Note (valgfrit)</label><textarea id="note" name="note" rows="2"></textarea></div>
+<button class="primary" type="submit">Gem kontrolleret resultat</button>
+</form>
+<p class="foot">Originalfiler og alle rettelser bevares. Disse rapporter dokumenterer ikke, hvilken salgspris du lagde ind i Picasso, eller modellens økonomiske effekt.</p>
+</div>
+{% endblock %}

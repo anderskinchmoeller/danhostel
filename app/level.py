@@ -24,6 +24,10 @@ betyder kun, at modellen ikke er blind over for det næste skift.
 from __future__ import annotations
 
 import json
+import fcntl
+import os
+import tempfile
+from contextlib import contextmanager
 from dataclasses import dataclass, field
 from datetime import date
 from pathlib import Path
@@ -88,6 +92,8 @@ def update(level: Level, *, rooms: Sequence[tuple] = (), beds: Sequence[tuple] =
     dato med nul forventet kan dominere.
     """
     today = today or date.today()
+    if level.updated and level.updated >= today.isoformat():
+        return level
     entry = {"dato": today.isoformat()}
     new_rooms, why_rooms = adjust(level.rooms, sum(e for e, _ in rooms),
                                   sum(a for _, a in rooms), alpha=alpha, low=low, high=high)
@@ -113,4 +119,26 @@ def load(path: str | Path) -> Level:
 def save(level: Level, path: str | Path) -> None:
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(level.to_dict(), ensure_ascii=False, indent=1), encoding="utf-8")
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=path.parent,
+                                         delete=False) as fh:
+            temporary = fh.name
+            fh.write(json.dumps(level.to_dict(), ensure_ascii=False, indent=1))
+        os.replace(temporary, path)
+    finally:
+        if temporary and os.path.exists(temporary):
+            os.unlink(temporary)
+
+
+@contextmanager
+def locked(path: str | Path):
+    """Serialize load/update/save across manual and scheduled runs."""
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.with_suffix(path.suffix + ".lock").open("a") as fh:
+        fcntl.flock(fh, fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            fcntl.flock(fh, fcntl.LOCK_UN)

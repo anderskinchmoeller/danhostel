@@ -24,8 +24,11 @@ def client():
     os.environ["RMS_DATABASE_URL"] = f"sqlite:///{tmp}/test.db"
     os.environ.pop("RMS_USER", None)
     from app import main  # importeres efter miljøvariablen er sat
-    with TestClient(main.app) as c:
-        yield c
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(main.exports, "OUTPUT_ROOT", Path(tmp) / "exports")
+        patch.setattr(main.validation, "PDF_ARCHIVE_ROOT", Path(tmp) / "pdfs")
+        with TestClient(main.app) as c:
+            yield c
 
 
 def _upload(client, kind, path):
@@ -64,6 +67,10 @@ def test_upload_run_and_approve(client):
     assert set(first["room_types"]) == expected
     assert first["forecast"]["rooms"] >= first["forecast"]["rooms_now"]
     assert first["status"] == "pending"
+    from app import main
+    assert not list(main.exports.OUTPUT_ROOT.rglob("*.csv"))
+    assert client.get("/export.csv").status_code == 409
+    assert not list(main.exports.OUTPUT_ROOT.rglob("*.csv"))
 
     page = client.get("/")
     assert page.status_code == 200 and "Anbefalede priser" in page.text
@@ -94,6 +101,26 @@ def test_upload_run_and_approve(client):
         header = export.text.splitlines()[0].split(";")
         codes = list(original.room_types) + list(original.bed_types)
         assert header[3:3 + len(codes)] == codes
+        day = date.today().isoformat()
+        price_file = main.exports.OUTPUT_ROOT / "dagens_priser" / f"priser_{day}.csv"
+        shadow_file = main.exports.OUTPUT_ROOT / "skygge-v4-v5" / f"skygge_{day}.csv"
+        assert price_file.read_bytes() == export.content
+        assert shadow_file.read_bytes().startswith(b"\xef\xbb\xbf")
+        exported = list(csv.DictReader(io.StringIO(export.content.decode("utf-8-sig")), delimiter=";"))
+        shadows = list(csv.DictReader(io.StringIO(shadow_file.read_text(encoding="utf-8-sig")), delimiter=";"))
+        assert {r["dato"] for r in shadows} == {r["dato"] for r in exported}
+        by_day = {r["dato"]: r for r in shadows}
+        for row in exported:
+            shadow = by_day[row["dato"]]
+            assert float(shadow["v4_rum"].replace(",", ".")) == float(row["vaerelsespris"].replace(",", "."))
+            assert float(shadow["v4_seng"].replace(",", ".")) == float(row["sengepris"].replace(",", "."))
+            assert shadow["status"] == row["status"] == "approved"
+        run_id = after["run"]["id"]
+        assert price_file.with_name(f"priser_{day}_run-{run_id}.csv").read_bytes() == export.content
+        assert shadow_file.with_name(f"skygge_{day}_run-{run_id}.csv").read_bytes() == shadow_file.read_bytes()
+        before_shadow = shadow_file.read_bytes()
+        assert client.get("/export.csv").content == export.content
+        assert shadow_file.read_bytes() == before_shadow
     finally:
         main.settings.params = original
 
@@ -118,8 +145,10 @@ def test_forecast_beats_naive_occupancy_far_out(client):
     prices = client.get("/api/prices?days=120").json()["prices"]
     far = [p for p in prices if p["forecast"]["rooms_now"] < 0.25][-5:]
     assert far, "eksempeldata burde indeholde datoer langt ude"
-    for p in far:
-        assert p["forecast"]["rooms"] > p["forecast"]["rooms_now"]
+    # Some quiet dates can have zero expected pickup. The forecast may never
+    # undershoot bookings, and must add demand across this low-booking horizon.
+    assert all(p["forecast"]["rooms"] >= p["forecast"]["rooms_now"] for p in far)
+    assert any(p["forecast"]["rooms"] > p["forecast"]["rooms_now"] for p in far)
 
 
 def test_lock_keeps_a_date_out_of_the_model(client):
@@ -180,7 +209,8 @@ def test_picasso_pdf_upload_counts_rooms_and_beds(client, monkeypatch):
     today = date.today()
     start, arrive = today - timedelta(days=30), today + timedelta(days=3)
     dm = lambda d: d.strftime("%d-%m")
-    text = f"""   Arrivals on period: {start:%d-%m-%Y} to {today + timedelta(days=60):%d-%m-%Y}
+    text = f"""   Status: Confirmed, In-House              LENE {today:%d-%m-%Y} kl. 00:00
+   Arrivals on period: {start:%d-%m-%Y} to {today + timedelta(days=60):%d-%m-%Y}
 51001 D2  C Hansen, Anna              121315       {dm(arrive)} 15:00 {dm(arrive + timedelta(days=2))}     2    3    6 YP   800,00
       BV8 G Frey, Elias               120456       {dm(arrive)} 15:00 {dm(arrive + timedelta(days=1))}     1    2    2 YP   400,00
       D2  T Copenhagen Cheerleaders   113981       {dm(arrive)} 15:00 {dm(arrive + timedelta(days=1))}     1   12   24 ROOM 0,00
@@ -225,3 +255,26 @@ def test_v1_database_is_refused_clearly(tmp_path):
     with pytest.raises(db.SchemaMismatch) as exc:
         db.init_db(f"sqlite:///{path}")
     assert "version 1" in str(exc.value)
+
+
+def test_forecast_validation_page_and_export(client):
+    response = client.get("/resultater/prognoser")
+    assert response.status_code == 200
+    assert "Hvor godt rammer prognoserne" in response.text
+    assert "holdt adskilt fra ny drift" in response.text
+    assert client.get("/resultater/prognoser?segment=groups").status_code == 200
+    assert client.get("/resultater/prognoser?segment=wrong").status_code == 422
+    export = client.get("/resultater/prognoser.csv")
+    assert export.status_code == 200
+    assert "observed_at" in export.text
+
+
+def test_economics_page_shows_missing_evidence_and_manual_limits(client):
+    response=client.get('/resultater/oekonomi')
+    assert response.status_code==200
+    assert 'Økonomisk effekt er ikke målt' in response.text
+    assert 'Upload de to PDF’er' in response.text
+    assert 'Arrival date' in response.text
+    assert 'Accounts / bogføringsrapport er valgfri' in response.text
+    assert 'Ingen afsluttede resultater' in response.text
+    assert client.get('/resultater/oekonomi?start=2026-10-16&end=2026-10-01').status_code==422
