@@ -16,7 +16,7 @@ from zoneinfo import ZoneInfo
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 from fastapi import Depends, FastAPI, File, Form, HTTPException, Request, UploadFile, status
-from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, StreamingResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse, StreamingResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
@@ -87,6 +87,57 @@ from .result_routes import router as results_router
 app.include_router(results_router(settings, templates, current_user))
 from .experiment_routes import router as experiments_router
 app.include_router(experiments_router(settings, templates, current_user))
+
+
+def note_page(request, user, filename, page, title, links):
+    path = BASE_DIR.parent / filename
+    if not path.exists():
+        raise HTTPException(404, "Huskelisten findes ikke")
+    blocks = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        if line.startswith(("- [ ] ", "- [x] ", "- [X] ")):
+            blocks.append(dict(kind="task", text=line[6:], done=line[3].lower() == "x"))
+        elif line.startswith("## "):
+            blocks.append(dict(kind="heading", text=line[3:]))
+        elif line.startswith("# "):
+            blocks.append(dict(kind="title", text=line[2:]))
+        else:
+            blocks.append(dict(kind="text", text=line.removeprefix("- ")))
+    return templates.TemplateResponse(request, "todo.html", {
+        "settings": settings, "user": user, "blocks": blocks,
+        "notes_page": page, "note_title": title, "note_links": links,
+    })
+
+
+@app.get("/to-do")
+def todo_page(request: Request, user: str = Depends(current_user)):
+    return note_page(request,user,"to-do.md","todo","To-do",[
+        ("/resultater/ab","Åbn A/B-forsøg"),("/to-do.md","Hent to-do.md")])
+
+
+@app.get("/daglig-koersel")
+def daily_page(request: Request, user: str = Depends(current_user)):
+    return note_page(request,user,"daglig-kørsel.md","daily","Daglig kørsel",[
+        ("/data","Data"),("/","Priser"),("/resultater","Resultater"),
+        ("/daglig-koersel.md","Hent daglig-kørsel.md")])
+
+
+@app.get("/daglig-koersel.md")
+def daily_file(user: str = Depends(current_user)):
+    path = BASE_DIR.parent / "daglig-kørsel.md"
+    if not path.exists():
+        raise HTTPException(404, "Den daglige tjekliste findes ikke")
+    return FileResponse(path, media_type="text/plain; charset=utf-8", filename="daglig-kørsel.md")
+
+
+@app.get("/to-do.md")
+def todo_file(user: str = Depends(current_user)):
+    path = BASE_DIR.parent / "to-do.md"
+    if not path.exists():
+        raise HTTPException(404, "Huskelisten findes ikke")
+    return FileResponse(path, media_type="text/plain; charset=utf-8", filename="to-do.md")
 
 
 def seed_competitors():

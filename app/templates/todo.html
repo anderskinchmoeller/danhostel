@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% set page = notes_page %}
+{% block title %}{{ note_title }} · Prismotor{% endblock %}
+{% block body %}
+<article class="todo-document">
+{% for block in blocks %}
+  {% if block.kind == 'title' %}<h1>{{ block.text }}</h1>
+  {% elif block.kind == 'heading' %}<h2>{{ block.text }}</h2>
+  {% elif block.kind == 'task' %}
+  <p class="todo-item{% if block.done %} done{% endif %}"><span class="todo-check" aria-label="{{ 'Afsluttet' if block.done else 'Mangler' }}">{{ '☑' if block.done else '☐' }}</span><span>{{ block.text }}</span></p>
+  {% else %}<p>{{ block.text }}</p>{% endif %}
+{% endfor %}
+<p class="foot">{% for href, label in note_links %}<a href="{{ href }}">{{ label }}</a>{% if not loop.last %} · {% endif %}{% endfor %}</p>
+</article>
+{% endblock %}

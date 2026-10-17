@@ -733,3 +733,99 @@ INFO:     192.168.1.63:53082 - "GET /static/vendor/katex/katex.min.js HTTP/1.1" 
 INFO:     192.168.1.63:53082 - "GET /static/fonts/et-book/et-book-bold-line-figures.woff HTTP/1.1" 304 Not Modified
 INFO:     192.168.1.63:53082 - "GET /static/fonts/space-mono/SpaceMono-Regular.ttf HTTP/1.1" 304 Not Modified
 INFO:     192.168.1.63:53088 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     192.168.1.63:55601 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     192.168.1.63:55601 - "GET /static/fonts/et-book/et-book-roman-line-figures.woff HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:55603 - "GET /static/academic.css?v=et-book-ab-11 HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:55602 - "GET /static/vendor/katex/katex.min.css HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:55605 - "GET /static/academic.js?v=space-mono-article-4 HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:55604 - "GET /static/vendor/katex/katex.min.js HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:55604 - "GET /static/fonts/et-book/et-book-bold-line-figures.woff HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:55633 - "GET /data HTTP/1.1" 200 OK
+INFO:     192.168.1.63:55633 - "GET /static/fonts/space-mono/SpaceMono-Regular.ttf HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:55639 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.63:55646 - "GET /resultater/afvigelser HTTP/1.1" 200 OK
+INFO:     192.168.1.63:55646 - "GET /static/fonts/et-book/et-book-italic.woff2 HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:55647 - "GET /static/vendor/katex/fonts/KaTeX_Main-Regular.woff2 HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:55646 - "GET /static/vendor/katex/fonts/KaTeX_Size2-Regular.woff2 HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:55647 - "GET /static/vendor/katex/fonts/KaTeX_Math-Italic.woff2 HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:55668 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     192.168.1.63:55698 - "POST /resultater/rapporter HTTP/1.1" 303 See Other
+INFO:     192.168.1.63:55698 - "GET /resultater?error=Bogf%C3%B8ringsrapporten%20skal%20d%C3%A6kke%20pr%C3%A6cis%20%C3%A9n%20dato HTTP/1.1" 200 OK
+INFO:     192.168.1.63:55742 - "POST /resultater/rapporter HTTP/1.1" 303 See Other
+INFO:     192.168.1.63:55742 - "GET /resultater/rapporter/1395 HTTP/1.1" 200 OK
+INFO:     192.168.1.63:55864 - "POST /resultater/rapporter/1395/bekraeft HTTP/1.1" 303 See Other
+INFO:     192.168.1.63:55864 - "GET /resultater/rapporter/1395?message=Kontrolleret%20resultat%20gemt HTTP/1.1" 200 OK
+INFO:     192.168.1.63:55920 - "GET /data HTTP/1.1" 200 OK
+INFO:     192.168.1.63:55920 - "GET /events HTTP/1.1" 200 OK
+INFO:     192.168.1.63:55920 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     192.168.1.63:55952 - "GET /resultater/oekonomi HTTP/1.1" 200 OK
+INFO:     192.168.1.63:55952 - "GET /resultater/afvigelser HTTP/1.1" 200 OK
+INFO:     192.168.1.63:55959 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     192.168.1.63:55984 - "GET /resultater/export.csv?start=2026-09-17&end=2027-02-14 HTTP/1.1" 200 OK
+INFO:     192.168.1.63:56068 - "GET /resultater/afvigelser HTTP/1.1" 200 OK
+INFO:     192.168.1.63:56079 - "GET /resultater/afvigelser?source=historical&measure=rum&lead=7&start=2025-03-08&end=2025-12-31 HTTP/1.1" 200 OK
+INFO:     192.168.1.63:56096 - "GET /events HTTP/1.1" 200 OK
+INFO:     192.168.1.63:56096 - "GET /settings HTTP/1.1" 200 OK
+INFO:     192.168.1.63:56096 - "GET /events HTTP/1.1" 200 OK
+INFO:     192.168.1.63:56096 - "GET /settings HTTP/1.1" 200 OK
+INFO:     192.168.1.63:56136 - "GET /data HTTP/1.1" 200 OK
+INFO:     192.168.1.63:56147 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.63:56154 - "GET /resultater/afvigelser HTTP/1.1" 200 OK
+INFO:     192.168.1.63:56170 - "GET /data HTTP/1.1" 200 OK
+INFO:     192.168.1.63:56175 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     192.168.1.63:56205 - "POST /data/upload HTTP/1.1" 303 See Other
+INFO:     192.168.1.63:56205 - "GET /resultater?message=121%20datoer%20med%20bel%C3%A6gning%20importeret%20fra%20Arrivals_on_17-09-2026_to_14-02-202710%20%281%29.pdf%20%E2%80%94%200%20nye%20PDF-observationer%20gemt%20i%20resultatloggen%20%E2%80%94%20Ikke%20medregnet%3A%20184%20enheder%20p%C3%A5%20tentative/forel%C3%B8bige/venteliste-bookinger. HTTP/1.1" 200 OK
+INFO:     192.168.1.63:56313 - "POST /resultater/rapporter HTTP/1.1" 303 See Other
+INFO:     192.168.1.63:56313 - "GET /resultater/rapporter/1397 HTTP/1.1" 200 OK
+INFO:     192.168.1.63:56525 - "POST /resultater/rapporter/1397/bekraeft HTTP/1.1" 303 See Other
+INFO:     192.168.1.63:56525 - "GET /resultater/rapporter/1397?message=Kontrolleret%20resultat%20gemt HTTP/1.1" 200 OK
+INFO:     192.168.1.63:56525 - "GET /static/academic.css?v=et-book-ab-11 HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:56555 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     192.168.1.63:56555 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     192.168.1.63:56555 - "GET /resultater/afvigelser HTTP/1.1" 200 OK
+INFO:     192.168.1.63:56555 - "GET /resultater/prognoser HTTP/1.1" 200 OK
+INFO:     192.168.1.63:56555 - "GET /resultater/oekonomi HTTP/1.1" 200 OK
+INFO:     192.168.1.63:56595 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     192.168.1.63:56622 - "POST /resultater/rapporter HTTP/1.1" 303 See Other
+INFO:     192.168.1.63:56622 - "GET /resultater/rapporter/1395 HTTP/1.1" 200 OK
+INFO:     192.168.1.63:56796 - "POST /resultater/rapporter/1395/bekraeft HTTP/1.1" 303 See Other
+INFO:     192.168.1.63:56796 - "GET /resultater/rapporter/1395?message=Kontrolleret%20resultat%20gemt HTTP/1.1" 200 OK
+INFO:     192.168.1.63:56807 - "GET /resultater/oekonomi HTTP/1.1" 200 OK
+INFO:     192.168.1.63:56846 - "GET /grupper HTTP/1.1" 200 OK
+INFO:     192.168.1.63:56864 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     192.168.1.63:56897 - "GET /resultater/rapporter/847 HTTP/1.1" 200 OK
+INFO:     192.168.1.63:56897 - "GET /static/fonts/et-book/et-book-roman-line-figures.woff HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:56904 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57400 - "GET /to-do HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57402 - "GET /to-do.md HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57403 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57404 - "GET /resultater/ab HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57405 - "GET /to-do HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:57406 - "GET /to-do.md HTTP/1.1" 401 Unauthorized
+INFO:     192.168.1.63:57455 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57455 - "GET /static/academic.css?v=et-book-todo-12 HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57456 - "GET /static/vendor/katex/katex.min.css HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:57457 - "GET /static/vendor/katex/katex.min.js HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:57458 - "GET /static/academic.js?v=space-mono-article-4 HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:57455 - "GET /static/fonts/et-book/et-book-bold-line-figures.woff HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:57455 - "GET /static/fonts/space-mono/SpaceMono-Regular.ttf HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:57574 - "GET /daglig-koersel HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57575 - "GET /daglig-koersel.md HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57576 - "GET /to-do HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57577 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57578 - "GET /daglig-koersel HTTP/1.1" 401 Unauthorized
+INFO:     192.168.1.63:57728 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57728 - "GET /static/academic.css?v=et-book-notes-13 HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57728 - "GET /daglig-koersel HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57728 - "GET /static/fonts/et-book/et-book-italic.woff2 HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:57728 - "GET /daglig-koersel HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57728 - "GET /daglig-koersel HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57728 - "GET /daglig-koersel HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57843 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57844 - "GET /to-do HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57845 - "GET /daglig-koersel HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57846 - "GET /static/notes.js?v=1 HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57966 - "GET /daglig-koersel HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57966 - "GET /static/academic.css?v=et-book-notes-14 HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57967 - "GET /static/notes.js?v=1 HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57966 - "GET /daglig-koersel HTTP/1.1" 200 OK

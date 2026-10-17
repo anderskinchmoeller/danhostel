@@ -7,9 +7,10 @@
 <meta name="theme-color" content="#fffff8">
 <link rel="preload" href="/static/fonts/et-book/et-book-roman-line-figures.woff" as="font" type="font/woff" crossorigin>
 <link rel="stylesheet" href="/static/vendor/katex/katex.min.css">
-<link rel="stylesheet" href="/static/academic.css?v=et-book-ab-11">
+<link rel="stylesheet" href="/static/academic.css?v=et-book-notes-14">
 <script defer src="/static/vendor/katex/katex.min.js"></script>
 <script defer src="/static/academic.js?v=space-mono-article-4"></script>
+<script defer src="/static/notes.js?v=1"></script>
 </head>
 <body>
 <a class="skip-link" href="#content">Gå til indhold</a>
@@ -35,6 +36,10 @@
     <a href="/settings" class="{% if page=='settings' %}on{% endif %}" {% if page=='settings' %}aria-current="page"{% endif %}>Indstillinger</a>
   </nav>
 </header>
+<aside class="side-notes" aria-label="Huskeliste">
+  <a class="btn" href="/daglig-koersel" aria-haspopup="dialog" aria-controls="notes-popup" aria-expanded="false" {% if page=='daily' %}aria-current="page"{% endif %}>Daglig kørsel</a>
+  <a class="btn" href="/to-do" aria-haspopup="dialog" aria-controls="notes-popup" aria-expanded="false" {% if page=='todo' %}aria-current="page"{% endif %}>To-do</a>
+</aside>
 {% if fresh.stale %}
 <div class="stalebar">
   <b>Tallene på siden er ikke friske.</b>
@@ -60,5 +65,12 @@
 {% block body %}{% endblock %}
 </main>
 <footer class="site-footer"><span>Danhostel Aarhus City</span><span>Prismotor · Prisanalyse og resultater</span></footer>
+<dialog id="notes-popup" class="notes-popup" aria-labelledby="notes-popup-title">
+  <div class="notes-popup-header">
+    <h2 id="notes-popup-title">Huskeliste</h2>
+    <button type="button" class="small" data-close-notes aria-label="Luk huskeliste">Luk ×</button>
+  </div>
+  <div class="notes-popup-body" aria-live="polite"></div>
+</dialog>
 </body>
 </html>
