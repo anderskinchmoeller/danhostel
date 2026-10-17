@@ -16,7 +16,7 @@ from sqlalchemy import select
 from . import db, validation
 from .picasso_belaegning import pdf_text
 
-VERSION = 1
+VERSION = 2
 MONEY = re.compile(r"-?(?:\d{1,3}(?:\.\d{3})+|\d+),\d{2}")
 NUMBER = re.compile(r"-?\d[\d.,]*%?")
 PRINTED = re.compile(r"(\d{2}-\d{2}-\d{4})\s+(?:kl\.?|Time:)\s*(\d{2}:\d{2})", re.I)
@@ -182,6 +182,13 @@ def parse_products(text, tz, params, now=None):
 
 def review(payload):
     hotel, products = payload['hotelmanager'], payload['products']
+    from .picasso_accounts import reconcile
+    accounting=reconcile(payload.get('accounts'),products,hotel)
+    if products is None:
+        return dict(by_type=[],room=None,bed=None,breakfast=None,unknown=None,difference=None,
+            total_lodging=None,hotel_difference=None,accounting=accounting,
+            issues=['Produktomsætnings-PDF mangler; kun salgstal kan bekræftes.'],
+            revenue_ready=False,date_attestation_required=True)
     grouped={}
     room=bed=breakfast=unknown=Decimal('0')
     for r in products['rows']:
@@ -221,10 +228,14 @@ def review(payload):
                 checks.append('Prisgennemsnittet for '+('værelser' if key=='room' else 'senge')+' stemmer ikke med Hotelmanager.')
     if unresolved:
         checks.append('Der er uafklarede beløb eller ukendte rumtyper; økonomital kan ikke bekræftes.')
+    if accounting:
+        checks.extend(accounting['issues'])
+        if abs(Decimal(accounting['linked_vs_hotel']))>Decimal('.50'):
+            checks.append('Bogført logi med produktkobling stemmer ikke med Hotelmanager; datogrundlag og rettelser kræver afklaring.')
     return dict(by_type=[dict(g, lodging=money(g['lodging']),breakfast=money(g['breakfast']),unknown=money(g['unknown']))
                          for g in grouped.values()], room=money(room),bed=money(bed),breakfast=money(breakfast),
                 unknown=money(unknown), difference=money(difference), total_lodging=money(target),
-                hotel_difference=money(hotel_difference), issues=checks,
+                hotel_difference=money(hotel_difference), issues=checks,accounting=accounting,
                 revenue_ready=not checks, date_attestation_required=True)
 
 
@@ -240,33 +251,39 @@ def archive(data):
     return digest
 
 
-def stage(session, hotel_data, product_data, settings, actor, *, hotel_name='', product_name=''):
+def stage(session, hotel_data, product_data, settings, actor, *, hotel_name='', product_name='',
+          account_data=None,account_name=''):
+    from .picasso_accounts import parse as parse_accounts
     try:
         hotel=parse_hotelmanager(pdf_text(hotel_data),settings.timezone)
-        products=parse_products(pdf_text(product_data),settings.timezone,settings.params)
+        products=parse_products(pdf_text(product_data),settings.timezone,settings.params) if product_data else None
+        accounts=parse_accounts(pdf_text(account_data),settings.timezone) if account_data else None
     except Exception as exc:
         if isinstance(exc,ValueError): raise
         raise ValueError('Kun læsbare, komplette Picasso-PDF’er understøttes') from exc
-    if hotel['day']!=products['day']:
-        raise ValueError('De to rapporter skal gælde samme dato')
+    sources=[r for r in (hotel,products,accounts) if r is not None]
+    if any(hotel['day']!=r['day'] for r in sources):
+        raise ValueError('Alle rapporter skal gælde samme dato')
     day=datetime.fromisoformat(hotel['day']).date()
-    observed=max(validation.timestamp(hotel['printed_at'],settings.timezone),
-                 validation.timestamp(products['printed_at'],settings.timezone))
-    for r in (hotel,products):
+    observed=max(validation.timestamp(r['printed_at'],settings.timezone) for r in sources)
+    for r in sources:
         printed=validation.timestamp(r['printed_at'],settings.timezone)
         if day>=printed.replace(tzinfo=timezone.utc).astimezone(ZoneInfo(settings.timezone)).date():
-            raise ValueError('Begge rapporter skal være udskrevet efter opholdsdatoen er afsluttet')
-    payload=dict(parser_version=VERSION,hotelmanager=hotel,products=products,
-                 hotel_pdf_hash=archive(hotel_data),product_pdf_hash=archive(product_data),
+            raise ValueError('Alle rapporter skal være udskrevet efter opholdsdatoen er afsluttet')
+    payload=dict(parser_version=VERSION,hotelmanager=hotel,products=products,accounts=accounts,
+                 hotel_pdf_hash=archive(hotel_data),product_pdf_hash=archive(product_data) if product_data else None,
+                 account_pdf_hash=archive(account_data) if account_data else None,
                  timezone=settings.timezone)
-    added=validation.append(session,'report_pair',day,observed,payload,actor=actor,source='Hotelmanager + produktomsætning')
+    source='Hotelmanager'+(' + produktomsætning' if products else '')+(' + bogføring' if accounts else '')
+    added=validation.append(session,'report_pair',day,observed,payload,actor=actor,source=source)
     record=session.scalar(select(db.ValidationRecord).where(db.ValidationRecord.kind=='report_pair',
         db.ValidationRecord.day==day, db.ValidationRecord.payload==json.dumps(payload,ensure_ascii=False,sort_keys=True)))
     if record is None:
         raise ValueError('Kunne ikke genfinde rapportparret')
     if added:
         db.log(session,'result_reports_upload',actor=actor,day=day,
-               detail=json.dumps(dict(record_id=record.id,hotel_file=hotel_name,product_file=product_name)))
+               detail=json.dumps(dict(record_id=record.id,hotel_file=hotel_name,product_file=product_name,
+                                      account_file=account_name)))
     return record
 
 
@@ -292,6 +309,10 @@ def confirm(session, record, *, actor, final_counts, accept_revenue, date_confir
                   result_report_id=record.id,hotel_pdf_hash=payload['hotel_pdf_hash'],
                   product_pdf_hash=payload['product_pdf_hash'],
                   report_counts_confirmed=True)
+    if payload.get('accounts'):
+        values.update(account_pdf_hash=payload['account_pdf_hash'],accounts_report_id=record.id,
+                      accounts_reconciliation=report['accounting'],
+                      accounts_unallocated=payload['accounts']['unallocated_rows'])
     if accept_revenue:
         values.update(room_revenue=float(report['room']),bed_revenue=float(report['bed']),
             revenue_adjustment=float(report['difference']),revenue_date_confirmed=True,revenue_report_id=record.id,
@@ -317,7 +338,7 @@ def confirm(session, record, *, actor, final_counts, accept_revenue, date_confir
         if 'carried_forward_from_record' in old:
             values['carried_forward_from_record']=old['carried_forward_from_record']
     added=validation.append(session,'outcome',record.day,record.observed_at,values,actor=actor,
-                             source='Bekræftet Hotelmanager + produktomsætning')
+                             source='Bekræftet Hotelmanager'+(' + produktomsætning' if accept_revenue else ' · kun salgstal'))
     if added:
         db.log(session,'result_reports_confirm',actor=actor,day=record.day,
                detail=json.dumps(dict(report_id=record.id,revenue=accept_revenue)))

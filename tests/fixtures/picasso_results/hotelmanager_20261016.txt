@@ -1,0 +1,109 @@
+Choices: excl. VAT, excl. Package, excl. Credit, excl. Out of order.                                                                       Danhostel Aarhus City
+Comparable to MIS (Rooms): Price excl. package                                                                                             LENE 17-10-2026 kl. 07:34
+                                                                     Hotel Manager's report part 1
+
+                                                                                  Report for: 16-10-2026
+
+ Segment                              Today                          This month to date                Remaining month                    This year to date                  Remaining year
+
+                         Pcs     Pax       Price      Avg      Pcs     Pax       Price      Avg      Pcs       Price      Avg       Pcs    Pax          Price    Avg    Pcs        Price       Avg
+ Dagkurser                                                                                                                           18      22        4.196     233
+ Enkeltvandrer              41     108      23.551      574     513    1.178     270.196      527     320      168.040     525    9.690 19.465    4.365.889      451      737       377.221     512
+ Familier                                                          3      12        2.520     840        8        5.440    680       47      83       26.745     569         8        5.440     680
+ Firma                                                             7        7       5.520     789        5        3.380    676      229     284     110.842      484        11        7.220     656
+ Grupper&Kultur                                                 146      668     122.515      839        2        1.700    850    1.629   4.902   1.043.873      641      107        94.118     880
+ Kursus                                                                                                                              37     109       25.409     687
+ Lejrskoler                                                       32     123       25.694     803       53      49.106     927    2.006   7.758   1.559.590      777      329       277.962     845
+ Nødhjælp                                                                                                                            44     224       40.960     931
+ Online                      7      17        4.856     694       77     188       44.818     582       49      31.386     641    1.114   2.094     544.824      489        80       48.744     609
+ Øvrige                                                                                                                              19      23        9.600     505
+ Sport                                                                                                                               36     167       28.334     787
+ UNKNOWN                                                                                                                                               4.480
+ Hotel                      48     125      28.407      592     778    2.176     471.263      606     437      259.053     593  14.869  35.131    7.764.740      522    1.272       810.705     637
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                                                                                                                                                          Page 1 of 10
+Formula Total: ((Sold (incl. tentative) + Allot. + Occ.) /(Total)) * 100
+Formula Rooms: ((Sold (incl. tentative) + Allot. + Occ.) /(Total)) * 100
+Formula Beds: ((Sold (incl. tentative) + Allot.) /(Total)) * 100
+                                                                      Hotel Manager's report part 2 (Room/Bed)
+
+                           Today                                    This month to date                 Remaining month                     This year to date                   Remaining year
+
+                                Total:    Rooms:     Beds:       Total:    Rooms:      Beds:       Total:    Rooms:      Beds:        Total:   Rooms:      Beds:          Total:    Rooms:     Beds:
+ Room Inhouse                                  47          3                   718         92                    396         55                  12670       3137                      1216         93
+ Occupancy %                   53,13%     65,28%      0,96%     54,18%     62,33%      1,82%      32,62%     36,67%      1,18%       52,88%     60,89%      3,45%        20,72%     22,22%      0,39%
+ Pax                               125        122          3       2176       2084         92        1311       1256         55       35131      31994       3137           4280       4187         93
+ Adults                            112        109          3       2021       1929         92        1277       1222         55       33221      30084       3137           4165       4072         93
+ Children1                           13        13                   155        155                      34         34                   1906      1906                       115        115
+ Children2                            0          0                     0          0                      0          0                       4          4                        0          0
+ Pax per room                                2,60                              2,90                              3,29                              2,53                                3,55
+ Adults per room                             2,32                              2,69                              3,20                              2,37                                3,45
+ Children1 per room                          0,28                              0,22                              0,09                              0,15                                0,10
+ Children2 per room                          0,00                              0,00                              0,00                              0,00                                0,00
+ Number of rooms arriving            33        32          1        495        433         62         217        197         20         7962      6445       1517            704        672         32
+ Number of rooms walkin               3          2         1          69         40        29                                           1390        832       558
+ Number of stay rooms                15        13          2        283        253         30         220        185         35         6907      5287       1620            568        507         61
+ Number of NoShow                     0                                0                                                                  27         19          8
+ Number of Dayrooms                   0                                1          1                                                      202        177         25
+ Number of upgraded rooms             9          9                    87         75        12                                           1658      1254        404
+ Rev/Par                             78       390          3          81       404           4          47       233           3          75        358          6             29       147          1
+ ADR                               592        589        277        606        635        204         593        626        204          522        569       165            637        652        193
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                                                                                                                                                             Page 2 of 10
+                                                                              

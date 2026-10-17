@@ -191,6 +191,29 @@ class ForecastSnapshot(Base):
     payload: Mapped[str] = mapped_column(Text)
 
 
+class ABExperiment(Base):
+    """Immutable prospective protocol; final analysis is a frozen evidence snapshot."""
+    __tablename__ = "ab_experiment"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+    actor: Mapped[str] = mapped_column(String(80))
+    name: Mapped[str] = mapped_column(String(160))
+    protocol: Mapped[str] = mapped_column(Text)
+    digest: Mapped[str] = mapped_column(String(64))
+    status: Mapped[str] = mapped_column(String(24), default="collecting")
+    final_analysis: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+
+class ABLog(Base):
+    __tablename__ = "ab_log"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    experiment_id: Mapped[int] = mapped_column(Integer, index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+    actor: Mapped[str] = mapped_column(String(80))
+    kind: Mapped[str] = mapped_column(String(24))
+    payload: Mapped[str] = mapped_column(Text)
+
+
 class AuditLog(Base):
     __tablename__ = "audit_log"
 

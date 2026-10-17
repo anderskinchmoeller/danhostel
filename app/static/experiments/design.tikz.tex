@@ -1,0 +1,16 @@
+\begin{tikzpicture}[font=\sffamily\small,>=Latex,
+ box/.style={draw=black,rounded corners=3pt,align=center,minimum height=12mm,text width=37mm,inner sep=4pt},
+ every path/.style={line width=.65pt}]
+\node[box,text width=122mm] (plan) {\textbf{01. Lock the protocol}\\Metric, policies, capacity, horizon, sample size and stop rules};
+\node[box,below=9mm of plan,text width=122mm] (random) {\textbf{02. Randomize each pair of stay-date blocks}\\Whole property; one A block and one B block per pair};
+\draw[->] (plan)--(random);
+\node[box,below left=10mm and 2mm of random.south] (a) {\textbf{A: Normal strategy}\\Rooms and beds};
+\node[box,below right=10mm and 2mm of random.south,draw=darkred] (b) {\textbf{B: Pricing model}\\Rooms and beds};
+\draw[->] (random.south)--++(0,-4mm)-|(a.north);
+\draw[->,darkred] (random.south)--++(0,-4mm)-|(b.north);
+\node[box,below=41mm of random,text width=122mm] (out) {\textbf{03. Reconcile actual economics and review delivery}\\All assigned dates stay in the intention-to-treat analysis};
+\draw[->] (a.south)|-($(out.north)+(0,4mm)$)--(out.north);
+\draw[->,darkred] (b.south)|-($(out.north)+(0,4mm)$);
+\node[box,below=9mm of out,text width=122mm] (final) {\textbf{04. One final analysis}\\Randomization $p$-value, paired interval, practical relevance};
+\draw[->] (out)--(final);
+\end{tikzpicture}

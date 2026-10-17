@@ -17,17 +17,20 @@
 
 <details class="panel task-section" id="dagsresultat">
 <summary>Importér afsluttet dagsresultat</summary>
-<p>Upload to PDF’er for samme afsluttede opholdsdato: Hotelmanager (part 1 og part 2 med Room/Bed)
-og produktomsætning opdelt pr. rumtype. Du får en kontrolside før tallene registreres som faktiske resultater.</p>
+<p>Hotelmanager (part 1 og part 2 med Room/Bed) giver antal værelser og senge.
+Tilføj produktomsætning pr. rumtype og eventuelt bogføringsrapport for samme afsluttede dato.
+Du får en kontrolside før tallene registreres som faktiske resultater.</p>
 <form method="post" action="/resultater/rapporter" enctype="multipart/form-data">
 <div class="grid2">
 <div class="field"><label for="hotelmanager">Hotelmanager-PDF</label><input id="hotelmanager" type="file" name="hotelmanager" accept=".pdf" required></div>
-<div class="field"><label for="products">Produktomsætnings-PDF</label><input id="products" type="file" name="products" accept=".pdf" required></div>
+<div class="field"><label for="products">Produktomsætnings-PDF · til økonomi</label><input id="products" type="file" name="products" accept=".pdf"></div>
+<div class="field"><label for="accounts">Bogføringsrapport · valgfri afstemning</label><input id="accounts" type="file" name="accounts" accept=".pdf"></div>
 </div><button class="primary" type="submit">Indlæs og kontrollér dagsresultat</button>
 </form>
 <p class="foot">Eksklusive moms; produktudtræk med Overnight og Confirmed, Guaranteed, In-House, Out of House.
 Fjern venteliste, tentative, provisional, annullerede og no-show. Morgenmad kontrolleres på næste side.
-Accounts-rapporten er valgfri til yderligere afstemning.</p>
+Accounts-rapporten afstemmer produktgrupper og viser rettelser uden produktkobling særskilt.
+Beløbene fordeles ikke automatisk på værelser, senge eller rumtyper. Hotelmanager kan importeres alene.</p>
 {% if report_pairs %}<details><summary>Seneste rapportpar til kontrol</summary><ul>
 {% for pair in report_pairs %}<li><a href="/resultater/rapporter/{{ pair.id }}">{{ pair.day.strftime('%d-%m-%Y') }} · rapportpar {{ pair.id }}</a> · {{ pair.actor }}</li>{% endfor %}
 </ul></details>{% endif %}
@@ -144,7 +147,8 @@ omsætningstal, provision og variable omkostninger. Der bruges ingen standardsat
     {% else %}
     {% if entry.data.get('result_report_id') %}<br><a href="/resultater/rapporter/{{ entry.data.result_report_id }}">Se kilder og afstemning</a>{% endif %}
     {% if entry.data.get('revenue_report_id') and entry.data.get('revenue_report_id') != entry.data.get('result_report_id') %}<br><a href="/resultater/rapporter/{{ entry.data.revenue_report_id }}">Se rapportgrundlag for omsætning</a>{% endif %}
-    <dl>{% for key, value in entry.data.items() if value is not none and key not in ['pdf_hash','hotel_pdf_hash','product_pdf_hash','amounts_by_type'] %}<dt>{{ labels.get(key, key) }}</dt><dd style="margin-left:0">{{ value }}</dd>{% endfor %}</dl>{% endif %}
+    {% if entry.data.get('accounts_report_id') %}<br><a href="/resultater/rapporter/{{ entry.data.accounts_report_id }}#bogfoering">Se bogføring og ufordelte poster</a>{% endif %}
+    <dl>{% for key, value in entry.data.items() if value is not none and key not in ['pdf_hash','hotel_pdf_hash','product_pdf_hash','account_pdf_hash','amounts_by_type','accounts_reconciliation','accounts_unallocated'] %}<dt>{{ labels.get(key, key) }}</dt><dd style="margin-left:0">{{ value }}</dd>{% endfor %}</dl>{% endif %}
     </div>{% endfor %}
   </details></td>
 </tr>

@@ -323,3 +323,35 @@ registreret separat. Ukendt grundlag må aldrig føre til stiltiende blanding.
 Kun bekræftede faktiske logital med kontrolleret opholdsdato sammenlignes;
 økonomisk reference og usikkerhedsinterval mangler fortsat. Skøn over
 værdien af allerede bookede ophold forbliver skøn i omsætningsprognosen.
+
+### A/B-forsøg: modellen mod den normale strategi
+
+Åbn **Resultater → A/B-forsøg**. Her kan du præregistrere og låse et prospektivt
+forsøg, få en randomiseret kalender og analysere én gang efter hele perioden.
+A er den normale prisstrategi; B er den fastlåste prismodel. Den fælles
+niveaulæring skal pauses før registrering, så tidligere blokkes resultater ikke
+påvirker senere blokkes priser. Prissætningen ændres ikke af forsøgssektionen. Det er ikke en sammenligning af v4 og v5.
+
+Beskriv A, stopregler og risiko for at gæster flytter mellem datoer. Kontrollér
+fast fysisk sengekapacitet, parspredning og mindste økonomisk relevante effekt.
+Kalenderen styrer opholdsdatoer; den ændrer ikke automatisk priser i Picasso.
+Efter hver afsluttet blok gemmes en driftskontrol. Alle datoer kræver bekræftet
+logi uden moms og morgenmad samt faktiske provisioner og variable omkostninger.
+Ukendte omkostninger tæller ikke som nul. Afvigelser bliver i den tildelte arm.
+
+Slutanalysen låser både resultat og de præcise kildeposter. Et stoppet forsøg får
+ingen bekræftende test. Metoden, antagelserne og TikZ-figurerne findes i
+[metodedokumentet](app/static/experiments/method.pdf) og dets
+[LaTeX-kilde](app/static/experiments/method.tex).
+
+### Dagsresultater og bogføring
+
+Under **Resultater → Importér afsluttet dagsresultat** kan Hotelmanager nu
+indlæses alene til antal værelser og senge. Tilføj produktomsætningen for beløb
+pr. rumtype og Accounts som valgfri tredje fil til afstemning. Alle filer skal
+dække samme afsluttede dato. En kontrolside vises før bekræftelse.
+
+Bogføringens poster uden produktkobling vises særskilt med fortegn, herunder
+rettelser og opgraderinger. De fordeles ikke automatisk på rumtyper og lægges
+ikke til omsætningen igen. Hvis morgenmad, totaler eller datogrundlag er
+uafklaret, kan salgstallene gemmes først; omsætningen forbliver spærret.

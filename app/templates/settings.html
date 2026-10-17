@@ -4,10 +4,12 @@
 {% block body %}
 
 <h1>Indstillinger</h1>
-<p class="sub">
-  Comp set redigeres her og slår igennem ved næste kørsel. Prisparametre ligger i
-  <code>config/config.yaml</code> og kræver en genstart.
-</p>
+<p class="sub">Se konkurrenter, kapacitet og aktive prisindstillinger.</p>
+<details class="read-more calculation-details">
+<summary>Om ændringer i indstillingerne</summary>
+<p>Konkurrenterne redigeres her og bruges ved næste beregning.
+Prisparametre ændres i <code>config/config.yaml</code> og kræver en genstart.</p>
+</details>
 
 <h2>Comp set og kvalitetsindeks</h2>
 <div class="panel">
@@ -55,15 +57,17 @@
 <h2>Aktive parametre</h2>
 <div class="grid2">
   <div class="panel">
-    <h2 style="margin-top:0">Lager</h2>
+    <h2 id="kapacitet" style="margin-top:0">Kapacitet</h2>
     <p>{% if inv.confirmed %}Bekræftet lager{% else %}<b>Ubekræftet eksempellager — eksport og skrivning blokeret</b>{% endif %}</p>
     <table>
       <tr><td>Faste private værelser</td><td class="num">{{ inv.private_rooms }}</td></tr>
+      <tr><td>Beregnede senge i private værelser</td><td class="num">{{ inv.private_beds if inv.private_beds is not none else inv.private_rooms * 2 }}</td></tr>
       <tr><td>Flex-rum (kan sælges begge veje)</td><td class="num">{{ inv.flex_rooms }} à {{ inv.beds_per_flex_room }} senge</td></tr>
+      <tr><td>Beregnede senge i flex-rum</td><td class="num">{{ inv.flex_rooms * inv.beds_per_flex_room }}</td></tr>
       <tr><td>Dormsenge i faste sovesale</td><td class="num">{{ inv.dorm_beds }}</td></tr>
       <tr><td>Maks. private værelser</td><td class="num">{{ inv.max_room_capacity }}</td></tr>
       <tr><td>Maks. senge</td><td class="num">{{ inv.max_bed_capacity }}</td></tr>
-      <tr><td><b>Senge i alt (nævner i RevPAB)</b></td><td class="num"><b>{{ inv.total_beds }}</b></td></tr>
+      <tr><td><b>Samlet sengekapacitet i modellen</b></td><td class="num"><b>{{ inv.total_beds }}</b></td></tr>
     </table>
     <p style="font-size:12.5px;color:var(--muted);margin-top:12px">
       Ret tallene i <code>config/config.yaml</code> til husets faktiske opdeling i
@@ -93,7 +97,7 @@
 <h2>Seneste kørsler</h2>
 <div class="wrapx">
   <table>
-    <thead><tr><th>#</th><th>Start</th><th>Status</th><th class="num">Datoer</th>
+    <thead><tr><th>#</th><th>Start (UTC)</th><th>Status</th><th class="num">Datoer</th>
       <th class="num">Gns. RevPAB</th><th>Udløst af</th></tr></thead>
     <tbody>
     {% for r in runs %}

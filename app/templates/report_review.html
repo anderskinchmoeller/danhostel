@@ -11,13 +11,15 @@
 {% else %}<div class="msg info">Rapporterne er gemt til kontrol. Tallene bruges først som faktiske resultater, når du bekræfter dem nedenfor.</div>{% endif %}
 <div class="panel">
 <h2>Kilder og endeligt salg</h2>
-<p><a href="/resultater/pdf/{{ payload.hotel_pdf_hash }}" target="_blank" rel="noopener">Hotelmanager · original PDF</a> · udskrevet {{ time_local(payload.hotelmanager.printed_at) }}<br>
-<a href="/resultater/pdf/{{ payload.product_pdf_hash }}" target="_blank" rel="noopener">Produktomsætning · original PDF</a> · udskrevet {{ time_local(payload.products.printed_at) }}</p>
+<p><a href="/resultater/pdf/{{ payload.hotel_pdf_hash }}" target="_blank" rel="noopener">Hotelmanager · original PDF</a> · udskrevet {{ time_local(payload.hotelmanager.printed_at) }}
+{% if payload.products %}<br><a href="/resultater/pdf/{{ payload.product_pdf_hash }}" target="_blank" rel="noopener">Produktomsætning · original PDF</a> · udskrevet {{ time_local(payload.products.printed_at) }}{% endif %}
+{% if payload.get('accounts') %}<br><a href="/resultater/pdf/{{ payload.account_pdf_hash }}" target="_blank" rel="noopener">Bogføringsrapport · original PDF</a> · udskrevet {{ time_local(payload.accounts.printed_at) }}{% endif %}</p>
 <p><b>{{ payload.hotelmanager.rooms if payload.hotelmanager.rooms is not none else 'Ukendt' }} værelser og {{ payload.hotelmanager.beds if payload.hotelmanager.beds is not none else 'Ukendt' }} senge.</b>
 {% if payload.hotelmanager.rooms is none or payload.hotelmanager.beds is none %}<br>Et antal mangler i rapporten. Registrér begge endelige antal manuelt i Resultatlog; en tom celle tolkes ikke som nul.{% endif %}
 Antallene kommer fra Hotelmanager, Room Inhouse / Today. Pax, Pcs og antal i produktudtrækket bruges ikke som endeligt salg.</p>
 <p>{{ payload.hotelmanager.choices }}.</p>
 </div>
+{% if payload.products %}
 <div class="panel" style="margin-top:16px">
 <h2>Logiomsætning eksklusive moms</h2>
 <p>Rumtypen afgør, om salget er hele værelser eller enkelte senge. YP og andre produktnavne bruges ikke til denne opdeling.</p>
@@ -26,18 +28,46 @@ Antallene kommer fra Hotelmanager, Room Inhouse / Today. Pax, Pcs og antal i pro
 </tbody></table></div>
 <p>Værelser: <b>{{ report.room }} kr.</b> · Senge: <b>{{ report.bed }} kr.</b><br>
 Ufordelt afrunding mellem rumtypetotaler og Grand Total: <b>{{ report.difference }} kr.</b><br>
-Logi i alt inklusive ufordelt afrunding: <b>{{ report.total_lodging }} kr.</b><br>
+Foreløbig produktsum efter foreslået fradrag, inklusive uafklarede beløb: <b>{{ report.total_lodging }} kr.</b><br>
 Foreslået fradrag af morgenmad: {{ report.breakfast }} kr. · Produktudtræk før fradrag: {{ payload.products.total }} kr.</p>
 <p>Hotelmanager viser afrundet {{ payload.hotelmanager.total_price_rounded }} kr. Forskel: {{ report.hotel_difference }} kr.
 Både total og gennemsnitspris pr. værelse/seng afstemmes. Forskelle over 50 øre i de afrundede sammenligningstal spærrer økonomiimport.</p>
 <p class="foot">Der bruges trykte rumtypetotaler. Produktlinjer og totaler kan afrunde forskelligt; forskellen vises særskilt.
 Morgenmad foreslås kun fratrukket på linjer med morgenmad i beskrivelsen og uden antal gæster, nætter eller rum.
-Produkter med samme navn og opholdsantal beholdes som logi. Kontrollér de foreslåede fradrag i originalen.</p>
+Produkter med opholdsantal vises foreløbigt som logi, men pakkebeløb kan også indeholde morgenmad.
+Et ekstra fradrag på produktniveau kan ikke fordeles på rumtyper uden dokumentation. Kontrollér fradragene i originalerne.</p>
 {% for issue in report.issues %}<div class="msg err">{{ issue }}</div>{% endfor %}
 <div class="msg info"><b>Kontrollér datogrundlaget.</b> Produktudtrækkets fodtekst siger “{{ payload.products.date_basis }}”.
 Afstemningen understøtter tallene for denne dato, men beviser ikke alene, at udtrækket fordeler flerdagesophold pr. opholdsnat.
 Bekræft derfor dato og fradrag før økonomital gemmes. Rapporten udelader desuden produkter flyttet til bilag uden tilknytning til reservationer; kontrollér eventuelle sådanne posteringer særskilt.</div>
 </div>
+{% else %}<div class="msg info">Produktomsætning er ikke vedlagt. Du kan gemme de kontrollerede salgstal nu og indlæse rapporterne igen med produktfilen senere.</div>{% endif %}
+{% if report.accounting %}
+<div class="panel" id="bogfoering"><h2>Afstemning mod bogføring</h2>
+<p>Bogføringsrapporten er opdelt efter produkt og konto, ikke rumtype. Positivt beløb nedenfor er kredit minus debet;
+en negativ rettelse reducerer den viste omsætning. Kontobeløbene er afstemningsgrundlag, ikke ekstra omsætning der skal lægges til produktudtrækket.</p>
+{% if payload.products %}
+<div class="wrapx"><table><thead><tr><th>Produkt</th><th>Produktudtræk</th><th>Bogføring · i alt</th><th>Forskel</th><th>Bogført logi</th><th>Bogført morgenmad</th><th>Morgenmad uden rumtypefradrag</th></tr></thead><tbody>
+{% for row in report.accounting.comparisons %}<tr><td>{{ row.product }}</td><td>{{ row.product_total if row.product_total is not none else 'Mangler' }}</td><td>{{ row.accounts_total if row.accounts_total is not none else 'Mangler' }}</td><td>{{ row.difference if row.difference is not none else 'Ukendt' }}</td><td>{{ row.accounts_lodging }}</td><td>{{ row.accounts_breakfast }}</td><td>{{ row.breakfast_unallocated if row.breakfast_unallocated is not none else 'Ukendt' }}</td></tr>{% endfor %}</tbody></table></div>
+<p>Produktudtræk minus produktkoblet bogført morgenmad: <b>{{ report.accounting.product_net }} kr.</b><br>
+Bogført logi med produktkobling: <b>{{ report.accounting.linked_lodging }} kr.</b><br>
+Forskel mellem disse to: {{ report.accounting.product_net_vs_linked }} kr. · Forskel mellem produktkoblet logi og Hotelmanager: {{ report.accounting.linked_vs_hotel }} kr.</p>
+<p class="foot">Bogføringsrapporten kan vise, at der mangler et morgenmadsfradrag, men ikke hvilken rumtype det tilhører.
+En produktgruppe med flere rumtyper fordeles ikke proportionalt eller efter antal.</p>
+{% endif %}
+<h3>Uden produktkobling · “None”</h3>
+<div class="wrapx"><table><thead><tr><th>Konto</th><th>Tekst</th><th>Rapporteret Amount</th><th>Omsætningsfortegn · kredit − debet</th></tr></thead><tbody>
+{% for row in payload.accounts.unallocated_rows %}<tr><td>{{ row.account }}</td><td>{{ row.label }}</td><td>{{ row.amount }}</td><td>{{ row.revenue }} kr.</td></tr>{% else %}<tr><td colspan="4">Ingen poster uden produktkobling.</td></tr>{% endfor %}</tbody></table></div>
+<p>Ufordelt logi: <b>{{ report.accounting.unallocated_lodging }} kr.</b> · Ufordelte opgraderinger: <b>{{ report.accounting.unallocated_upgrade }} kr.</b><br>
+Konto 1002 inklusive rettelser: {{ report.accounting.lodging_all }} kr. · Konto 1004: {{ report.accounting.upgrades_all }} kr.<br>
+De to konti tilsammen: {{ report.accounting.lodging_plus_upgrades }} kr. Beløbet er ikke af den grund godkendt som logi pr. opholdsdato.</p>
+<p>Rapportens Result: {{ payload.accounts.reported_result }} kr. Det omfatter også morgenmad og andre konti og er ikke logiomsætning eller dækningsbidrag.
+Rundingsforskel mellem Result med omsætningsfortegn og summen af kontolinjerne: {{ payload.accounts.line_rounding }} kr.</p>
+{% for issue in report.accounting.issues %}<div class="msg err">{{ issue }}</div>{% endfor %}
+<p class="foot">Kontrollér, at bogføringsdato, opholdsdato og momsgrundlag er sammenlignelige. Rettelser, flyttede produkter og tilbagebetalinger skal forklares;
+de bliver hverken behandlet som afrunding eller skjult i en rumtype.</p>
+</div>
+{% endif %}
 <div class="panel" style="margin-top:16px">
 <h2>Gem kontrolleret resultat</h2>
 <form method="post" action="/resultater/rapporter/{{ record.id }}/bekraeft">

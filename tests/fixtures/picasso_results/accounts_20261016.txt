@@ -1,0 +1,73 @@
+Types criteria: Result, VAT, Corrections included, Deposit included                                              Danhostel Aarhus City
+                                                                                                                 LENE 17-10-2026  Time: 08:57
+
+                                             Accounts on 16-10-2026 to 16-10-2026
+
+
+Product       Text                  Code     Turnover      VAT     Type         Balance   VAT       VAT Acc.       Amount            Debit            Credit
+  Acc. No                                    Group         Value                                    No
+
+None
+       1002   Værelser                       1             25      Ware         Result    NoVat     6902                 8.818,54         11.930,94         3.112,40
+       1004   Opgradering                    1             25      Ware         Result    NoVat     6902                -1.384,72          1.700,00         3.084,72
+       1005   Morgenmad                      3             25      Ware         Result    NoVat     6902                -3.942,40               0,00        3.942,40
+       1011   Udleje parkering               4             25      Ware         Result    NoVat     6902                  -955,20            477,60         1.432,80
+       1017   Billetter Den Gamle By         0             25      Ware         Result    NoVat     6902                  -312,00               0,00          312,00
+       1019   Bagageopbevaring               5             25      Ware         Result    NoVat     6902                  -144,00               0,00          144,00
+       1053   Øl                             7             25      Ware         Result    NoVat     6902                    -80,00              0,00            80,00
+       1054   Vand                           7             25      Ware         Result    NoVat     6902                  -113,60               0,00          113,60
+       1055   Vin                            7             25      Ware         Result    NoVat     6902                  -168,00               0,00          168,00
+       1058   Kiosksalg                      5             25      Ware         Result    NoVat     6902                    -66,40              0,00            66,40
+       3628   Gebyrer                        1             25      Ware         Result    NoVat     6902                  -240,00               0,00          240,00
+                                                                                                                         1.412,22         14.108,54        12.696,32
+
+ROOM
+       1002   Værelser                       1             25      Ware         Result    NoVat     6902                  -462,00               0,00          462,00
+                                                                                                                          -462,00               0,00          462,00
+
+YP
+       1002   Værelser                       1             25      Ware         Result    NoVat     6902                -9.627,46               0,00        9.627,46
+                                                                                                                        -9.627,46               0,00        9.627,46
+
+YP NON-REF
+       1002   Værelser                       1             25      Ware         Result    NoVat     6902               -10.149,92               0,00       10.149,92
+                                                                                                                       -10.149,92               0,00       10.149,92
+
+ONLINE
+       1002   Værelser                       1             25      Ware         Result    NoVat     6902                -2.360,00               0,00        2.360,00
+                                                                                                                        -2.360,00               0,00        2.360,00
+
+ONLINE_NON-REF
+       1002   Værelser                       1             25      Ware         Result    NoVat     6902                -2.596,00               0,00        2.596,00
+                                                                                                                        -2.596,00               0,00        2.596,00
+
+YP NON-REF MM
+       1002   Værelser                       1             25      Ware         Result    NoVat     6902                -1.463,54               0,00        1.463,54
+       1005   Morgenmad                      3             25      Ware         Result    NoVat     6902                  -176,00               0,00          176,00
+                                                                                                                        -1.639,54               0,00        1.639,54
+
+YP ROOM MM
+       1002   Værelser                       1             25      Ware         Result    NoVat     6902                -1.847,97               0,00        1.847,97
+       1005   Morgenmad                      3             25      Ware         Result    NoVat     6902                  -246,40               0,00          246,40
+                                                                                                                        -2.094,37               0,00        2.094,37
+
+                                                                                                   Result:             -27.517,06
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                                                                                                                       Page 1 of 1

@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% set page = "results" %}
+{% block title %}A/B-forsøg · Prismotor{% endblock %}
+{% block body %}
+<h1>A/B-forsøg</h1>
+<p class="sub">Giver prismodellen et højere faktisk dækningsbidrag end din normale prisstrategi?</p>
+<p>A er din normale strategi. B er prismodellen. V4 og V5 er versioner af samme model.
+Forsøget har en låst protokol, en randomiseret kalender og én slutanalyse.</p>
+<ul class="link-index"><li><a href="#design">Forsøgsdesign</a> · <a href="#matematik">Matematik og antagelser</a></li>
+<li><a href="#opret">Præregistrér et forsøg</a> · <a href="#forsoeg">Kalender og resultater</a></li>
+<li><a href="/static/experiments/method.pdf">Læs metoden som PDF</a> · <a href="/static/experiments/method.tex">LaTeX-kilde</a></li></ul>
+{% if error %}<div class="msg err" role="alert">{{ error }}</div>{% endif %}
+<div class="notice"><b>Forsøg anvendes manuelt.</b> Registrering ændrer ingen priser i Picasso eller prismotoren.
+Anvend selv den tildelte strategi for hver opholdsdato. Et godkendt forslag eller en hentet CSV er ikke bevis for anvendelse.</div>
+<section class="panel" id="design"><h2>Et par blokke ad gangen</h2>
+<p>Hele huset får samme strategi på en opholdsdato: både værelser og senge. To naboblokke på 7, 14 eller 28 dage danner et par.
+Lodtrækningen afgør rækkefølgen A/B i hvert par. Blokkene begynder mandag, så ugedagene er repræsenteret ens.</p>
+<figure class="ab-figure"><img src="/static/experiments/design.svg" alt="Lås protokollen, randomisér A og B inden for hvert par, afstem faktiske resultater og udfør én slutanalyse.">
+<figcaption>Designskitse tegnet i TikZ. <a href="/static/experiments/design.tikz.tex">Hent figurkilden</a>.</figcaption></figure>
+<p>Primært mål: <b>dækningsbidrag pr. fast fysisk seng pr. nat</b>. Logi fra værelser og senge, eksklusive moms og morgenmad,
+minus faktisk provision og variable omkostninger. Kapaciteten låses før start, så modellen ikke kan ændre nævneren gennem allokeringen.</p>
+<p>Gæster kan flytte mellem datoer, og ophold kan krydse blokgrænser. Randomisering fjerner ikke den risiko.
+Beskriv den før start; væsentlig afsmitning hindrer en enkel kausal konklusion. Begynd med en A/A-driftsprøve med samme strategi i begge arme.</p></section>
+<section class="panel" id="matematik"><h2>Den statistiske kontrakt</h2>
+<p>Ét par giver én observation. Alle tildelte datoer bliver i deres oprindelige arm, også ved manuelle afvigelser: <i>intention-to-treat</i>.
+Grupper, events og dårlige dage fjernes ikke bagefter.</p>
+<figure class="formula"><div data-latex="G_d=R_d^{\mathrm{rum}}+R_d^{\mathrm{seng}}+a_d-Q_d-V_d,\qquad Y_{jk}=\frac{\sum_{d\in B_{jk}}G_d}{LC}" data-display="true">Dagligt bidrag = logi + afstemning − provision − variable omkostninger. Blokmål = samlet bidrag / (blokdage × fast kapacitet).</div>
+<figcaption>R: faktisk logi uden moms og morgenmad; a: afstemt afrunding; Q: provision; V: variable omkostninger; L: blokdage; C: fast fysisk sengekapacitet.</figcaption></figure>
+<figure class="formula"><div data-latex="D_j=Y_{j,B}-Y_{j,A},\quad\widehat\tau=\frac1m\sum_{j=1}^{m}D_j,\quad I_{.95}=\bar D\pm t_{.975,m-1}\frac{s_D}{\sqrt m}" data-display="true">Parforskel = B − A. Effekt = gennemsnit af parforskelle. Omtrentligt 95 % interval = effekt ± t-kvantil × standardfejl.</div>
+<figcaption>m er antal par; sD er spredningen af parforskellene. Intervallet forudsætter tilstrækkeligt uafhængige par og rimelig normaltilnærmelse.</figcaption></figure>
+<details class="read-more"><summary>Den primære randomiseringstest</summary>
+<p>Tosidet α = 5 %. Testen undersøger den skarpe nulhypotese: ingen effekt i nogen blok. Det er stærkere end blot nul gennemsnitseffekt.
+Ved højst 16 par gennemgås alle armombytninger. Ellers bruges 99.999 reproducérbare lodtrækninger med plus-én-korrektion.</p>
+<figure class="formula"><div data-latex="p=2^{-m}\sum_{\epsilon\in\{-1,+1\}^m}\mathbf1\!\left\{\left|\sum_j\epsilon_jD_j\right|\ge\left|\sum_jD_j\right|\right\}" data-display="true">Eksakt p = andelen af alle fortegnsombytninger mindst lige så ekstreme som den observerede forskel.</div></figure>
+<p>95 %-intervallet er en parret t-tilnærmelse, ikke inversion af denne test. Ved nulspredning vises intet interval.
+P-værdien er ikke sandsynligheden for, at modellen er bedre.</p></details>
+<details class="read-more"><summary>Styrke, varighed og stopregler</summary>
+<figure class="formula"><div data-latex="m_{\mathrm{plan}}=\max\!\left(6,\left\lceil\left[\frac{(z_{.975}+z_{.80})\sigma_D}{\delta_\star}\right]^2\right\rceil\right)" data-display="true">Antal par = mindst 6, ellers oprundet ((z97,5 + z80) × parspredning / mindste relevante effekt)².</div></figure>
+<p>Planlægningsstyrke 80 %. Spredningen skal komme fra sammenlignelige <b>parrede blokforskelle</b>, ikke daglige bookinger.
+Normaltilnærmelsen er et skøn og garanterer ikke randomiseringstestens styrke. Overvej designsimulation før et afgørende forsøg.</p>
+<p>Eksempel, ikke hosteldata: spredning 6 og relevant effekt 5 kr. kræver 12 par, dvs. 24 uger med 7-dages blokke, plus prisperioden før første ophold.
+Ingen tidlig stopning for signifikans. Overvåg de aftalte driftsstop manuelt; stoppede forsøg får ingen bekræftende test.</p>
+<p>Ét primært mål og én test pr. protokol. Undergrupper er beskrivende. Gentagne forsøg på samme hypotese kræver en fælles plan for multipel testning.</p></details>
+<figure class="ab-figure"><img src="/static/experiments/intervals.svg" alt="Illustrative intervaller: mulig skade under nul, usikkerhed omkring nul, positiv effekt over nul og praktisk relevans over den valgte tærskel.">
+<figcaption>Illustration uden faktiske forsøgsdata. <a href="/static/experiments/intervals.tikz.tex">TikZ-kilde</a>.
+Positiv evidens kræver også p ≤ 0,05 og gyldige antagelser.</figcaption></figure></section>
+<section class="panel" id="opret"><h2>Præregistrér et forsøg</h2>
+<p>Kontrollér planen før låsning. Tildelingen oprettes én gang og kan ikke redigeres.
+Tallene nedenfor er eksempler, ikke estimater fra dine økonomital.</p>
+{% if settings.params.v4.level_alpha != 0 %}<div class="notice"><b>Startbetingelse: pausér den fælles niveaulæring.</b>
+Læring fra tidligere blokke kan påvirke senere priser og koble forsøgsarmene sammen. Til denne metode skal læringen pauses, og startniveauet låses før registrering.
+Den nuværende prissætning er uændret. Forsøget måler dermed den fastlåste model; hele den adaptive politik kræver et andet design.</div>{% endif %}
+<details class="task-section"><summary>Opret og lås en ny protokol</summary>
+<form method="post" action="/resultater/ab/opret">
+<div class="field"><label for="ab-name">Forsøgets navn</label><input id="ab-name" type="text" name="name" maxlength="160" required></div>
+<div class="grid2">
+<div class="field"><label for="ab-start">Første opholdsdato · mandag</label><input id="ab-start" type="date" name="start" value="{{ default_start }}" required></div>
+<div class="field"><label for="ab-lead">Prisstrategi fra antal dage før ophold</label><input id="ab-lead" type="number" name="lead" min="1" max="120" value="30" required></div>
+<div class="field"><label for="ab-days">Dage pr. blok</label><select id="ab-days" name="block_days"><option value="7">7 dage</option><option value="14">14 dage</option><option value="28">28 dage</option></select></div>
+<div class="field"><label for="ab-pairs">Antal par · to blokke i hvert</label><input id="ab-pairs" type="number" name="pairs" min="6" max="52" value="12" required></div>
+<div class="field"><label for="ab-capacity">Fast antal fysiske senge i hele huset</label><input id="ab-capacity" type="number" name="capacity" min="1" max="10000" required placeholder="Kontrollér faktisk kapacitet"></div>
+<div class="field"><label for="ab-delta">Mindste relevante forbedring · kr./seng/nat</label><input id="ab-delta" type="number" name="delta" min="0.01" step="0.01" value="5" required></div>
+<div class="field"><label for="ab-sigma">Spredning af parforskelle · samme enhed</label><input id="ab-sigma" type="number" name="sigma" min="0.01" step="0.01" value="6" required></div></div>
+<p class="notice" id="ab-power" aria-live="polite">Eksemplet kræver omtrent 12 par og 24 uger ved 7-dages blokke.</p>
+<div class="field"><label for="ab-baseline">A: Din normale strategi · konkrete regler og ansvarlig</label><textarea id="ab-baseline" name="baseline" rows="5" minlength="30" maxlength="6000" required placeholder="Priser, justeringer, informationsgrundlag, kanaler, rabatter og beslutningstidspunkt."></textarea></div>
+<div class="field"><label for="ab-safeguards">Stopregler og begrundelse for spredning og kapacitet</label><textarea id="ab-safeguards" name="safeguards" rows="5" minlength="30" maxlength="6000" required placeholder="Hvornår stopper forsøget? Hvem overvåger det? Hvorfra kommer parspredningen og antallet af fysiske senge?"></textarea></div>
+<div class="field"><label for="ab-interference">Risiko for afsmitning og fælles vilkår</label><textarea id="ab-interference" name="interference" rows="5" minlength="30" maxlength="6000" required placeholder="Datoflytning, ophold over blokgrænser, bloklængde, fælles kanal- og grupperegler samt A/A-kontrol."></textarea></div>
+<label><input type="checkbox" name="understood" value="yes" required>Jeg har kontrolleret planen. Den låses før første prisperiode, og jeg anvender selv kalenderens strategi i Picasso.</label>
+<button class="primary" type="submit" {% if settings.params.v4.level_alpha != 0 %}disabled{% endif %}>Lås protokol og randomisér kalender</button></form></details></section>
+<section id="forsoeg" class="ab-workspace"><h2>Kalender og resultater</h2>
+<div class="panel"><form method="get" class="bar"><label for="ab-select">Registreret forsøg</label>
+<select id="ab-select" name="experiment_id"><option value="0">Vælg et forsøg</option>{% for e in experiments %}<option value="{{ e.id }}" {% if experiment and e.id==experiment.id %}selected{% endif %}>#{{ e.id }} · {{ e.name }} · {{ {'collecting':'Dataindsamling','finalized':'Slutanalyse låst','stopped':'Stoppet'}[e.status] }}</option>{% endfor %}</select><button type="submit">Vis forsøg</button></form></div>
+{% if experiment %}
+<div class="panel"><h3>#{{ experiment.id }} · {{ experiment.name }}</h3>
+<p>{{ protocol.start }} til {{ protocol.end }} · {{ protocol.pairs }} par · {{ protocol.block_days }} dage pr. blok · {{ protocol.capacity }} fysiske senge.
+Registreret {{ experiment.created_at.strftime('%d-%m-%Y %H:%M') }} UTC af {{ experiment.actor }}.</p>
+<p><a href="/resultater/ab/{{ experiment.id }}/kalender.csv">Hent kalender som CSV</a> · <a href="/resultater/ab/{{ experiment.id }}/protokol.json">Hent protokol, log og låst analyse</a></p>
+<details class="read-more"><summary>Den låste strategi og protokol</summary><h3>A · normal strategi</h3><p class="ab-text">{{ protocol.baseline }}</p>
+<h3>B · prismodel</h3><p>{{ protocol.learning }}. Modelhash <code>{{ protocol.model.digest }}</code>.</p>
+<h3>Stopregler og forudsætninger</h3><p class="ab-text">{{ protocol.safeguards }}</p><h3>Afsmitning og fælles vilkår</h3><p class="ab-text">{{ protocol.interference }}</p>
+<p>Primært mål: dækningsbidrag pr. fast seng pr. nat. Praktisk tærskel {{ protocol.delta }} kr.; parspredning {{ protocol.sigma }} kr.; tosidet α 0,05; styrkeskøn 80 %.</p>
+<p>Protokolhash <code>{{ experiment.digest }}</code>. Kilder og tildeling findes i JSON-eksporten.</p></details></div>
+{% if experiment.status=='collecting' %}
+{% if drift %}<div class="msg err">Modelgrundlaget er ændret siden præregistreringen. Slutanalysen er blokeret. Undersøg ændringen og stop forsøget, hvis behandlingen er ændret.</div>{% endif %}
+<div class="cards"><div class="card"><div class="k">Blokke med fulde økonomital</div><div class="v">{{ evidence.completed }} / {{ evidence.total }}</div></div>
+<div class="card"><div class="k">Driftskontroller</div><div class="v">{{ evidence.reviewed }} / {{ evidence.total }}</div></div>
+<div class="card"><div class="k">Datoer med mangler</div><div class="v">{{ evidence.missing|length }}</div></div></div>
+<p class="notice">Ingen løbende p-værdier eller effektjagt. Følg datadækning og drift; analysér én gang efter hele perioden.
+<a href="/resultater">Registrér faktiske priser, slutresultater og omkostninger</a>.</p>
+{% elif experiment.status=='stopped' %}<div class="msg err">Forsøget er stoppet. Ingen bekræftende slutanalyse eller p-værdi. Protokollen og driftsloggen er bevaret.</div>
+{% else %}
+<div class="notice"><b>Slutanalysen er låst.</b> Tallene bruger det gemte kildesnapshot; senere rettelser i resultatloggen ændrer dem ikke.</div>
+<div class="cards"><div class="card"><div class="k">B − A · kr./seng/nat</div><div class="v">{{ '%.2f'|format(result.effect) }}</div></div>
+<div class="card"><div class="k">Omtrentligt 95 % interval</div><div class="v">{% if result.ci %}{{ '%.2f'|format(result.ci[0]) }} til {{ '%.2f'|format(result.ci[1]) }}{% else %}Kan ikke beregnes{% endif %}</div></div>
+<div class="card"><div class="k">Primær tosidet p</div><div class="v">{{ '%.5f'|format(result.p) }}</div><div class="n">{{ 'Eksakt' if result.p_method=='exact' else 'Monte Carlo · plus én' }} · {{ result.draws }} tildelinger</div></div></div>
+<div class="panel"><p><b>{% if result.ci and result.ci[1]<0 and result.p<=0.05 %}Evidens for lavere bidrag med modellen.{% elif result.practically_positive %}Evidens for en praktisk relevant forbedring.{% elif result.positive %}Positiv evidens; størrelsen er ikke sikkert over den praktiske tærskel.{% else %}Ingen dokumenteret praktisk forbedring efter den aftalte beslutningsregel.{% endif %}</b>
+Fortolkningen forudsætter stabil behandling og ingen væsentlig afsmitning. {{ result.deviations }} blokke har oplyste afvigelser, som er bevaret i den tildelte arm.</p>
+<p>A: {{ '%.2f'|format(result.control) }} kr.; B: {{ '%.2f'|format(result.treatment) }} kr. pr. fast seng pr. nat.
+{% if result.relative is not none %}Relativ forskel {{ '%.1f'|format(result.relative) }} % (beskrivende).{% endif %}Ingen garanteret fremtidig årsgevinst.</p>
+<details><summary>Vis forskel for hvert par</summary><table><thead><tr><th>Par</th><th>A</th><th>B</th><th>B − A</th></tr></thead><tbody>{% for pair in result.pairs %}<tr><td>{{ pair.pair }}</td><td class="num">{{ '%.2f'|format(pair.A) }}</td><td class="num">{{ '%.2f'|format(pair.B) }}</td><td class="num">{{ '%.2f'|format(pair.difference) }}</td></tr>{% endfor %}</tbody></table></details></div>
+{% endif %}
+<div class="wrapx"><table><thead><tr><th>Par / blok</th><th>Opholdsdatoer</th><th>Strategi</th><th>Økonomi</th><th>Salg · værelser / senge</th><th>Driftskontrol</th></tr></thead><tbody>
+{% set blocks=result.blocks if result else evidence.blocks %}
+{% for block in blocks %}<tr><td>{{ block.pair }} / {{ loop.index }}</td><td>{{ block.start }}<br>{{ block.end }}</td><td><span class="tag">{{ block.arm }} · {{ 'Normal' if block.arm=='A' else 'Model' }}</span></td>
+<td>{% if block.complete %}{{ '%.2f'|format(block.value) }} kr./seng/nat{% else %}{{ block.missing|length }} datoer mangler<details><summary>Datoer</summary>{{ block.missing|join(', ') }}</details>{% endif %}</td>
+<td>{{ block.rooms if block.rooms is not none else '–' }} / {{ block.beds if block.beds is not none else '–' }}<small>Summer af dagligt solgte enheder</small></td>
+<td>{% if block.review %}{{ 'Fulgt som tildelt' if block.review.adherence=='yes' else 'Afvigelser oplyst' }}<details><summary>Gennemgang</summary><p>{{ block.review.note }}</p></details>{% else %}Mangler{% endif %}</td></tr>{% endfor %}</tbody></table></div>
+{% if experiment.status=='collecting' %}
+<div class="panel"><details class="task-section"><summary>Gem driftskontrol for en afsluttet blok</summary>
+<form method="post" action="/resultater/ab/{{ experiment.id }}/kontrol"><div class="field"><label>Blok<select name="block" required>{% for block in evidence.blocks %}{% if block.end<today %}<option value="{{ block.index }}">Blok {{ loop.index }} · {{ block.start }}–{{ block.end }} · {{ block.arm }}</option>{% endif %}{% endfor %}</select></label></div>
+<div class="field"><label>Var strategien fulgt gennem prisperioden?<select name="adherence"><option value="yes">Ja, som tildelt</option><option value="deviations">Der var afvigelser</option></select></label></div>
+<div class="field"><label>Hvem, hvornår, kilde og afvigelser<textarea name="note" rows="4" minlength="20" maxlength="6000" required></textarea></label></div>
+<p>Kontrollér priser, kanaler, grupper, blokeringer og events gennem hele prisperioden. Rettelser gemmes som nye logposter.</p><button type="submit">Gem blokgennemgang</button></form></details>
+<details class="task-section"><summary>Lås slutanalyse</summary><p>Alle datoer kræver endelige salgstal, logi uden moms og morgenmad samt faktisk provision og variable omkostninger.
+Opholdsdato og nettogrundlag skal være bekræftet. Mangler bliver ikke sat til nul.</p>
+<form method="post" action="/resultater/ab/{{ experiment.id }}/afslut"><label><input type="checkbox" name="attest" value="true" required>Jeg har kontrolleret fælles nettogrundlag, stabile strategier, ingen selektion af datoer og ingen væsentlig afsmitning eller samtidige indgreb. Blokafvigelserne er dokumenteret.</label>
+<button type="submit" {% if drift or evidence.missing or evidence.reviewed!=evidence.total %}disabled{% endif %}>Beregn og lås den eneste slutanalyse</button></form></details>
+<details class="task-section"><summary>Stop forsøget efter driftsreglerne</summary><p>Et stoppet forsøg kan ikke genåbnes og får ingen bekræftende test.</p>
+<form method="post" action="/resultater/ab/{{ experiment.id }}/stop"><label>Begrundelse<textarea name="note" rows="3" minlength="20" maxlength="6000" required></textarea></label><button type="submit">Stop forsøg uden slutanalyse</button></form></details></div>
+{% endif %}
+<div class="panel"><details class="read-more"><summary>Fuld driftslog</summary>{% for log in evidence.logs %}<p>#{{ log.id }} · {{ log.created_at }} UTC · {{ log.actor }} · {{ log.kind }}<br><code>{{ log.payload }}</code></p>{% else %}<p>Ingen driftskontroller eller stop registreret.</p>{% endfor %}</details></div>
+{% else %}<p>Vælg et registreret forsøg eller opret en protokol. Der vises ingen eksempelresultater som faktiske tal.</p>{% endif %}
+</section>
+<section class="panel"><h2>Metode og kilder</h2><p><a href="/static/experiments/method.pdf">Den fulde metode i LaTeX/PDF</a> dokumenterer estimand, økonomigrundlag, formler, implementering og begrænsninger.</p>
+<ol class="ab-sources"><li><a href="https://www.microsoft.com/en-us/research/publication/online-experimentation-at-microsoft/">Kohavi m.fl. · Online Experimentation at Microsoft (2009)</a>. Inspiration til randomisering og et fælles primært mål; blokdesignet er en lokal tilpasning.</li>
+<li><a href="https://www.itl.nist.gov/div898/handbook/prc/section3/prc311.htm">NIST · Analysis of paired observations</a>. Parforskelle, standardfejl og t-interval.</li>
+<li><a href="https://arxiv.org/abs/2009.00148">Bojinov, Simchi-Levi og Zhao · Design and Analysis of Switchback Experiments</a>. Afsmitning kræver særskilt design; deres estimator er ikke implementeret her.</li></ol></section>
+<script defer src="/static/experiments/planner.js"></script>
+{% endblock %}

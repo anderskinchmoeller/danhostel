@@ -1,0 +1,1329 @@
+{
+  "indhentet": "2026-10-17",
+  "periode": [
+    "2026-10-17",
+    "2026-11-17"
+  ],
+  "valuta": "DKK",
+  "grundlag": "Laveste tilgængelige offentlige pris for ét privat værelse, 2 voksne, 1 nat, uden morgenmad. Median af de fire kilder, afrundet til hele kroner. Private kapsler og enkeltsenge i delte sovesale udeladt fra værelsesmedianen. Obligatorisk sengelinned på 70 DKK pr. person lagt til hos Aarhus Hostel, hvor det er særskilt. Seng: Roberta’s blandet sovesal, én voksen, to nætter; total divideret med to og afrundet til hele kroner som aftalt med brugeren. Kun bookbare tilbud. Fleksible og ikke-refunderbare priser kan forekomme. Ingen genbrug af tidligere priser. Tomme felter er manglende eller utilgængelige tilbud.",
+  "blanks": {
+    "Cabinn Aarhus": [
+      {
+        "date": "2026-11-06",
+        "status": "ingen pris vist"
+      },
+      {
+        "date": "2026-11-07",
+        "status": "ingen pris vist"
+      }
+    ],
+    "Wakeup Aarhus": [
+      {
+        "date": "2026-11-07",
+        "status": "ingen tilgængelig pris"
+      }
+    ],
+    "Roberta's Society": [],
+    "Aarhus Hostel og Hotel": [
+      {
+        "date": "2026-10-17",
+        "status": "ingen tilgængelig pris"
+      },
+      {
+        "date": "2026-11-06",
+        "status": "ingen tilgængelig pris"
+      },
+      {
+        "date": "2026-11-07",
+        "status": "ingen tilgængelig pris"
+      }
+    ],
+    "seng": [
+      "2026-10-17",
+      "2026-10-23",
+      "2026-10-24",
+      "2026-10-30",
+      "2026-10-31",
+      "2026-11-06",
+      "2026-11-07",
+      "2026-11-13",
+      "2026-11-14"
+    ]
+  },
+  "records": [
+    {
+      "date": "2026-10-17",
+      "Cabinn Aarhus": {
+        "price": 984,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-10-17&departure=2026-10-18&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verificeret"
+      },
+      "Aarhus Hostel og Hotel": {
+        "price": null,
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-10-17&numnight=1&numadult=2&numchild=0",
+        "status": "ingen tilgængelig pris"
+      },
+      "Wakeup Aarhus": {
+        "price": 750,
+        "room": "SKY",
+        "rate": "ECOBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-10-17&departure=2026-10-18&rooms=1&adults=2&children=0",
+        "status": "verificeret"
+      },
+      "Roberta's Society": {
+        "price": 590.9,
+        "room": "Twin Room Shared Bathroom",
+        "rate": 10,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-17&nrNights=1&nrAdults=2&amount=1",
+        "status": "verificeret"
+      },
+      "bed": {
+        "price": null,
+        "checkin": "2026-10-17",
+        "checkout": "2026-10-19",
+        "adults": 1,
+        "nights": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-17&nrNights=2&nrAdults=1&amount=1"
+      }
+    },
+    {
+      "date": "2026-10-18",
+      "Cabinn Aarhus": {
+        "price": 715,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-10-18&departure=2026-10-19&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verificeret"
+      },
+      "Aarhus Hostel og Hotel": {
+        "price": 550,
+        "base": 550,
+        "linen": 0,
+        "room": "Hotelværelse 2 enkelte senge",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-10-18&numnight=1&numadult=2&numchild=0",
+        "status": "verificeret"
+      },
+      "Wakeup Aarhus": {
+        "price": 650,
+        "room": "STD",
+        "rate": "ECOBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-10-18&departure=2026-10-19&rooms=1&adults=2&children=0",
+        "status": "verificeret"
+      },
+      "Roberta's Society": {
+        "price": 435.1,
+        "room": "Twin Room Shared Bathroom",
+        "rate": 10,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-18&nrNights=1&nrAdults=2&amount=1",
+        "status": "verificeret"
+      },
+      "bed": {
+        "price": 153.425,
+        "total_two_nights": 306.85,
+        "room": "Single Bed in Mixed Dorm (10-Bed)",
+        "rate": 142,
+        "checkin": "2026-10-18",
+        "checkout": "2026-10-20",
+        "adults": 1,
+        "nights": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-18&nrNights=2&nrAdults=1&amount=1"
+      }
+    },
+    {
+      "date": "2026-10-19",
+      "Cabinn Aarhus": {
+        "price": 889,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-10-19&departure=2026-10-20&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verificeret"
+      },
+      "Aarhus Hostel og Hotel": {
+        "price": 550,
+        "base": 550,
+        "linen": 0,
+        "room": "Hotelværelse med dobbeltseng",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-10-19&numnight=1&numadult=2&numchild=0",
+        "status": "verificeret"
+      },
+      "Wakeup Aarhus": {
+        "price": 750,
+        "room": "STD",
+        "rate": "ECOBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-10-19&departure=2026-10-20&rooms=1&adults=2&children=0",
+        "status": "verificeret"
+      },
+      "Roberta's Society": {
+        "price": 606.1,
+        "room": "Twin Room Shared Bathroom",
+        "rate": 10,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-19&nrNights=1&nrAdults=2&amount=1",
+        "status": "verificeret"
+      },
+      "bed": {
+        "price": 167.155,
+        "total_two_nights": 334.31,
+        "room": "Single Bed in Mixed Dorm (10-Bed)",
+        "rate": 142,
+        "checkin": "2026-10-19",
+        "checkout": "2026-10-21",
+        "adults": 1,
+        "nights": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-19&nrNights=2&nrAdults=1&amount=1"
+      }
+    },
+    {
+      "date": "2026-10-20",
+      "Cabinn Aarhus": {
+        "price": 917,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-10-20&departure=2026-10-21&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verificeret"
+      },
+      "Aarhus Hostel og Hotel": {
+        "price": 560,
+        "base": 420,
+        "linen": 140,
+        "room": "2-personers værelse med køjeseng og fælles toilet/bad",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-10-20&numnight=1&numadult=2&numchild=0",
+        "status": "verificeret"
+      },
+      "Wakeup Aarhus": {
+        "price": 1050,
+        "room": "SKY",
+        "rate": "ECOBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-10-20&departure=2026-10-21&rooms=1&adults=2&children=0",
+        "status": "verificeret"
+      },
+      "Roberta's Society": {
+        "price": 703,
+        "room": "Private 4-Bed Room",
+        "rate": 10,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-20&nrNights=1&nrAdults=2&amount=1",
+        "status": "verificeret"
+      },
+      "bed": {
+        "price": 169.58,
+        "total_two_nights": 339.16,
+        "room": "Queen Bed in Mixed Dorm (32-Bed)",
+        "rate": 142,
+        "checkin": "2026-10-20",
+        "checkout": "2026-10-22",
+        "adults": 1,
+        "nights": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-20&nrNights=2&nrAdults=1&amount=1"
+      }
+    },
+    {
+      "date": "2026-10-21",
+      "Cabinn Aarhus": {
+        "price": 917,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-10-21&departure=2026-10-22&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verificeret"
+      },
+      "Aarhus Hostel og Hotel": {
+        "price": 550,
+        "base": 550,
+        "linen": 0,
+        "room": "Hotelværelse med dobbeltseng",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-10-21&numnight=1&numadult=2&numchild=0",
+        "status": "verificeret"
+      },
+      "Wakeup Aarhus": {
+        "price": 1050,
+        "room": "SKY",
+        "rate": "ECOBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-10-21&departure=2026-10-22&rooms=1&adults=2&children=0",
+        "status": "verificeret"
+      },
+      "Roberta's Society": {
+        "price": 938.6,
+        "room": "Double Room Private Bathroom",
+        "rate": 10,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-21&nrNights=1&nrAdults=2&amount=1",
+        "status": "verificeret"
+      },
+      "bed": {
+        "price": 169.58,
+        "total_two_nights": 339.16,
+        "room": "Queen Bed in Mixed Dorm (32-Bed)",
+        "rate": 142,
+        "checkin": "2026-10-21",
+        "checkout": "2026-10-23",
+        "adults": 1,
+        "nights": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-21&nrNights=2&nrAdults=1&amount=1"
+      }
+    },
+    {
+      "date": "2026-10-22",
+      "Cabinn Aarhus": {
+        "price": 917,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-10-22&departure=2026-10-23&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verificeret"
+      },
+      "Aarhus Hostel og Hotel": {
+        "price": 550,
+        "base": 550,
+        "linen": 0,
+        "room": "Hotelværelse 2 enkelte senge",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-10-22&numnight=1&numadult=2&numchild=0",
+        "status": "verificeret"
+      },
+      "Wakeup Aarhus": {
+        "price": 850,
+        "room": "STD",
+        "rate": "ECOBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-10-22&departure=2026-10-23&rooms=1&adults=2&children=0",
+        "status": "verificeret"
+      },
+      "Roberta's Society": {
+        "price": 655.5,
+        "room": "Twin Room Shared Bathroom",
+        "rate": 10,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-22&nrNights=1&nrAdults=2&amount=1",
+        "status": "verificeret"
+      },
+      "bed": {
+        "price": 160.695,
+        "total_two_nights": 321.39,
+        "room": "Single Bed in Mixed Dorm (10-Bed)",
+        "rate": 142,
+        "checkin": "2026-10-22",
+        "checkout": "2026-10-24",
+        "adults": 1,
+        "nights": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-22&nrNights=2&nrAdults=1&amount=1"
+      }
+    },
+    {
+      "date": "2026-10-23",
+      "Cabinn Aarhus": {
+        "price": 917,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-10-23&departure=2026-10-24&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verificeret"
+      },
+      "Aarhus Hostel og Hotel": {
+        "price": 550,
+        "base": 550,
+        "linen": 0,
+        "room": "Hotelværelse 2 enkelte senge",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-10-23&numnight=1&numadult=2&numchild=0",
+        "status": "verificeret"
+      },
+      "Wakeup Aarhus": {
+        "price": 800,
+        "room": "STD",
+        "rate": "ECOBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-10-23&departure=2026-10-24&rooms=1&adults=2&children=0",
+        "status": "verificeret"
+      },
+      "Roberta's Society": {
+        "price": 620.35,
+        "room": "Twin Room Shared Bathroom",
+        "rate": 10,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-23&nrNights=1&nrAdults=2&amount=1",
+        "status": "verificeret"
+      },
+      "bed": {
+        "price": null,
+        "checkin": "2026-10-23",
+        "checkout": "2026-10-25",
+        "adults": 1,
+        "nights": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-23&nrNights=2&nrAdults=1&amount=1"
+      }
+    },
+    {
+      "date": "2026-10-24",
+      "Cabinn Aarhus": {
+        "price": 917,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-10-24&departure=2026-10-25&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verificeret"
+      },
+      "Aarhus Hostel og Hotel": {
+        "price": 550,
+        "base": 550,
+        "linen": 0,
+        "room": "Hotelværelse 2 enkelte senge",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-10-24&numnight=1&numadult=2&numchild=0",
+        "status": "verificeret"
+      },
+      "Wakeup Aarhus": {
+        "price": 800,
+        "room": "STD",
+        "rate": "ECOBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-10-24&departure=2026-10-25&rooms=1&adults=2&children=0",
+        "status": "verificeret"
+      },
+      "Roberta's Society": {
+        "price": 793.8,
+        "room": "Private 4-Bed Room",
+        "rate": 18,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-24&nrNights=1&nrAdults=2&amount=1",
+        "status": "verificeret"
+      },
+      "bed": {
+        "price": null,
+        "checkin": "2026-10-24",
+        "checkout": "2026-10-26",
+        "adults": 1,
+        "nights": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-24&nrNights=2&nrAdults=1&amount=1"
+      }
+    },
+    {
+      "date": "2026-10-25",
+      "Cabinn Aarhus": {
+        "price": 715,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-10-25&departure=2026-10-26&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verificeret"
+      },
+      "Aarhus Hostel og Hotel": {
+        "price": 550,
+        "base": 550,
+        "linen": 0,
+        "room": "Hotelværelse 2 enkelte senge",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-10-25&numnight=1&numadult=2&numchild=0",
+        "status": "verificeret"
+      },
+      "Wakeup Aarhus": {
+        "price": 650,
+        "room": "STD",
+        "rate": "ECOBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-10-25&departure=2026-10-26&rooms=1&adults=2&children=0",
+        "status": "verificeret"
+      },
+      "Roberta's Society": {
+        "price": 470.7,
+        "room": "Twin Room Shared Bathroom",
+        "rate": 18,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-25&nrNights=1&nrAdults=2&amount=1",
+        "status": "verificeret"
+      },
+      "bed": {
+        "price": 147.37,
+        "total_two_nights": 294.74,
+        "room": "Queen Bed in Mixed Dorm (32-Bed)",
+        "rate": 142,
+        "checkin": "2026-10-25",
+        "checkout": "2026-10-27",
+        "adults": 1,
+        "nights": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-25&nrNights=2&nrAdults=1&amount=1"
+      }
+    },
+    {
+      "date": "2026-10-26",
+      "Cabinn Aarhus": {
+        "price": 865,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-10-26&departure=2026-10-27&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verificeret"
+      },
+      "Aarhus Hostel og Hotel": {
+        "price": 550,
+        "base": 550,
+        "linen": 0,
+        "room": "Hotelværelse 2 enkelte senge",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-10-26&numnight=1&numadult=2&numchild=0",
+        "status": "verificeret"
+      },
+      "Wakeup Aarhus": {
+        "price": 850,
+        "room": "SKY",
+        "rate": "ECOBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-10-26&departure=2026-10-27&rooms=1&adults=2&children=0",
+        "status": "verificeret"
+      },
+      "Roberta's Society": {
+        "price": 495.9,
+        "room": "Twin Room Shared Bathroom",
+        "rate": 18,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-26&nrNights=1&nrAdults=2&amount=1",
+        "status": "verificeret"
+      },
+      "bed": {
+        "price": 151.41,
+        "total_two_nights": 302.82,
+        "room": "Queen Bed in Mixed Dorm (32-Bed)",
+        "rate": 142,
+        "checkin": "2026-10-26",
+        "checkout": "2026-10-28",
+        "adults": 1,
+        "nights": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-26&nrNights=2&nrAdults=1&amount=1"
+      }
+    },
+    {
+      "date": "2026-10-27",
+      "Cabinn Aarhus": {
+        "price": 865,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-10-27&departure=2026-10-28&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verificeret"
+      },
+      "Aarhus Hostel og Hotel": {
+        "price": 550,
+        "base": 550,
+        "linen": 0,
+        "room": "Hotelværelse 2 enkelte senge",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-10-27&numnight=1&numadult=2&numchild=0",
+        "status": "verificeret"
+      },
+      "Wakeup Aarhus": {
+        "price": 1050,
+        "room": "SKY",
+        "rate": "ECOBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-10-27&departure=2026-10-28&rooms=1&adults=2&children=0",
+        "status": "verificeret"
+      },
+      "Roberta's Society": {
+        "price": 501.3,
+        "room": "Twin Room Shared Bathroom",
+        "rate": 18,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-27&nrNights=1&nrAdults=2&amount=1",
+        "status": "verificeret"
+      },
+      "bed": {
+        "price": 153.43,
+        "total_two_nights": 306.86,
+        "room": "Queen Bed in Mixed Dorm (32-Bed)",
+        "rate": 142,
+        "checkin": "2026-10-27",
+        "checkout": "2026-10-29",
+        "adults": 1,
+        "nights": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-27&nrNights=2&nrAdults=1&amount=1"
+      }
+    },
+    {
+      "date": "2026-10-28",
+      "Cabinn Aarhus": {
+        "price": 865,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-10-28&departure=2026-10-29&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verificeret"
+      },
+      "Aarhus Hostel og Hotel": {
+        "price": 550,
+        "base": 550,
+        "linen": 0,
+        "room": "Hotelværelse 2 enkelte senge",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-10-28&numnight=1&numadult=2&numchild=0",
+        "status": "verificeret"
+      },
+      "Wakeup Aarhus": {
+        "price": 950,
+        "room": "STD",
+        "rate": "ECOBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-10-28&departure=2026-10-29&rooms=1&adults=2&children=0",
+        "status": "verificeret"
+      },
+      "Roberta's Society": {
+        "price": 540.9,
+        "room": "Twin Room Shared Bathroom",
+        "rate": 18,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-28&nrNights=1&nrAdults=2&amount=1",
+        "status": "verificeret"
+      },
+      "bed": {
+        "price": 155.445,
+        "total_two_nights": 310.89,
+        "room": "Queen Bed in Mixed Dorm (32-Bed)",
+        "rate": 142,
+        "checkin": "2026-10-28",
+        "checkout": "2026-10-30",
+        "adults": 1,
+        "nights": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-28&nrNights=2&nrAdults=1&amount=1"
+      }
+    },
+    {
+      "date": "2026-10-29",
+      "Cabinn Aarhus": {
+        "price": 836,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-10-29&departure=2026-10-30&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verificeret"
+      },
+      "Aarhus Hostel og Hotel": {
+        "price": 550,
+        "base": 550,
+        "linen": 0,
+        "room": "Hotelværelse 2 enkelte senge",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-10-29&numnight=1&numadult=2&numchild=0",
+        "status": "verificeret"
+      },
+      "Wakeup Aarhus": {
+        "price": 850,
+        "room": "STD",
+        "rate": "ECOBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-10-29&departure=2026-10-30&rooms=1&adults=2&children=0",
+        "status": "verificeret"
+      },
+      "Roberta's Society": {
+        "price": 546.3,
+        "room": "Twin Room Shared Bathroom",
+        "rate": 18,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-29&nrNights=1&nrAdults=2&amount=1",
+        "status": "verificeret"
+      },
+      "bed": {
+        "price": 157.46,
+        "total_two_nights": 314.92,
+        "room": "Queen Bed in Mixed Dorm (32-Bed)",
+        "rate": 142,
+        "checkin": "2026-10-29",
+        "checkout": "2026-10-31",
+        "adults": 1,
+        "nights": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-29&nrNights=2&nrAdults=1&amount=1"
+      }
+    },
+    {
+      "date": "2026-10-30",
+      "Cabinn Aarhus": {
+        "price": 908,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-10-30&departure=2026-10-31&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verificeret"
+      },
+      "Aarhus Hostel og Hotel": {
+        "price": 550,
+        "base": 550,
+        "linen": 0,
+        "room": "Hotelværelse 2 enkelte senge",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-10-30&numnight=1&numadult=2&numchild=0",
+        "status": "verificeret"
+      },
+      "Wakeup Aarhus": {
+        "price": 800,
+        "room": "STD",
+        "rate": "ECOBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-10-30&departure=2026-10-31&rooms=1&adults=2&children=0",
+        "status": "verificeret"
+      },
+      "Roberta's Society": {
+        "price": 508.5,
+        "room": "Twin Room Shared Bathroom",
+        "rate": 18,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-30&nrNights=1&nrAdults=2&amount=1",
+        "status": "verificeret"
+      },
+      "bed": {
+        "price": null,
+        "checkin": "2026-10-30",
+        "checkout": "2026-11-01",
+        "adults": 1,
+        "nights": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-30&nrNights=2&nrAdults=1&amount=1"
+      }
+    },
+    {
+      "date": "2026-10-31",
+      "Cabinn Aarhus": {
+        "price": 908,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-10-31&departure=2026-11-01&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verificeret"
+      },
+      "Aarhus Hostel og Hotel": {
+        "price": 550,
+        "base": 550,
+        "linen": 0,
+        "room": "Hotelværelse 2 enkelte senge",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-10-31&numnight=1&numadult=2&numchild=0",
+        "status": "verificeret"
+      },
+      "Wakeup Aarhus": {
+        "price": 800,
+        "room": "STD",
+        "rate": "ECOBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-10-31&departure=2026-11-01&rooms=1&adults=2&children=0",
+        "status": "verificeret"
+      },
+      "Roberta's Society": {
+        "price": 632.7,
+        "room": "Twin Room Shared Bathroom",
+        "rate": 18,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-31&nrNights=1&nrAdults=2&amount=1",
+        "status": "verificeret"
+      },
+      "bed": {
+        "price": null,
+        "checkin": "2026-10-31",
+        "checkout": "2026-11-02",
+        "adults": 1,
+        "nights": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-31&nrNights=2&nrAdults=1&amount=1"
+      }
+    },
+    {
+      "date": "2026-11-01",
+      "Cabinn Aarhus": {
+        "price": 715,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-11-01&departure=2026-11-02&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verificeret"
+      },
+      "Aarhus Hostel og Hotel": {
+        "price": 550,
+        "base": 550,
+        "linen": 0,
+        "room": "Hotelværelse 2 enkelte senge",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-11-01&numnight=1&numadult=2&numchild=0",
+        "status": "verificeret"
+      },
+      "Wakeup Aarhus": {
+        "price": 750,
+        "room": "STD",
+        "rate": "ECOBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-11-01&departure=2026-11-02&rooms=1&adults=2&children=0",
+        "status": "verificeret"
+      },
+      "Roberta's Society": {
+        "price": 580.5,
+        "room": "Private 4-Bed Room",
+        "rate": 18,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-01&nrNights=1&nrAdults=2&amount=1",
+        "status": "verificeret"
+      },
+      "bed": {
+        "price": 147.37,
+        "total_two_nights": 294.74,
+        "room": "Queen Bed in Mixed Dorm (32-Bed)",
+        "rate": 142,
+        "checkin": "2026-11-01",
+        "checkout": "2026-11-03",
+        "adults": 1,
+        "nights": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-01&nrNights=2&nrAdults=1&amount=1"
+      }
+    },
+    {
+      "date": "2026-11-02",
+      "Cabinn Aarhus": {
+        "price": 815,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-11-02&departure=2026-11-03&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verificeret"
+      },
+      "Aarhus Hostel og Hotel": {
+        "price": 550,
+        "base": 550,
+        "linen": 0,
+        "room": "Hotelværelse 2 enkelte senge",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-11-02&numnight=1&numadult=2&numchild=0",
+        "status": "verificeret"
+      },
+      "Wakeup Aarhus": {
+        "price": 750,
+        "room": "STD",
+        "rate": "ECOBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-11-02&departure=2026-11-03&rooms=1&adults=2&children=0",
+        "status": "verificeret"
+      },
+      "Roberta's Society": {
+        "price": 625.5,
+        "room": "Double Room Private Bathroom",
+        "rate": 18,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-02&nrNights=1&nrAdults=2&amount=1",
+        "status": "verificeret"
+      },
+      "bed": {
+        "price": 151.41,
+        "total_two_nights": 302.82,
+        "room": "Queen Bed in Mixed Dorm (32-Bed)",
+        "rate": 142,
+        "checkin": "2026-11-02",
+        "checkout": "2026-11-04",
+        "adults": 1,
+        "nights": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-02&nrNights=2&nrAdults=1&amount=1"
+      }
+    },
+    {
+      "date": "2026-11-03",
+      "Cabinn Aarhus": {
+        "price": 815,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-11-03&departure=2026-11-04&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verificeret"
+      },
+      "Aarhus Hostel og Hotel": {
+        "price": 550,
+        "base": 550,
+        "linen": 0,
+        "room": "Hotelværelse 2 enkelte senge",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-11-03&numnight=1&numadult=2&numchild=0",
+        "status": "verificeret"
+      },
+      "Wakeup Aarhus": {
+        "price": 850,
+        "room": "STD",
+        "rate": "ECOBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-11-03&departure=2026-11-04&rooms=1&adults=2&children=0",
+        "status": "verificeret"
+      },
+      "Roberta's Society": {
+        "price": 625.5,
+        "room": "Double Room Private Bathroom",
+        "rate": 18,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-03&nrNights=1&nrAdults=2&amount=1",
+        "status": "verificeret"
+      },
+      "bed": {
+        "price": 153.43,
+        "total_two_nights": 306.86,
+        "room": "Single Bed in Mixed Dorm (10-Bed)",
+        "rate": 142,
+        "checkin": "2026-11-03",
+        "checkout": "2026-11-05",
+        "adults": 1,
+        "nights": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-03&nrNights=2&nrAdults=1&amount=1"
+      }
+    },
+    {
+      "date": "2026-11-04",
+      "Cabinn Aarhus": {
+        "price": 815,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-11-04&departure=2026-11-05&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verificeret"
+      },
+      "Aarhus Hostel og Hotel": {
+        "price": 550,
+        "base": 550,
+        "linen": 0,
+        "room": "Hotelværelse 2 enkelte senge",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-11-04&numnight=1&numadult=2&numchild=0",
+        "status": "verificeret"
+      },
+      "Wakeup Aarhus": {
+        "price": 850,
+        "room": "STD",
+        "rate": "ECOBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-11-04&departure=2026-11-05&rooms=1&adults=2&children=0",
+        "status": "verificeret"
+      },
+      "Roberta's Society": {
+        "price": 554.4,
+        "room": "Twin Room Shared Bathroom",
+        "rate": 18,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-04&nrNights=1&nrAdults=2&amount=1",
+        "status": "verificeret"
+      },
+      "bed": {
+        "price": 155.445,
+        "total_two_nights": 310.89,
+        "room": "Single Bed in Mixed Dorm (10-Bed)",
+        "rate": 142,
+        "checkin": "2026-11-04",
+        "checkout": "2026-11-06",
+        "adults": 1,
+        "nights": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-04&nrNights=2&nrAdults=1&amount=1"
+      }
+    },
+    {
+      "date": "2026-11-05",
+      "Cabinn Aarhus": {
+        "price": 715,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-11-05&departure=2026-11-06&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verificeret"
+      },
+      "Aarhus Hostel og Hotel": {
+        "price": 550,
+        "base": 550,
+        "linen": 0,
+        "room": "Hotelværelse 2 enkelte senge",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-11-05&numnight=1&numadult=2&numchild=0",
+        "status": "verificeret"
+      },
+      "Wakeup Aarhus": {
+        "price": 750,
+        "room": "STD",
+        "rate": "ECOBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-11-05&departure=2026-11-06&rooms=1&adults=2&children=0",
+        "status": "verificeret"
+      },
+      "Roberta's Society": {
+        "price": 572.4,
+        "room": "Twin Room Shared Bathroom",
+        "rate": 18,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-05&nrNights=1&nrAdults=2&amount=1",
+        "status": "verificeret"
+      },
+      "bed": {
+        "price": 157.46,
+        "total_two_nights": 314.92,
+        "room": "Single Bed in Mixed Dorm (10-Bed)",
+        "rate": 142,
+        "checkin": "2026-11-05",
+        "checkout": "2026-11-07",
+        "adults": 1,
+        "nights": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-05&nrNights=2&nrAdults=1&amount=1"
+      }
+    },
+    {
+      "date": "2026-11-06",
+      "Cabinn Aarhus": {
+        "price": null,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-11-06&departure=2026-11-07&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "ingen pris vist"
+      },
+      "Aarhus Hostel og Hotel": {
+        "price": null,
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-11-06&numnight=1&numadult=2&numchild=0",
+        "status": "ingen tilgængelig pris"
+      },
+      "Wakeup Aarhus": {
+        "price": 850,
+        "room": "SKY",
+        "rate": "ECOBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-11-06&departure=2026-11-07&rooms=1&adults=2&children=0",
+        "status": "verificeret"
+      },
+      "Roberta's Society": {
+        "price": 763.2,
+        "room": "Double Room Private Bathroom",
+        "rate": 18,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-06&nrNights=1&nrAdults=2&amount=1",
+        "status": "verificeret"
+      },
+      "bed": {
+        "price": null,
+        "checkin": "2026-11-06",
+        "checkout": "2026-11-08",
+        "adults": 1,
+        "nights": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-06&nrNights=2&nrAdults=1&amount=1"
+      }
+    },
+    {
+      "date": "2026-11-07",
+      "Cabinn Aarhus": {
+        "price": null,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-11-07&departure=2026-11-08&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "ingen pris vist"
+      },
+      "Aarhus Hostel og Hotel": {
+        "price": null,
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-11-07&numnight=1&numadult=2&numchild=0",
+        "status": "ingen tilgængelig pris"
+      },
+      "Wakeup Aarhus": {
+        "price": null,
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-11-07&departure=2026-11-08&rooms=1&adults=2&children=0",
+        "status": "ingen tilgængelig pris"
+      },
+      "Roberta's Society": {
+        "price": 1053,
+        "room": "Twin Room Shared Bathroom",
+        "rate": 18,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-07&nrNights=1&nrAdults=2&amount=1",
+        "status": "verificeret"
+      },
+      "bed": {
+        "price": null,
+        "checkin": "2026-11-07",
+        "checkout": "2026-11-09",
+        "adults": 1,
+        "nights": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-07&nrNights=2&nrAdults=1&amount=1"
+      }
+    },
+    {
+      "date": "2026-11-08",
+      "Aarhus Hostel og Hotel": {
+        "price": 550,
+        "base": 550,
+        "linen": 0,
+        "room": "Hotelværelse 2 enkelte senge",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-11-08&numnight=1&numadult=2&numchild=0",
+        "status": "verificeret"
+      },
+      "Cabinn Aarhus": {
+        "price": 715,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-11-08&departure=2026-11-09&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verificeret"
+      },
+      "Wakeup Aarhus": {
+        "price": 750,
+        "room": "STD",
+        "rate": "ECOBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-11-08&departure=2026-11-09&rooms=1&adults=2&children=0",
+        "status": "verificeret"
+      },
+      "Roberta's Society": {
+        "price": 475.2,
+        "room": "Twin Room Shared Bathroom",
+        "rate": 18,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-08&nrNights=1&nrAdults=2&amount=1",
+        "status": "verificeret"
+      },
+      "bed": {
+        "price": 149.39,
+        "total_two_nights": 298.78,
+        "room": "Single Bed in Mixed Dorm (10-Bed)",
+        "rate": 142,
+        "checkin": "2026-11-08",
+        "checkout": "2026-11-10",
+        "adults": 1,
+        "nights": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-08&nrNights=2&nrAdults=1&amount=1"
+      }
+    },
+    {
+      "date": "2026-11-09",
+      "Aarhus Hostel og Hotel": {
+        "price": 550,
+        "base": 550,
+        "linen": 0,
+        "room": "Hotelværelse 2 enkelte senge",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-11-09&numnight=1&numadult=2&numchild=0",
+        "status": "verificeret"
+      },
+      "Cabinn Aarhus": {
+        "price": 815,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-11-09&departure=2026-11-10&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verificeret"
+      },
+      "Wakeup Aarhus": {
+        "price": 750,
+        "room": "STD",
+        "rate": "ECOBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-11-09&departure=2026-11-10&rooms=1&adults=2&children=0",
+        "status": "verificeret"
+      },
+      "Roberta's Society": {
+        "price": 501.3,
+        "room": "Twin Room Shared Bathroom",
+        "rate": 18,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-09&nrNights=1&nrAdults=2&amount=1",
+        "status": "verificeret"
+      },
+      "bed": {
+        "price": 153.43,
+        "total_two_nights": 306.86,
+        "room": "Single Bed in Mixed Dorm (10-Bed)",
+        "rate": 142,
+        "checkin": "2026-11-09",
+        "checkout": "2026-11-11",
+        "adults": 1,
+        "nights": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-09&nrNights=2&nrAdults=1&amount=1"
+      }
+    },
+    {
+      "date": "2026-11-10",
+      "Aarhus Hostel og Hotel": {
+        "price": 550,
+        "base": 550,
+        "linen": 0,
+        "room": "Hotelværelse 2 enkelte senge",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-11-10&numnight=1&numadult=2&numchild=0",
+        "status": "verificeret"
+      },
+      "Cabinn Aarhus": {
+        "price": 815,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-11-10&departure=2026-11-11&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verificeret"
+      },
+      "Wakeup Aarhus": {
+        "price": 850,
+        "room": "STD",
+        "rate": "ECOBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-11-10&departure=2026-11-11&rooms=1&adults=2&children=0",
+        "status": "verificeret"
+      },
+      "Roberta's Society": {
+        "price": 516.6,
+        "room": "Twin Room Shared Bathroom",
+        "rate": 18,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-10&nrNights=1&nrAdults=2&amount=1",
+        "status": "verificeret"
+      },
+      "bed": {
+        "price": 153.43,
+        "total_two_nights": 306.86,
+        "room": "Single Bed in Mixed Dorm (10-Bed)",
+        "rate": 142,
+        "checkin": "2026-11-10",
+        "checkout": "2026-11-12",
+        "adults": 1,
+        "nights": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-10&nrNights=2&nrAdults=1&amount=1"
+      }
+    },
+    {
+      "date": "2026-11-11",
+      "Aarhus Hostel og Hotel": {
+        "price": 550,
+        "base": 550,
+        "linen": 0,
+        "room": "Hotelværelse 2 enkelte senge",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-11-11&numnight=1&numadult=2&numchild=0",
+        "status": "verificeret"
+      },
+      "Cabinn Aarhus": {
+        "price": 815,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-11-11&departure=2026-11-12&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verificeret"
+      },
+      "Wakeup Aarhus": {
+        "price": 850,
+        "room": "STD",
+        "rate": "ECOBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-11-11&departure=2026-11-12&rooms=1&adults=2&children=0",
+        "status": "verificeret"
+      },
+      "Roberta's Society": {
+        "price": 541.8,
+        "room": "Twin Room Shared Bathroom",
+        "rate": 18,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-11&nrNights=1&nrAdults=2&amount=1",
+        "status": "verificeret"
+      },
+      "bed": {
+        "price": 155.445,
+        "total_two_nights": 310.89,
+        "room": "Single Bed in Mixed Dorm (10-Bed)",
+        "rate": 142,
+        "checkin": "2026-11-11",
+        "checkout": "2026-11-13",
+        "adults": 1,
+        "nights": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-11&nrNights=2&nrAdults=1&amount=1"
+      }
+    },
+    {
+      "date": "2026-11-12",
+      "Aarhus Hostel og Hotel": {
+        "price": 550,
+        "base": 550,
+        "linen": 0,
+        "room": "Hotelværelse 2 enkelte senge",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-11-12&numnight=1&numadult=2&numchild=0",
+        "status": "verificeret"
+      },
+      "Cabinn Aarhus": {
+        "price": 741,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-11-12&departure=2026-11-13&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verificeret"
+      },
+      "Wakeup Aarhus": {
+        "price": 750,
+        "room": "STD",
+        "rate": "ECOBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-11-12&departure=2026-11-13&rooms=1&adults=2&children=0",
+        "status": "verificeret"
+      },
+      "Roberta's Society": {
+        "price": 560.7,
+        "room": "Twin Room Shared Bathroom",
+        "rate": 18,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-12&nrNights=1&nrAdults=2&amount=1",
+        "status": "verificeret"
+      },
+      "bed": {
+        "price": 155.445,
+        "total_two_nights": 310.89,
+        "room": "Single Bed in Mixed Dorm (10-Bed)",
+        "rate": 142,
+        "checkin": "2026-11-12",
+        "checkout": "2026-11-14",
+        "adults": 1,
+        "nights": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-12&nrNights=2&nrAdults=1&amount=1"
+      }
+    },
+    {
+      "date": "2026-11-13",
+      "Aarhus Hostel og Hotel": {
+        "price": 550,
+        "base": 550,
+        "linen": 0,
+        "room": "Hotelværelse 2 enkelte senge",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-11-13&numnight=1&numadult=2&numchild=0",
+        "status": "verificeret"
+      },
+      "Cabinn Aarhus": {
+        "price": 917,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-11-13&departure=2026-11-14&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verificeret"
+      },
+      "Wakeup Aarhus": {
+        "price": 1000,
+        "room": "SKY",
+        "rate": "ECOBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-11-13&departure=2026-11-14&rooms=1&adults=2&children=0",
+        "status": "verificeret"
+      },
+      "Roberta's Society": {
+        "price": 963,
+        "room": "Double Room Private Bathroom",
+        "rate": 18,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-13&nrNights=1&nrAdults=2&amount=1",
+        "status": "verificeret"
+      },
+      "bed": {
+        "price": null,
+        "checkin": "2026-11-13",
+        "checkout": "2026-11-15",
+        "adults": 1,
+        "nights": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-13&nrNights=2&nrAdults=1&amount=1"
+      }
+    },
+    {
+      "date": "2026-11-14",
+      "Aarhus Hostel og Hotel": {
+        "price": 550,
+        "base": 550,
+        "linen": 0,
+        "room": "Hotelværelse 2 enkelte senge",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-11-14&numnight=1&numadult=2&numchild=0",
+        "status": "verificeret"
+      },
+      "Cabinn Aarhus": {
+        "price": 917,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-11-14&departure=2026-11-15&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verificeret"
+      },
+      "Wakeup Aarhus": {
+        "price": 900,
+        "room": "SKY",
+        "rate": "ECOBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-11-14&departure=2026-11-15&rooms=1&adults=2&children=0",
+        "status": "verificeret"
+      },
+      "Roberta's Society": {
+        "price": 833.4,
+        "room": "Twin Room Shared Bathroom",
+        "rate": 18,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-14&nrNights=1&nrAdults=2&amount=1",
+        "status": "verificeret"
+      },
+      "bed": {
+        "price": null,
+        "checkin": "2026-11-14",
+        "checkout": "2026-11-16",
+        "adults": 1,
+        "nights": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-14&nrNights=2&nrAdults=1&amount=1"
+      }
+    },
+    {
+      "date": "2026-11-15",
+      "Aarhus Hostel og Hotel": {
+        "price": 550,
+        "base": 550,
+        "linen": 0,
+        "room": "Hotelværelse 2 enkelte senge",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-11-15&numnight=1&numadult=2&numchild=0",
+        "status": "verificeret"
+      },
+      "Cabinn Aarhus": {
+        "price": 715,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-11-15&departure=2026-11-16&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verificeret"
+      },
+      "Wakeup Aarhus": {
+        "price": 750,
+        "room": "STD",
+        "rate": "ECOBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-11-15&departure=2026-11-16&rooms=1&adults=2&children=0",
+        "status": "verificeret"
+      },
+      "Roberta's Society": {
+        "price": 495,
+        "room": "Twin Room Shared Bathroom",
+        "rate": 18,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-15&nrNights=1&nrAdults=2&amount=1",
+        "status": "verificeret"
+      },
+      "bed": {
+        "price": 147.37,
+        "total_two_nights": 294.74,
+        "room": "Queen Bed in Mixed Dorm (32-Bed)",
+        "rate": 142,
+        "checkin": "2026-11-15",
+        "checkout": "2026-11-17",
+        "adults": 1,
+        "nights": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-15&nrNights=2&nrAdults=1&amount=1"
+      }
+    },
+    {
+      "date": "2026-11-16",
+      "Aarhus Hostel og Hotel": {
+        "price": 550,
+        "base": 550,
+        "linen": 0,
+        "room": "Hotelværelse 2 enkelte senge",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-11-16&numnight=1&numadult=2&numchild=0",
+        "status": "verificeret"
+      },
+      "Cabinn Aarhus": {
+        "price": 815,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-11-16&departure=2026-11-17&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verificeret"
+      },
+      "Wakeup Aarhus": {
+        "price": 750,
+        "room": "STD",
+        "rate": "ECOBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-11-16&departure=2026-11-17&rooms=1&adults=2&children=0",
+        "status": "verificeret"
+      },
+      "Roberta's Society": {
+        "price": 539.1,
+        "room": "Twin Room Shared Bathroom",
+        "rate": 18,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-16&nrNights=1&nrAdults=2&amount=1",
+        "status": "verificeret"
+      },
+      "bed": {
+        "price": 151.41,
+        "total_two_nights": 302.82,
+        "room": "Queen Bed in Mixed Dorm (32-Bed)",
+        "rate": 142,
+        "checkin": "2026-11-16",
+        "checkout": "2026-11-18",
+        "adults": 1,
+        "nights": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-16&nrNights=2&nrAdults=1&amount=1"
+      }
+    },
+    {
+      "date": "2026-11-17",
+      "Aarhus Hostel og Hotel": {
+        "price": 550,
+        "base": 550,
+        "linen": 0,
+        "room": "Hotelværelse med dobbeltseng",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-11-17&numnight=1&numadult=2&numchild=0",
+        "status": "verificeret"
+      },
+      "Cabinn Aarhus": {
+        "price": 815,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-11-17&departure=2026-11-18&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verificeret"
+      },
+      "Wakeup Aarhus": {
+        "price": 850,
+        "room": "STD",
+        "rate": "ECOBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-11-17&departure=2026-11-18&rooms=1&adults=2&children=0",
+        "status": "verificeret"
+      },
+      "Roberta's Society": {
+        "price": 582.3,
+        "room": "Twin Room Shared Bathroom",
+        "rate": 18,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-17&nrNights=1&nrAdults=2&amount=1",
+        "status": "verificeret"
+      },
+      "bed": {
+        "price": 153.43,
+        "total_two_nights": 306.86,
+        "room": "Queen Bed in Mixed Dorm (32-Bed)",
+        "rate": 142,
+        "checkin": "2026-11-17",
+        "checkout": "2026-11-19",
+        "adults": 1,
+        "nights": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-17&nrNights=2&nrAdults=1&amount=1"
+      }
+    }
+  ]
+}

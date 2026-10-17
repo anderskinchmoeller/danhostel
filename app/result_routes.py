@@ -154,6 +154,9 @@ def router(settings, templates, current_user):
                     "result_report_id": "Rapportpar til salgstal", "revenue_report_id": "Rapportpar til omsætning",
                     "report_counts_confirmed": "Endeligt salg kontrolleret", "revenue_date_confirmed": "Opholdsdato og fradrag kontrolleret",
                     "revenue_basis": "Grundlag for omsætning", "carried_forward_from_record": "Oplysninger videreført fra registrering",
+                    "accounts_report_id": "Rapportgrundlag til bogføringsafstemning",
+                    "accounts_reconciliation": "Bogføringsafstemning · ikke ekstra omsætning",
+                    "accounts_unallocated": "Ufordelte bogføringsposter · ikke indregnet i rumtyper",
                 },
                 "counts": validation.COUNTS, "money": validation.MONEY,
                 "time_local": lambda t: t.replace(tzinfo=ZoneInfo("UTC")).astimezone(
@@ -161,16 +164,19 @@ def router(settings, templates, current_user):
             })
 
     @routes.post("/resultater/rapporter")
-    async def report_upload(hotelmanager: UploadFile = File(...), products: UploadFile = File(...),
+    async def report_upload(hotelmanager: UploadFile = File(...), products: UploadFile | None = File(None),
+                            accounts: UploadFile | None = File(None),
                             user: str = Depends(current_user)):
         with db.get_session() as session:
             try:
                 hotel_data = await hotelmanager.read(20 * 1024 * 1024 + 1)
-                product_data = await products.read(20 * 1024 * 1024 + 1)
-                if any(len(data) > 20 * 1024 * 1024 for data in (hotel_data, product_data)):
+                product_data = await products.read(20 * 1024 * 1024 + 1) if products and products.filename else None
+                account_data = await accounts.read(20 * 1024 * 1024 + 1) if accounts and accounts.filename else None
+                if any(len(data) > 20 * 1024 * 1024 for data in (hotel_data, product_data,account_data) if data):
                     raise ValueError("Hver PDF må højst fylde 20 MB")
                 record = picasso_results.stage(session, hotel_data, product_data, settings, user,
-                    hotel_name=hotelmanager.filename, product_name=products.filename)
+                    hotel_name=hotelmanager.filename, product_name=products.filename if products else '',
+                    account_data=account_data,account_name=accounts.filename if accounts else '')
                 session.commit()
                 return RedirectResponse(f"/resultater/rapporter/{record.id}", status_code=303)
             except (ValueError, OSError) as exc:
@@ -273,6 +279,7 @@ def router(settings, templates, current_user):
                       "pdf_vaerelser", "pdf_senge", "pdf_rumtyper", "pdf_reservationsbeloeb_fordelt",
                       *[validation.LABELS[k] for k in validation.COUNTS + validation.MONEY],
                       "omsaetning_afrunding_ufordelt", "logi_i_alt", "morgenmad_fratrukket", "rapportpar_id", "logi_pr_rumtype_json",
+                      "bogfoering_rapport_id", "bogfoering_ufordelte_poster_json", "bogfoering_afstemning_json",
                       "daekningsbidrag", "daekningsbidrag_pr_tilgaengelig_seng", "events", "note"]
             buffer = io.StringIO()
             writer = csv.DictWriter(buffer, fieldnames=fields, delimiter=";")
@@ -304,6 +311,9 @@ def router(settings, templates, current_user):
                     "morgenmad_fratrukket": outcome.get("breakfast_excluded"),
                     "rapportpar_id": outcome.get("result_report_id"),
                     "logi_pr_rumtype_json": json.dumps(outcome["amounts_by_type"], ensure_ascii=False) if "amounts_by_type" in outcome else None,
+                    "bogfoering_rapport_id": outcome.get("accounts_report_id"),
+                    "bogfoering_ufordelte_poster_json": json.dumps(outcome["accounts_unallocated"],ensure_ascii=False) if "accounts_unallocated" in outcome else None,
+                    "bogfoering_afstemning_json": json.dumps(outcome["accounts_reconciliation"],ensure_ascii=False) if "accounts_reconciliation" in outcome else None,
                     "daekningsbidrag": row["contribution"],
                     "daekningsbidrag_pr_tilgaengelig_seng": row["per_bed"],
                     "events": outcome.get("events", applied.get("model_events", rec.event_names if rec else None)),

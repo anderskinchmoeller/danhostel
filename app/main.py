@@ -85,6 +85,8 @@ templates.env.globals["freshness"] = lambda: freshness()
 
 from .result_routes import router as results_router
 app.include_router(results_router(settings, templates, current_user))
+from .experiment_routes import router as experiments_router
+app.include_router(experiments_router(settings, templates, current_user))
 
 
 def seed_competitors():

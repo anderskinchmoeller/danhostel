@@ -19,14 +19,24 @@ Den offentligt oplyste kapacitet er 330 senge. Denne ubekræftede opdeling giver
 Prisforslag kan vurderes her; eksport og skrivning kræver bekræftet lager.</div>
 {% endif %}
 {% if run %}
-  <p class="sub">
-    Kørsel #{{ run.id }} · {{ run.started.strftime("%d-%m-%Y %H:%M") }} UTC · {{ run.n_days }} datoer
-    {% if run.status == "frozen" %} · <b style="color:var(--flag)">fastfrosset</b>{% endif %}
-    &nbsp;|&nbsp; Lager: {{ inv.private_rooms }} faste private + {{ inv.flex_rooms }} flex
-    + {{ inv.dorm_beds }} dormsenge = {{ inv.total_beds }} senge
+  <p class="status-note">
+    Seneste beregning: {{ run.started.strftime("%d-%m-%Y %H:%M") }} UTC · {{ run.n_days }} opholdsdatoer.
   </p>
+  <details class="read-more calculation-details">
+    <summary>Se beregning og kapacitet</summary>
+    <p>Beregning #{{ run.id }}{% if run.status == "frozen" %} · fastfrosset{% endif %}.</p>
+    <dl class="capacity-list">
+      <dt>Faste private værelser</dt>
+      <dd>{{ inv.private_rooms }} værelser med {{ inv.private_beds if inv.private_beds is not none else inv.private_rooms * 2 }} beregnede senge.</dd>
+      <dt>Flexværelser</dt>
+      <dd>{{ inv.flex_rooms }} værelser med {{ inv.flex_rooms * inv.beds_per_flex_room }} beregnede senge ({{ inv.beds_per_flex_room }} pr. værelse).</dd>
+      <dt>Faste sovesalssenge</dt><dd>{{ inv.dorm_beds }} senge.</dd>
+      <dt>Samlet sengekapacitet i modellen</dt><dd>{{ inv.total_beds }} beregnede senge.</dd>
+    </dl>
+    <p><a href="/settings#kapacitet">Se kapacitetsgrundlaget i indstillinger</a>.</p>
+  </details>
 {% else %}
-  <p class="sub">Ingen kørsel endnu.</p>
+  <p class="status-note">Ingen beregning endnu.</p>
 {% endif %}
 
 {% if run and run.status == "frozen" %}
@@ -74,8 +84,11 @@ Prisforslag kan vurderes her; eksport og skrivning kræver bekræftet lager.</di
     Vis: <a href="/?days=30">30</a> · <a href="/?days=60">60</a> · <a href="/?days=90">90</a> dage
   </span>
 </div>
-<p class="sub">Når du henter CSV’en, gemmes den også i dagens_priser og en
-sammenligning af v4 og v5 i skygge-v4-v5. Der gemmes en kopi pr. kørsel.</p>
+<details class="read-more calculation-details">
+<summary>Hvor gemmes prislisten?</summary>
+<p>Når du henter CSV’en, gemmes en kopi pr. beregning i <code>dagens_priser</code>.
+En sammenligning af v4 og v5 gemmes i <code>skygge-v4-v5</code>.</p>
+</details>
 
 <h2 id="prisoversigt">Priser pr. opholdsdato</h2>
 <p class="section-note">Priser i kr. inklusive moms og uden morgenmad. Klik på en dato for at se forklaringen.</p>

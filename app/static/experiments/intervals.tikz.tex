@@ -1,0 +1,19 @@
+\begin{tikzpicture}[font=\sffamily\small,>=Latex,x=7mm,y=9mm]
+\fill[black!4] (0,-.3) rectangle (3,4.5);
+\draw[dashed] (0,-.4)--(0,4.7);
+\draw[dashed,darkred] (3,-.4)--(3,4.7);
+\node[above] at (0,4.7) {$0$};
+\node[above,darkred] at (3,4.7) {$\delta_\star$};
+\foreach \y/\l/\r/\m in {4/-4/-1/-2.5,3/-2/2/.2,2/1/4/2.5,1/4/8/6}{
+ \draw[line width=1pt] (\l,\y)--(\r,\y);
+ \draw (\l,\y-.13)--(\l,\y+.13);
+ \draw (\r,\y-.13)--(\r,\y+.13);
+ \fill (\m,\y) circle[radius=2pt];
+}
+\node[left,anchor=east] at (-5,4) {Possible harm};
+\node[left,anchor=east] at (-5,3) {Inconclusive};
+\node[left,anchor=east] at (-5,2) {Positive; relevance uncertain};
+\node[left,anchor=east] at (-5,1) {Above practical threshold};
+\draw[->] (-5,-.1)--(9,-.1) node[below left] {B minus A};
+\node[align=center,text width=140mm,below] at (0,-.8) {Illustration only: dots are effect estimates; lines are approximate 95\% intervals.\\A final decision also requires the preregistered randomization test and valid data.};
+\end{tikzpicture}

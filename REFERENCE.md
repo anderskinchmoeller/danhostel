@@ -618,3 +618,75 @@ Endpointet er ikke dokumentation for økonomisk effekt eller fuldstændige data.
 Kør relevante test efter kodeændringer med `.venv/bin/python -m pytest -q`.
 Dokumentationsændringer kontrolleres for korrekte links, kommandoer og overensstemmelse
 med implementationen; de kræver ikke genoptræning eller en ny prisberegning.
+
+## Præregistrerede A/B-forsøg
+
+`app/experiments.py` og `app/experiment_routes.py` implementerer
+`/resultater/ab`, adskilt fra prisstigens lokale prisvariation.
+Nye additive tabeller `ab_experiment` og `ab_log` oprettes ved normal opstart.
+Ingen eksisterende priser eller valideringsposter omskrives.
+
+Hele huset randomiseres pr. opholdsdato-blok i par af naboblokke på 7/14/28
+dage. Én A og én B pr. par; PCG64-seed og kalender gemmes før eksponering.
+A er normalstrategien; B er den fastlåste model. Præregistrering kræver
+`pricing.v4.level_alpha: 0` og genindlæsning af konfigurationen. Driften ændres
+ikke automatisk. Det aktuelle niveaus tal indgår i protokolhashen; fælles online
+læring ville skabe afhængighed mellem blokke og er ikke tilladt i dette design.
+Protokollen gemmer hash af modelparametre og centrale kodefiler. Der ændres ikke
+på prismotorens valg eller Picasso; levering er manuel og skal dokumenteres.
+
+Primærmålet er faktisk dækningsbidrag pr. fast fysisk seng pr. nat, med
+præregistreret kapacitet, eksklusive moms og morgenmad. Hele perioden kræves:
+seneste registrerede outcome pr. dato, `final`, `revenue_date_confirmed`, begge
+omsætningstal, begge salgstal samt provision og variable omkostninger. Nul er
+oplyst; manglende data imputeres ikke. Blokgennemgange er append-only, og alle
+afvigelser indgår i ITT. Der er ingen efterfølgende datoeksklusion.
+
+Sluttest: tosidet sign-flip-randomisering under den skarpe nulhypotese,
+eksakt til og med 16 par, ellers 99.999 PCG64-træk med plus-én-korrektion.
+Et separat omtrentligt parret t-interval beregnes med SciPy. Det er ikke et
+randomiseringsbaseret interval; antagelser om par-uafhængighed og begrænset
+afsmitning er nødvendige. Ved nulspredning tilbageholdes intervallet.
+Normaltilnærmet styrkeplanlægning bruger parspredning, α=0,05 og styrke=0,80;
+den garanterer ikke randomiseringstestens styrke.
+
+Kun fulde data, alle blokgennemgange, uændret aktuelt modelgrundlag og eksplicit
+attest af designantagelser åbner slutanalyse. En betinget databaseopdatering
+forhindrer dobbelt afslutning. Den låste JSON gemmer rå kildepayloads,
+post-ID'er og kontroller; senere rettelser ændrer ikke konklusionen. Stop er
+terminalt uden p-værdi. JSON- og kalender-eksport kræver samme login som appen.
+Metode og to figurer er skrevet i `app/static/experiments/*.tex`; SVG-figurerne
+er faktisk kompileret fra TikZ. PDF'en og SVG'erne leveres lokalt uden en
+runtime-afhængighed af TeX. Byg fra mappen `app/static/experiments` med
+`pdflatex` (to gennemløb) og `pdftocairo -svg` til standalone-figurerne.
+
+### Bogføringsafstemning af dagsrapporter
+
+`app/picasso_accounts.py` læser Accounts pr. enkelt dato med produktgrupper,
+Amount, Debit og Credit. Rækker, produkttotaler og Result afstemmes med Decimal;
+uoverensstemmelser over 2 øre afvises. Omsætningsfortegn er kredit minus debet.
+Konto 1002 (Værelser) er logi på tværs af rum- og sengetyper; 1004 er
+opgraderinger; 1005 er morgenmad. Andre konti vises separat. Produktnavne er
+ikke rumtyper. Result omfatter andre konti og er ikke logi eller dækningsbidrag.
+
+Hotelmanager kan nu indlæses alene til salgstal. Produktomsætning og Accounts
+er valgfrie supplerende filer i samme upload. Alle vedlagte rapporter skal dække
+samme afsluttede dato. Originaler arkiveres med hash i eksisterende PDF-arkiv;
+`report_pair` bevares som posttype af hensyn til historikken. Parser version 2
+ændrer ikke gamle kildepayloads.
+
+Accounts sammenholdes med produktudtrækket pr. produktnavn. Ekstra morgenmad
+på produktniveau udløser en mangel, når den ikke kan placeres på rumtypernes
+fradragslinjer. Ukendte linjer uden opholdsantal bevares som uafklarede;
+ingen forholdsmæssig fordeling. “None”-posteringer gemmes særskilt med
+originalt beløb og omsætningsfortegn. De indregnes hverken som en ekstra
+`revenue_adjustment` eller som omsætning på en gættet rumtype. En ufordelt
+160-kroners post er en ufordelt post, ikke afrunding.
+
+Ved bekræftelse af salgstal kan resultatloggen gemme `accounts_report_id`,
+`accounts_unallocated` og `accounts_reconciliation`, også når omsætning fortsat
+er spærret. Resultat-CSV har separate JSON-kolonner til afstemningen og de
+ufordelte poster. `room_revenue`, `bed_revenue` og rumtypebeløb kræver stadig
+afklaret total, ADR, kategorisering og udtrykkeligt bekræftet opholdsdato og
+moms-/morgenmadsgrundlag. Bogføringsdato lig opholdsdato beviser ikke i sig selv
+at rapporterne er sammenlignelige.
