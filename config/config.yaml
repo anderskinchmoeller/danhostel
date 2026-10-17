@@ -85,7 +85,7 @@ pricing:
   max_daily_change: 0.15   # ændringsbremse for ældre/fallback-logik; v4 nedenfor kører uden daglig bremse
 
   # Økonomi og guardrails
-  variable_cost: 91         # de har i gennemsnit 2.28 senge pr vœrelse de sœlger. pr. solgt privat værelse: rengøring, linned, forbrug
+  variable_cost: 111.56         # de har i gennemsnit 2.28 senge pr vœrelse de sœlger. pr. solgt privat værelse: rengøring, linned, forbrug
   variable_cost_bed: 39.84        # pr. solgt seng
   commission: 0.16         # vægtet gennemsnit over kanaler; direkte tæller som 0
   price_floor: 375
