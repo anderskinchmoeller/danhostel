@@ -4,13 +4,14 @@
 {% block body %}
 
 <h1>Anbefalede priser</h1>
-<p class="sub">Belægningsprognosen bruger samme efterspørgselsmodel som prisforslaget.
-Den viser forventet belægning ved grundprisen, før effekten af en prisændring.</p>
-<div class="msg info"><b>Økonomisk effekt er ikke målt.</b>
-Prisfølsomheden er fortsat en antagelse.
-{% if economic_coverage.total %}Indlæst omsætning mangler helt eller delvist på {{ economic_coverage.missing }} af {{ economic_coverage.total }} datoer i hele kørslen.{% endif %}
-RevPAB er en prognose, også når bogførte tal indgår.
-<a href="/resultater/oekonomi">Se datadækning, faktiske resultater og Picasso-vejledning</a>.</div>
+<p class="sub">Se dagens prisforslag. Kontrollér datoerne, godkend, og hent prislisten til Picasso.</p>
+<ul class="link-index" aria-label="Genveje">
+  <li><a href="/data">Upload dagens belægning og konkurrentpriser</a></li>
+  <li><a href="#prisoversigt">Se priser pr. opholdsdato</a></li>
+  <li><a href="/resultater/afvigelser">Sammenlign modellen med de faktiske tal</a></li>
+</ul>
+<p class="notice"><b>Økonomisk effekt er ikke målt.</b> RevPAB er en prognose.
+<a href="/resultater/oekonomi">Se datagrundlag og faktisk økonomi</a>.</p>
 {% if not inv.confirmed %}
 <div class="msg err"><b>Eksempellager — ikke klar til live brug.</b>
 Den offentligt oplyste kapacitet er 330 senge. Denne ubekræftede opdeling giver
@@ -31,7 +32,7 @@ Prisforslag kan vurderes her; eksport og skrivning kræver bekræftet lager.</di
 {% if run and run.status == "frozen" %}
   <div class="msg err"><b>Dødmandsknap aktiv.</b> {{ run.note }}</div>
 {% elif run and run.note %}
-  <div class="msg info">{{ run.note }}</div>
+  <details class="read-more"><summary>Bemærkninger til beregningen</summary><p>{{ run.note }}</p></details>
 {% endif %}
 
 {% if not rows %}
@@ -68,9 +69,6 @@ Prisforslag kan vurderes her; eksport og skrivning kræver bekræftet lager.</di
     <input type="hidden" name="scope" value="all">
     <button type="submit">Godkend alle afventende ({{ pending }})</button>
   </form>
-  <form class="inline" method="post" action="/publish">
-    <button type="submit">Skriv godkendte til Picasso</button>
-  </form>
   <a class="btn" href="/export.csv">Hent godkendte som CSV</a>
   <span style="margin-left:auto;font-size:13px;color:var(--muted)">
     Vis: <a href="/?days=30">30</a> · <a href="/?days=60">60</a> · <a href="/?days=90">90</a> dage
@@ -79,111 +77,60 @@ Prisforslag kan vurderes her; eksport og skrivning kræver bekræftet lager.</di
 <p class="sub">Når du henter CSV’en, gemmes den også i dagens_priser og en
 sammenligning af v4 og v5 i skygge-v4-v5. Der gemmes en kopi pr. kørsel.</p>
 
+<h2 id="prisoversigt">Priser pr. opholdsdato</h2>
+<p class="section-note">Priser i kr. inklusive moms og uden morgenmad. Klik på en dato for at se forklaringen.</p>
 <div class="wrapx">
-<table>
-  <thead>
-  <tr>
-    <th>Dato</th><th>Dag</th><th class="num">Lead</th>
-    <th class="num" title="Solgte værelser / solgte senge lige nu">Solgt nu</th>
-    <th class="num" title="Prognose for slutbelægning: værelser">Progn. vær.</th>
-    <th class="num" title="Prognose for slutbelægning: senge">Progn. senge</th>
-    <th class="num" title="Dagsforslag; kræver kontrol af konkrete rum og hele ophold">Flex</th>
-    {% if settings.params.ladder %}
-    <th class="num" title="Trin på prisstigen, værelse / seng. Hold musen over for triggere og begrundelse">Trin v/s</th>
-    {% endif %}
-    <th class="num">Pace v/s</th><th class="num">Marked v/s</th><th class="num">Event</th>
-    <th class="num">Værelsespris</th><th class="num">Ændring</th>
-    <th class="num">Sengepris</th><th class="num" title="Sovesal V8 solgt samlet. Hele prislisten pr. rumtype ligger i CSV-eksporten">V8 samlet</th>
-    <th class="num">RevPAB</th><th>Status</th><th>Handling</th><th>Bemærkning</th>
-  </tr>
-  </thead>
-  <tbody>
-  {% for row in rows %}
-    {% set r = row.r %}
-    <tr class="{% if row.is_weekend %}we{% endif %}">
-      <td>{{ r.day.strftime("%d-%m") }}</td>
-      <td>{{ row.weekday }}</td>
-      <td class="num">{{ r.lead_days }}</td>
-      <td class="num" style="color:var(--muted)">{{ r.rooms_otb }}v / {{ r.beds_otb }}s</td>
-      <td class="num"><b>{{ "%.0f"|format(r.room_forecast * 100) }} %</b>
-        <span style="color:var(--muted)">({{ "%.0f"|format(r.room_occ_now * 100) }})</span></td>
-      <td class="num"><b>{{ "%.0f"|format(r.bed_forecast * 100) }} %</b>
-        <span style="color:var(--muted)">({{ "%.0f"|format(r.bed_occ_now * 100) }})</span></td>
-      <td class="num">{{ r.flex_to_private }}</td>
-      {% if settings.params.ladder %}
-      {% set L = row.ladder %}
-      <td class="num" {% if L %}title="{% for k, lad in [('Værelse', L.rooms), ('Seng', L.beds)] %}{{ k }}: trin {{ lad.label }} · tryk {{ '%+.2f'|format(lad.score) }} · prognose {{ '%+.2f'|format(lad.triggers.prognose) }} · tempo {{ '%+.2f'|format(lad.triggers.tempo) }} · marked {{ '%+.2f'|format(lad.triggers.marked) }} · lead {{ '%+.2f'|format(lad.triggers.lead) }} · udsolgt {{ '%.0f'|format(lad.p_sellout * 100) }} % · trin: {{ lad.rung_prices|map('int')|join(' / ') }}&#10;{% endfor %}"{% endif %}>
-        {% if L %}
-          {% for lad in [L.rooms, L.beds] %}
-            <b>{{ lad.label }}</b>{% if lad.previous_rung is not none and lad.rung != lad.previous_rung %}<span class="{% if lad.rung > lad.previous_rung %}up{% else %}down{% endif %}">{% if lad.rung > lad.previous_rung %}▲{% else %}▼{% endif %}</span>{% endif %}{% if loop.first %} / {% endif %}
-          {% endfor %}
-        {% else %}—{% endif %}
-      </td>
-      {% endif %}
-      <td class="num">{{ "%.2f"|format(r.f_pace_rooms) }} / {{ "%.2f"|format(r.f_pace_beds) }}</td>
-      <td class="num">{{ "%.2f"|format(r.f_market_rooms) }} / {{ "%.2f"|format(r.f_market_beds) }}</td>
-      <td class="num" {% if r.f_event != 1.0 %}title="{{ r.event_names }}" style="color:var(--accent)"{% endif %}>{{ "%.2f"|format(r.f_event) }}</td>
-      <td class="num"><b>{{ "%.0f"|format(r.room_price) }}</b></td>
-      <td class="num">
-        {% if row.room_delta is not none and row.room_delta != 0 %}
-          <span class="{% if row.room_delta > 0 %}up{% else %}down{% endif %}">
-            {{ "%+.0f"|format(row.room_delta) }}
-          </span>
-        {% else %}—{% endif %}
-      </td>
-      <td class="num"><b>{{ "%.0f"|format(r.bed_price) }}</b></td>
-      <td class="num" style="color:var(--muted)">{{ "%.0f"|format(row.room_types.get("V8", row.room_types.get("familie_4", 0))) }}</td>
-      <td class="num">{{ "%.0f"|format(r.revpab) }}</td>
-      <td><span class="tag {{ r.status }}">{{ r.status }}</span></td>
-      <td>
-        {% if r.status == "pending" %}
-          <form class="inline" method="post" action="/decide">
-            <input type="hidden" name="action" value="approve">
-            <input type="hidden" name="scope" value="one">
-            <input type="hidden" name="day" value="{{ r.day.isoformat() }}">
-            <button class="small" type="submit">Godkend</button>
-          </form>
-        {% elif r.status == "locked" %}
-          <form class="inline" method="post" action="/lock">
-            <input type="hidden" name="day" value="{{ r.day.isoformat() }}">
-            <input type="hidden" name="unlock" value="1">
-            <button class="small" type="submit">Lås op</button>
-          </form>
-        {% else %}
-          <form class="inline" method="post" action="/lock">
-            <input type="hidden" name="day" value="{{ r.day.isoformat() }}">
-            <input type="text" name="room_price" size="4" placeholder="{{ "%.0f"|format(r.room_price) }}"
-                   style="padding:3px 5px;width:56px" aria-label="Fast værelsespris">
-            <input type="text" name="bed_price" size="4" placeholder="{{ "%.0f"|format(r.bed_price) }}"
-                   style="padding:3px 5px;width:52px" aria-label="Fast sengepris">
-            <button class="small" type="submit">Lås</button>
-          </form>
-        {% endif %}
-      </td>
-      <td>{% for w in row.warning_list %}<span class="warn">{{ w }}</span>{% endfor %}</td>
-    </tr>
-  {% endfor %}
-  </tbody>
-</table>
-</div>
+<table class="price-table">
+<thead><tr><th>Dato</th><th class="num">Værelse D2</th><th class="num">Seng</th><th class="num">Forventet salg</th><th class="num">RevPAB</th><th>Status</th><th>Handling</th><th>Detaljer</th></tr></thead>
+<tbody>
+{% for row in rows %}{% set r = row.r %}
+<tr class="{% if row.is_weekend %}we{% endif %}">
+<td class="date-cell"><a href="#pris-{{ r.day.isoformat() }}">{{ r.day.strftime('%d-%m') }}</a><small>{{ row.weekday }}</small></td>
+<td class="num"><b>{{ '%.0f'|format(r.room_price) }}</b>{% if row.room_delta is not none and row.room_delta != 0 %}<small>{{ '%+.0f'|format(row.room_delta) }}</small>{% endif %}</td>
+<td class="num"><b>{{ '%.0f'|format(r.bed_price) }}</b></td>
+<td class="num">{{ '%.0f'|format(r.forecast_rooms) }} vær.<small>{{ '%.0f'|format(r.forecast_beds) }} senge</small></td>
+<td class="num">{{ '%.0f'|format(r.revpab) }}</td>
+<td><span class="tag {{ r.status }}">{{ {'pending':'Afventer','approved':'Godkendt','locked':'Låst','rejected':'Afvist','published':'Overført'}.get(r.status, r.status) }}</span></td>
+<td>
+{% if r.status == 'pending' %}
+<form class="inline" method="post" action="/decide"><input type="hidden" name="action" value="approve"><input type="hidden" name="scope" value="one"><input type="hidden" name="day" value="{{ r.day.isoformat() }}"><button class="small" type="submit">Godkend</button></form>
+{% elif r.status == 'locked' %}
+<form class="inline" method="post" action="/lock"><input type="hidden" name="day" value="{{ r.day.isoformat() }}"><input type="hidden" name="unlock" value="1"><button class="small" type="submit">Lås op</button></form>
+{% else %}
+<a href="#pris-{{ r.day.isoformat() }}">Ret / lås</a>
+{% endif %}
+</td>
+<td><details id="pris-{{ r.day.isoformat() }}" class="row-details"><summary>{% if row.warning_list %}{{ row.warning_list|length }} bemærkninger{% else %}Se detaljer{% endif %}</summary>
+<div class="row-notes">
+{% for warning in row.warning_list %}<p class="warn">{{ warning }}</p>{% endfor %}
+<dl>
+<dt>Solgt nu</dt><dd>{{ r.rooms_otb }} værelser / {{ r.beds_otb }} senge</dd>
+<dt>Forventet belægning</dt><dd>{{ '%.0f'|format(r.room_forecast*100) }} % værelser / {{ '%.0f'|format(r.bed_forecast*100) }} % senge</dd>
+<dt>Flex-forslag til hele rum</dt><dd>{{ r.flex_to_private }} · kræver manuel kontrol</dd>
+<dt>V8, helt rum</dt><dd>{{ '%.0f'|format(row.room_types.get('V8',row.room_types.get('familie_4',0))) }} kr.</dd>
+<dt>Eventfaktor</dt><dd>{{ '%.2f'|format(r.f_event) }}{% if r.event_names %} · {{ r.event_names }}{% endif %}</dd>
+<dt>Markedsfaktor, værelse / seng</dt><dd>{{ '%.2f'|format(r.f_market_rooms) }} / {{ '%.2f'|format(r.f_market_beds) }}</dd>
+{% if row.ladder %}<dt>Pristrin, værelse / seng</dt><dd>{{ row.ladder.rooms.label }} / {{ row.ladder.beds.label }}</dd>{% endif %}
+<dt>Dage til opholdet</dt><dd>{{ r.lead_days }}</dd>
+</dl>
+{% if r.status not in ['pending','locked'] %}
+<form method="post" action="/lock" class="lock-form">
+<input type="hidden" name="day" value="{{ r.day.isoformat() }}">
+<label>Fast værelsespris<input type="text" name="room_price" inputmode="decimal" placeholder="{{ '%.0f'|format(r.room_price) }}" aria-label="Fast værelsespris"></label>
+<label>Fast sengepris<input type="text" name="bed_price" inputmode="decimal" placeholder="{{ '%.0f'|format(r.bed_price) }}" aria-label="Fast sengepris"></label>
+<button class="small" type="submit">Lås datoen</button>
+</form>
+{% endif %}
+</div></details></td>
+</tr>
+{% else %}<tr><td colspan="8">Ingen prisforslag endnu. <a href="/data">Upload belægning</a> for at komme i gang.</td></tr>{% endfor %}
+</tbody></table></div>
 
-<p class="foot">
-  <b>Sådan læses en række.</b> Prognosekolonnerne er det vigtigste: det store tal er
-  hvor modellen forventer belægningen <i>lander</i>, og tallet i parentes er hvor
-  meget der er solgt lige nu. Er prognosen over målet, stiger prisen; er den under,
-  falder den. Derfor falder prisen ikke på en dato der er 20 % solgt 40 dage ude —
-  de 20 % er på vej til 85 %.
-  <br><br>
-  <b>Flex</b> er et dagsforslag. Kontrollér de konkrete rum og alle nætter i
-  eksisterende ophold, før lageret ændres i Picasso. Servicen flytter ikke gæster
-  og ændrer ikke værelsesallokeringer.
-  <br><br>
-  <b>RevPAB</b> er en prognose. Bogført omsætning anvendes, når den er importeret;
-  fremtidigt salg værdisættes med de foreslåede priser og det resterende typemiks.
-  Manglende data giver et tydeligt markeret skøn. Tallet dokumenterer ikke realiseret meromsætning.
-  {% if not settings.auto_publish %}
-  <br><br>Servicen kører med manuel kontrol: intet skrives til Picasso før du godkender.
-  {% endif %}
-</p>
-
+<details class="read-more">
+<summary>Sådan læser du priserne og prognoserne</summary>
+<p>Forventet salg viser antal værelser og senge ved grundprisen, før effekten af prisændringer. Den endelige efterspørgsel er usikker.</p>
+<p>RevPAB er forventet omsætning pr. beregnet seng. Indlæste beløb anvendes på allerede solgte enheder; manglende beløb skønnes. Det er ikke realiseret indtjening.</p>
+<p>Flex er et dagsforslag. Kontrollér konkrete rum og alle nætter i opholdet, før du ændrer noget i Picasso.</p>
+<p>Godkendelse er kun en lokal beslutning. Priser overføres manuelt til Picasso. <a href="/resultater">Registrér de priser, du faktisk har lagt ind</a>.</p>
+</details>
 {% endblock %}

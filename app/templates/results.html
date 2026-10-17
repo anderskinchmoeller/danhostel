@@ -3,16 +3,20 @@
 {% block title %}Resultater · Prismotor{% endblock %}
 {% block body %}
 <h1>Resultatlog</h1>
-<p><a href="/resultater/afvigelser">Se graf: model mod faktiske tal og statistik →</a></p>
-<p><a href="/resultater/prognoser">Se prognosernes præcision og historisk validering →</a></p>
-<p><a href="/resultater/oekonomi">Se økonomi, datamangler og Picasso-vejledning →</a></p>
-<p class="sub">Følg prisforslag, priser lagt ind i Picasso og det efterfølgende salg.
-Godkendelse og download er ikke en bekræftelse af, at priserne er lagt ind.</p>
+<p class="sub">Registrér anvendte priser, upload afsluttede dagsresultater, og følg det faktiske salg.</p>
+<ul class="link-index" aria-label="Opgaver i resultatloggen">
+<li><a href="#anvendte-priser">Registrér priser lagt ind i Picasso</a></li>
+<li><a href="#dagsresultat">Upload Hotelmanager og produktomsætning</a></li>
+<li><a href="#arrivals-historik">Upload Arrivals fra Picasso</a></li>
+<li><a href="#manuelle-resultater">Registrér faktiske resultater manuelt</a></li>
+<li><a href="#resultatoversigt">Se registreringer og hent historik</a></li>
+</ul>
+<p class="section-note">Godkendelse og download bekræfter ikke, at priserne er lagt ind i Picasso.</p>
 {% if message %}<div class="msg ok">{{ message }}</div>{% endif %}
 {% if error %}<div class="msg err">{{ error }}</div>{% endif %}
 
-<div class="panel" style="margin-bottom:16px">
-<h2>Importér afsluttet dagsresultat</h2>
+<details class="panel task-section" id="dagsresultat">
+<summary>Importér afsluttet dagsresultat</summary>
 <p>Upload to PDF’er for samme afsluttede opholdsdato: Hotelmanager (part 1 og part 2 med Room/Bed)
 og produktomsætning opdelt pr. rumtype. Du får en kontrolside før tallene registreres som faktiske resultater.</p>
 <form method="post" action="/resultater/rapporter" enctype="multipart/form-data">
@@ -27,10 +31,10 @@ Accounts-rapporten er valgfri til yderligere afstemning.</p>
 {% if report_pairs %}<details><summary>Seneste rapportpar til kontrol</summary><ul>
 {% for pair in report_pairs %}<li><a href="/resultater/rapporter/{{ pair.id }}">{{ pair.day.strftime('%d-%m-%Y') }} · rapportpar {{ pair.id }}</a> · {{ pair.actor }}</li>{% endfor %}
 </ul></details>{% endif %}
-</div>
+</details>
 
-<div class="panel">
-  <h2 style="margin-top:0">Upload Arrivals fra Picasso</h2>
+<details class="panel task-section" id="arrivals-historik">
+  <summary>Upload Arrivals fra Picasso</summary>
   <p>Brug samme Arrivals / Rooms spec.-PDF som under Data. Udskriftstidspunktet,
   belægningen, rumtyperne og rapportens reservationsbeløb gemmes som historik.
   Original-PDF’en bevares, og genindlæsning af samme PDF giver ingen dubletter.</p>
@@ -45,9 +49,9 @@ Accounts-rapporten er valgfri til yderligere afstemning.</p>
   Beløb fordelt over opholdsnætterne er et skøn. Manglende provision, omkostninger,
   nye bookinger, annulleringer og endelige resultater udfyldes ikke automatisk.
   Brug en rapport, der starter mindst 30 dage tilbage, med In-House slået til.</p>
-</div>
+</details>
 
-<details class="panel" style="margin-top:16px">
+<details class="panel task-section" id="anvendte-priser">
 <summary><b>Bekræft priser, du har lagt ind</b></summary>
 <p>Arrivals dokumenterer ikke, hvornår du ændrede salgsprisen. Registrér det her,
 når du har lagt den ind. Normalprisen er den pris, du ellers ville have valgt.</p>
@@ -70,7 +74,7 @@ når du har lagt den ind. Normalprisen er den pris, du ellers ville have valgt.<
 </form>
 </details>
 
-<details class="panel" style="margin-top:16px">
+<details class="panel task-section" id="manuelle-resultater">
 <summary><b>Supplér med faktiske resultater</b></summary>
 <p>Udfyld kun tal, du har fra Picasso eller regnskabet. Tom betyder ukendt; nul
 betyder, at tallet er kontrolleret til nul. Beløbene skal bruge samme momsgrundlag.</p>
@@ -106,7 +110,7 @@ omsætningstal, provision og variable omkostninger. Der bruges ingen standardsat
 </form>
 </details>
 
-<h2>Prisforslag og registreret resultat</h2>
+<h2 id="resultatoversigt">Prisforslag og registreret resultat</h2>
 <form class="bar" method="get" action="/resultater">
   <label>Fra <input type="date" name="start" value="{{ start }}"></label>
   <label>Til <input type="date" name="end" value="{{ end }}"></label>

@@ -19,6 +19,7 @@ from fastapi import Depends, FastAPI, File, Form, HTTPException, Request, Upload
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, StreamingResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy import desc, select
 
 from . import config, db, economics, exports, picasso_belaegning, service, validation
@@ -79,6 +80,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Prismotor", lifespan=lifespan)
+app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
 templates.env.globals["freshness"] = lambda: freshness()
 
 from .result_routes import router as results_router

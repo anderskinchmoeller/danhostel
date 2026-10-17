@@ -5,7 +5,6 @@
 {% macro pvalue(value) %}{% if value is none %}Ikke beregnet{% elif value < 0.001 %}&lt;0,001{% else %}{{ ('%.3f'|format(value)).replace('.', ',') }}{% endif %}{% endmacro %}
 {% block body %}
 <h1>Model mod faktiske tal</h1>
-<p><a href="/resultater">← Resultatlog</a> · <a href="/resultater/prognoser">Prognoser og intervaldækning</a> · <a href="/resultater/oekonomi">Økonomi</a></p>
 <p>Forskel = prognose minus faktisk resultat. Over nul betyder, at modellen forventede for meget; under nul, at den forventede for lidt.</p>
 <form method="get" class="panel">
 <div class="grid2">
@@ -34,15 +33,15 @@ Historikken indeholder ikke en omsætningstest. {{ pending }} afsluttede økonom
 {% if chart %}
 <svg viewBox="0 0 930 320" role="img" aria-labelledby="chart-title chart-description" style="width:100%;height:auto;min-width:280px;max-height:440px">
 <title id="chart-title">Forskel mellem prognose og faktisk {{ measures[measure][0] }}</title>
-<desc id="chart-description">{{ summary.n }} opholdsdatoer. Nul betyder korrekt prognose. Orange over nul er for høj prognose, blå under nul er for lav prognose. De præcise tal findes også i tabellen nedenfor.</desc>
+<desc id="chart-description">{{ summary.n }} opholdsdatoer. Nul betyder korrekt prognose. Sort over nul er for høj prognose, grå stiplet under nul er for lav prognose. De præcise tal findes også i tabellen nedenfor.</desc>
 {% for tick in chart.ticks %}<line x1="70" x2="870" y1="{{ tick.y }}" y2="{{ tick.y }}" stroke="currentColor" opacity="0.12"/><text x="60" y="{{ tick.y+4 }}" text-anchor="end" fill="currentColor" font-size="12">{{ number(tick.value) }}</text>{% endfor %}
 <line x1="70" x2="870" y1="{{ chart.zero }}" y2="{{ chart.zero }}" stroke="currentColor" opacity="0.8" stroke-dasharray="5 4"/>
 {% for point in chart.points %}<g><title>{{ point.day }} · Model {{ number(point.forecast) }} · Faktisk {{ number(point.actual) }} · Forskel {{ number(point.error) }} {{ measures[measure][1] }}</title>
-<line x1="{{ point.x }}" x2="{{ point.x }}" y1="{{ chart.zero }}" y2="{{ point.y }}" stroke="{{ '#fbad55' if point.positive else '#65bfff' }}" stroke-width="2"/>
-<circle cx="{{ point.x }}" cy="{{ point.y }}" r="3" fill="{{ '#fbad55' if point.positive else '#65bfff' }}"/></g>{% endfor %}
+<line x1="{{ point.x }}" x2="{{ point.x }}" y1="{{ chart.zero }}" y2="{{ point.y }}" stroke="{{ '#171717' if point.positive else '#777777' }}" stroke-width="2" {% if not point.positive %}stroke-dasharray="4 3"{% endif %}/>
+<circle cx="{{ point.x }}" cy="{{ point.y }}" r="3" fill="{{ '#171717' if point.positive else '#ffffff' }}" stroke="{{ '#171717' if point.positive else '#777777' }}" stroke-width="1.5"/></g>{% endfor %}
 <text x="70" y="295" fill="currentColor" font-size="12">{{ chart.first }}</text><text x="870" y="295" fill="currentColor" font-size="12" text-anchor="end">{{ chart.last }}</text>
 </svg>
-<p class="foot">En markering pr. opholdsdato. Peg på en markering for model, faktisk tal og forskel. Manglende datoer er ikke nul.</p>
+<p class="foot">Sort, fuld markering: for høj prognose. Grå, stiplet markering: for lav prognose. En markering pr. opholdsdato. Peg på en markering for model, faktisk tal og forskel. Manglende datoer er ikke nul.</p>
 {% else %}<p><b>Ingen sammenlignelige datoer i dette udvalg endnu.</b> Importér og bekræft afsluttede resultater, og vælg en periode med prognoser gemt før opholdet.</p>
 {% if source=='live' %}<p><a href="/resultater/afvigelser?source=historical&amp;measure=rum&amp;lead=7">Se den eksisterende historiske graf for værelser</a></p>{% endif %}
 {% endif %}
@@ -52,6 +51,7 @@ Historikken indeholder ikke en omsætningstest. {{ pending }} afsluttede økonom
 <p>{{ summary.n }} datoer · enhed: {{ measures[measure][1] }}. {{ summary.n_baseline }} datoer har også en enkel reference.</p>
 <table><thead><tr><th>Typisk fejl (MAE)</th><th>Store fejl vægtes højere (RMSE)</th><th>Gennemsnitlig skævhed</th><th>Referencefejl på parrede datoer</th><th>Dækning af 80 %-interval</th></tr></thead>
 <tbody><tr><td>{{ number(summary.mae) }}</td><td>{{ number(summary.rmse) }}</td><td>{{ number(summary.bias.mean) }}</td><td>{{ number(summary.baseline_mae) }}</td><td>{{ ('%.0f%%'|format(summary.coverage80*100)) if summary.coverage80 is not none else 'Mangler' }}</td></tr></tbody></table>
+<figure class="formula"><div data-latex="\operatorname{MAE}=\frac{1}{n}\sum_{i=1}^{n}\left|\widehat{y}_i-y_i\right|" data-display="true">MAE = gennemsnittet af de absolutte forskelle mellem prognose og faktisk resultat.</div><figcaption>Den typiske fejl, uanset om prognosen er for høj eller for lav.</figcaption></figure>
 <p>MAE er gennemsnitlig absolut fejl. Skævhed omkring nul kan godt skjule store positive og negative fejl; se derfor begge tal.
 Referencen er historisk gennemsnit på samme ugedag og i samme måned, beregnet uden facit fra testperioden. For omsætning mangler endnu en fast reference.</p>
 </div>

@@ -609,6 +609,8 @@ Endpointet er ikke dokumentation for økonomisk effekt eller fuldstændige data.
 | `app/forecast_charts.py`, `app/forecast_metrics.py` | Grafgrundlag og statistik |
 | `app/economics.py`, `app/result_routes.py` | Økonomi og Resultater-sider |
 | `app/main.py`, `app/templates/` | Webapp, planlægning og skærmbilleder |
+| `app/static/academic.css`, `academic.js` | Artikellayout med ET Book, varm papirbaggrund, mørkerøde accenter og LaTeX-visning |
+| `app/static/fonts/`, `app/static/vendor/katex/` | Lokale skrifter og KaTeX med tilhørende licenser |
 | `app/db.py` | Database, log og additive opgraderinger |
 | `app/sanity.py`, `app/adapters/` | Importkontroller og dataadgang |
 | `app/evaluate.py`, `app/backtest.py`, `app/calibration.py` | Særskilte analyser |

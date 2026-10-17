@@ -17,8 +17,6 @@
 {% endmacro %}
 {% block body %}
 <h1>Hvor godt rammer prognoserne?</h1>
-<p><a href="/resultater/afvigelser">Se graf: model mod faktiske tal og statistik →</a></p>
-<p><a href="/resultater">← Resultatlog</a></p>
 <p class="sub">Værelser og senge vurderes hver for sig, 30, 14, 7 og 1 dag før opholdet.</p>
 <form method="get"><label for="segment">Vis datoer</label>
 <select id="segment" name="segment">{% for key, label in segments.items() %}<option value="{{ key }}" {{ 'selected' if key == segment }}>{{ label }}</option>{% endfor %}</select>

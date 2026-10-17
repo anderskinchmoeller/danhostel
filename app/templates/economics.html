@@ -3,8 +3,6 @@
 {% block title %}Økonomi og prisfølsomhed · Prismotor{% endblock %}
 {% block body %}
 <h1>Økonomi og prisfølsomhed</h1>
-<p><a href="/resultater/afvigelser">Se graf: model mod faktiske tal og statistik →</a></p>
-<p><a href="/resultater">← Resultatlog</a></p>
 <div class="msg info"><b>Økonomisk effekt er ikke målt.</b> Ingen beregning på denne side beviser,
 at modellen øger omsætningen eller indtjeningen. Historiske prisstigninger på travle datoer
 kan ikke alene fortælle, hvor prisfølsomme gæsterne er.</div>
@@ -63,6 +61,7 @@ provision og andre omkostninger skal kontrolleres særskilt. Importen udfylder i
 {% for key in ['revenue','revpab','contribution','contribution_per_bed'] %}<td>{{ '%.2f kr.'|format(row[key]) if row[key] is not none else 'Mangler' }}</td>{% endfor %}
 <td>{{ row.source }}{% if row.data.get('result_report_id') %}<br><a href="/resultater/rapporter/{{ row.data.result_report_id }}">Kilder og afstemning</a>
 {% if row.data.get('revenue_adjustment') %}<br><small>Ufordelt afrunding inkluderet: {{ '%.2f'|format(row.data.revenue_adjustment) }} kr.</small>{% endif %}{% endif %}</td></tr>{% else %}<tr><td colspan="6">Ingen afsluttede resultater registreret endnu.</td></tr>{% endfor %}</tbody></table></div>
+<figure class="formula"><div data-latex="\operatorname{RevPAB}=\frac{\text{Logiomsætning}}{\text{Tilgængelige senge}}" data-display="true">RevPAB = logiomsætning divideret med tilgængelige senge.</div><figcaption>Faktisk logiomsætning eksklusive moms og morgenmad.</figcaption></figure>
 <p>RevPAB kræver faktisk tilgængelige senge. Dækningsbidrag kræver begge omsætningstal,
 provision og variable omkostninger. Ukendte beløb beregnes ikke med standardsatser.
 Faktisk indtjening er ikke i sig selv dokumentation for en forbedring fra modellen.</p>

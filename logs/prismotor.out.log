@@ -295,3 +295,174 @@ INFO:     192.168.1.63:52439 - "GET /favicon.ico HTTP/1.1" 404 Not Found
 INFO:     192.168.1.63:52449 - "GET / HTTP/1.1" 401 Unauthorized
 INFO:     192.168.1.63:52456 - "GET / HTTP/1.1" 200 OK
 INFO:     192.168.1.63:52457 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     192.168.1.63:53739 - "GET / HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:53791 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53792 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53794 - "GET /resultater/afvigelser HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53795 - "GET /resultater/oekonomi HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53796 - "GET /resultater/rapporter/847 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53797 - "GET /grupper HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53798 - "GET /data HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53799 - "GET /events HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53800 - "GET /settings HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53801 - "GET /static/academic.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53802 - "GET /static/academic.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53803 - "GET /static/fonts/lmroman10-regular.otf HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53804 - "GET /static/fonts/lmroman10-bold.otf HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53805 - "GET /static/vendor/katex/katex.min.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53806 - "GET /static/vendor/katex/katex.min.css HTTP/1.1" 200 OK
+INFO:     192.168.1.63:55598 - "GET / HTTP/1.1" 401 Unauthorized
+INFO:     192.168.1.63:55601 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.63:55601 - "GET /static/fonts/lmroman10-regular.otf HTTP/1.1" 200 OK
+INFO:     192.168.1.63:55602 - "GET /static/vendor/katex/katex.min.css HTTP/1.1" 200 OK
+INFO:     192.168.1.63:55601 - "GET /static/academic.css?v=academic-1 HTTP/1.1" 200 OK
+INFO:     192.168.1.63:55603 - "GET /static/vendor/katex/katex.min.js HTTP/1.1" 200 OK
+INFO:     192.168.1.63:55604 - "GET /static/academic.js?v=academic-1 HTTP/1.1" 200 OK
+INFO:     192.168.1.63:55603 - "GET /static/fonts/lmroman10-bold.otf HTTP/1.1" 200 OK
+INFO:     192.168.1.63:55604 - "GET /static/fonts/lmroman10-italic.otf HTTP/1.1" 200 OK
+INFO:     192.168.1.63:55604 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     192.168.1.63:55974 - "GET /export.csv HTTP/1.1" 409 Conflict
+INFO:     192.168.1.63:55982 - "GET /grupper HTTP/1.1" 200 OK
+INFO:     192.168.1.63:55982 - "GET /static/vendor/katex/katex.min.css HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:55983 - "GET /static/academic.css?v=academic-1 HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:55984 - "GET /static/vendor/katex/katex.min.js HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:55982 - "GET /static/academic.js?v=academic-1 HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:56211 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56212 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56213 - "GET /data HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56214 - "GET /resultater/afvigelser HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56215 - "GET /resultater/oekonomi HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56216 - "GET /resultater/prognoser HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56217 - "GET /grupper HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56218 - "GET /events HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56219 - "GET /settings HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56220 - "GET /static/fonts/lmmono-regular.otf HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56221 - "GET /static/fonts/lmmono-bold.otf HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56222 - "GET /static/academic.css?v=readable-2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56223 - "GET /static/academic.js?v=readable-2 HTTP/1.1" 200 OK
+INFO:     192.168.1.63:56629 - "GET /grupper HTTP/1.1" 200 OK
+INFO:     192.168.1.63:56629 - "GET /static/fonts/lmmono-regular.otf HTTP/1.1" 200 OK
+INFO:     192.168.1.63:56630 - "GET /static/academic.css?v=readable-2 HTTP/1.1" 200 OK
+INFO:     192.168.1.63:56631 - "GET /static/vendor/katex/katex.min.css HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:56633 - "GET /static/vendor/katex/katex.min.js HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:56632 - "GET /static/academic.js?v=readable-2 HTTP/1.1" 200 OK
+INFO:     192.168.1.63:56629 - "GET /static/fonts/lmmono-bold.otf HTTP/1.1" 200 OK
+INFO:     192.168.1.63:56638 - "GET /data HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56778 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56779 - "GET /data HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56780 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56781 - "GET /resultater/afvigelser HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56782 - "GET /static/academic.css?v=navy-readable-3 HTTP/1.1" 200 OK
+INFO:     192.168.1.63:56814 - "GET /data HTTP/1.1" 200 OK
+INFO:     192.168.1.63:56814 - "GET /static/academic.css?v=navy-readable-3 HTTP/1.1" 200 OK
+INFO:     192.168.1.63:56815 - "GET /static/academic.js?v=navy-readable-3 HTTP/1.1" 200 OK
+INFO:     192.168.1.63:56960 - "GET /data HTTP/1.1" 200 OK
+INFO:     192.168.1.63:56960 - "GET /static/academic.css?v=navy-readable-3 HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:56961 - "GET /static/vendor/katex/katex.min.css HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:56962 - "GET /static/vendor/katex/katex.min.js HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:56963 - "GET /static/academic.js?v=navy-readable-3 HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:57007 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57008 - "GET /data HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57009 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57010 - "GET /resultater/afvigelser HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57011 - "GET /resultater/oekonomi HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57012 - "GET /resultater/prognoser HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57013 - "GET /resultater/rapporter/847 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57014 - "GET /events HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57015 - "GET /grupper HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57016 - "GET /settings HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57017 - "GET /static/fonts/space-mono/SpaceMono-Regular.ttf HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57018 - "GET /static/fonts/space-mono/SpaceMono-Bold.ttf HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57019 - "GET /static/fonts/space-mono/SpaceMono-Italic.ttf HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57020 - "GET /static/fonts/space-mono/SpaceMono-BoldItalic.ttf HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57021 - "GET /static/academic.css?v=space-mono-article-4 HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57042 - "GET /data HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57042 - "GET /static/fonts/space-mono/SpaceMono-Regular.ttf HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57044 - "GET /static/academic.js?v=space-mono-article-4 HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57043 - "GET /static/academic.css?v=space-mono-article-4 HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57043 - "GET /static/fonts/space-mono/SpaceMono-Bold.ttf HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57232 - "GET /data HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57233 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57234 - "GET /static/academic.css?v=outlined-import-5 HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57369 - "GET /data HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57369 - "GET /static/fonts/space-mono/SpaceMono-Regular.ttf HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:57373 - "GET /static/vendor/katex/katex.min.js HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:57371 - "GET /static/vendor/katex/katex.min.css HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:57370 - "GET /static/academic.css?v=outlined-import-5 HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57372 - "GET /static/academic.js?v=space-mono-article-4 HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:57370 - "GET /static/fonts/space-mono/SpaceMono-Bold.ttf HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:57433 - "GET /data HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57433 - "GET /static/academic.css?v=space-mono-import-6 HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57434 - "GET /static/fonts/space-mono/SpaceMono-Regular.ttf HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:57433 - "GET /static/fonts/space-mono/SpaceMono-Bold.ttf HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:57795 - "GET /grupper HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57795 - "GET /static/fonts/space-mono/SpaceMono-Regular.ttf HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:57796 - "GET /static/vendor/katex/katex.min.css HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:57797 - "GET /static/academic.css?v=space-mono-import-6 HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:57798 - "GET /static/vendor/katex/katex.min.js HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:57799 - "GET /static/academic.js?v=space-mono-article-4 HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:57799 - "GET /static/fonts/space-mono/SpaceMono-Bold.ttf HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:57799 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57806 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57806 - "GET /events HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57806 - "GET /settings HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57806 - "GET /grupper HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57806 - "GET /data HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57806 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57806 - "GET /grupper HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57806 - "GET /data HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57823 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57883 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57883 - "GET /static/academic.css?v=space-mono-import-6 HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:57884 - "GET /static/fonts/space-mono/SpaceMono-Regular.ttf HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:57884 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57884 - "GET /static/fonts/space-mono/SpaceMono-Bold.ttf HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:57888 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57889 - "GET /data HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57890 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57891 - "GET /grupper HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57892 - "GET /settings HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57893 - "GET /events HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57894 - "GET /static/academic.css?v=consistent-buttons-7 HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57907 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57907 - "GET /static/academic.css?v=consistent-buttons-7 HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57911 - "GET /grupper HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57911 - "GET /static/academic.css?v=consistent-buttons-7 HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:57911 - "GET /data HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57911 - "GET /static/academic.css?v=consistent-buttons-7 HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:57911 - "GET /data HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57911 - "GET /data HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57911 - "GET /static/academic.css?v=consistent-buttons-7 HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:57911 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57911 - "GET /static/academic.css?v=consistent-buttons-7 HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:57919 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57919 - "GET /static/academic.css?v=consistent-buttons-7 HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:57941 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57941 - "GET /static/academic.css?v=consistent-buttons-7 HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:57941 - "GET /data HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58225 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58226 - "GET /data HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58227 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58228 - "GET /resultater/afvigelser HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58229 - "GET /resultater/oekonomi HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58230 - "GET /static/academic.css?v=et-book-paper-8 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58231 - "GET /static/fonts/et-book/et-book-roman-line-figures.woff HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58232 - "GET /static/fonts/et-book/et-book-bold-line-figures.woff HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58233 - "GET /static/fonts/et-book/et-book-italic.woff2 HTTP/1.1" 200 OK
+INFO:     192.168.1.63:58251 - "GET /data HTTP/1.1" 200 OK
+INFO:     192.168.1.63:58251 - "GET /static/fonts/et-book/et-book-roman-line-figures.woff HTTP/1.1" 200 OK
+INFO:     192.168.1.63:58252 - "GET /static/academic.css?v=et-book-paper-8 HTTP/1.1" 200 OK
+INFO:     192.168.1.63:58253 - "GET /static/academic.js?v=space-mono-article-4 HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:58251 - "GET /static/fonts/et-book/et-book-bold-line-figures.woff HTTP/1.1" 200 OK
+INFO:     192.168.1.63:58252 - "GET /static/fonts/space-mono/SpaceMono-Regular.ttf HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:58262 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.63:58262 - "GET /static/vendor/katex/katex.min.css HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:58264 - "GET /static/academic.css?v=et-book-paper-8 HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:58265 - "GET /static/vendor/katex/katex.min.js HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:58265 - "GET /grupper HTTP/1.1" 200 OK
+INFO:     192.168.1.63:58265 - "GET /data HTTP/1.1" 200 OK
+INFO:     192.168.1.63:58265 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     192.168.1.63:58265 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     192.168.1.63:58265 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.63:58265 - "GET /static/fonts/et-book/et-book-roman-line-figures.woff HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:58277 - "GET /static/academic.css?v=et-book-paper-8 HTTP/1.1" 304 Not Modified
