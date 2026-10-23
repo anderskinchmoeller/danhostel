@@ -177,3 +177,27 @@ def test_a_160_kr_unallocated_post_is_not_rounding_or_assigned_to_an_inventory()
     bridge=accounts.reconcile(parsed,None,payload()['hotelmanager'])
     assert bridge['unallocated_lodging']=='160.00' and bridge['linked_lodging']=='0.00'
     assert parsed['line_rounding']=='0.00' and bridge['issues']
+
+
+@pytest.mark.parametrize('unallocated,linked,explained',[
+    ('144.00','28885.43',True),
+    ('-144.00','28885.43',True),
+    ('144.00','28895.43',False),
+    ('0.00','28885.43',False),
+])
+def test_manual_sale_bridge_preserves_ledger_and_does_not_attest_stay_date(unallocated,linked,explained):
+    manual=Decimal(unallocated)
+    total=Decimal(linked)+manual
+    a=dict(by_product=[dict(product='ROOM',unallocated=False,lodging=linked,
+                           upgrade='0.00',breakfast='0.00',other='0.00')],
+           unallocated_rows=[dict(category='lodging',revenue=unallocated)],
+           summary=dict(lodging=str(total),upgrade='0.00'))
+    bridge=accounts.reconcile(a,None,dict(total_price_rounded='28885.00'))
+    assert bridge['unallocated_explains_difference'] is explained
+    assert Decimal(bridge['ledger_vs_hotel'])==total-Decimal('28885.00')
+    assert Decimal(bridge['residual_after_unallocated'])==Decimal(linked)-Decimal('28885.00')
+    assert Decimal(bridge['lodging_all'])==total
+    assert bridge['linked_lodging']==linked
+    # A matching amount never clears the unresolved allocation/date check.
+    if manual:
+        assert bridge['issues']

@@ -129,6 +129,13 @@ def test_past_nights_in_active_arrivals_report_are_unknown_not_zero(session, mon
 def test_page_and_pdf_upload_are_connected_without_approving_or_confirming_prices(tmp_path, monkeypatch):
     from app import main
     from dataclasses import replace
+    class ReportDate(date):
+        @classmethod
+        def today(cls):
+            return date(2026, 10, 16)
+    # This fixture uploads a dated historical report. Its future rows must not
+    # disappear as the real calendar advances beyond the fixture's stay dates.
+    monkeypatch.setattr(pdf, "date", ReportDate)
     monkeypatch.setattr(main.settings, "database_url", f"sqlite:///{tmp_path}/web.db")
     monkeypatch.setattr(main.settings, "basic_auth_user", None)
     monkeypatch.setattr(validation, "PDF_ARCHIVE_ROOT", tmp_path / "pdfs")

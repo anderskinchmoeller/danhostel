@@ -7,7 +7,7 @@
 {% if message %}<div class="msg ok">{{ message }}</div>{% endif %}
 {% if error %}<div class="msg err">{{ error }}</div>{% endif %}
 {% if latest.get('result_report_id') == record.id %}<div class="msg ok">Salgstallene fra dette rapportpar er registreret som endelige.
-{{ 'Omsætningen er også bekræftet.' if latest.get('revenue_report_id') == record.id else 'Omsætningen er endnu ikke bekræftet fra dette rapportpar; eventuelle tidligere økonomital er bevaret med deres kilde.' }}</div>
+Salgstallene kan bruges til prognosevalidering uafhængigt af økonomiafstemningen.</div>
 {% else %}<div class="msg info">Rapporterne er gemt til kontrol. Tallene bruges først som faktiske resultater, når du bekræfter dem nedenfor.</div>{% endif %}
 <div class="panel">
 <h2>Kilder og endeligt salg</h2>
@@ -19,6 +19,24 @@
 Antallene kommer fra Hotelmanager, Room Inhouse / Today. Pax, Pcs og antal i produktudtrækket bruges ikke som endeligt salg.</p>
 <p>{{ payload.hotelmanager.choices }}.</p>
 </div>
+<div class="panel" style="margin-top:16px">
+<h2>Gem dagsresultat til prognosevalidering</h2>
+<p>Vi sammenligner de gemte prognoser med det endelige salg af værelser og senge.
+Produktudtræk, morgenmadsfordeling og manuelle kassesalg er ikke nødvendige for denne test.</p>
+<form method="post" action="/resultater/rapporter/{{ record.id }}/enkelt">
+<div class="field"><label><input type="checkbox" name="final_counts" value="true" required>
+Jeg har kontrolleret, at datoen er afsluttet, og at {{ payload.hotelmanager.rooms }} værelser og {{ payload.hotelmanager.beds }} senge er de endelige salgstal.</label></div>
+<div class="field"><label><input type="checkbox" name="hotel_total" value="true">
+Medtag Hotelmanagers samlede logiomsætning: {{ payload.hotelmanager.total_price_rounded }} kr. ekskl. moms og pakker (valgfrit).</label></div>
+<p class="foot">Beløbet er afrundet og bruges til overordnet økonomisk opfølgning. Det fordeles ikke på rumtyper
+og dokumenterer ikke i sig selv effekten af modellens priser.</p>
+<div class="field"><label>Note (valgfrit)<textarea name="note" rows="2"></textarea></label></div>
+<button class="primary" type="submit" {% if payload.hotelmanager.rooms is none or payload.hotelmanager.beds is none %}disabled{% endif %}>Gem dagsresultat</button>
+</form>
+<p><a href="/resultater/afvigelser?source=live">Se prognose mod faktisk salg</a></p>
+</div>
+<details class="panel" style="margin-top:16px"><summary>Valgfri detaljeafstemning af økonomi</summary>
+<p>Afvigelser her spærrer kun den detaljerede økonomifordeling. Du kan altid gemme kontrollerede salgstal ovenfor.</p>
 {% if payload.products %}
 <div class="panel" style="margin-top:16px">
 <h2>Logiomsætning eksklusive moms</h2>
@@ -31,12 +49,32 @@ Ufordelt afrunding mellem rumtypetotaler og Grand Total: <b>{{ report.difference
 Foreløbig produktsum efter foreslået fradrag, inklusive uafklarede beløb: <b>{{ report.total_lodging }} kr.</b><br>
 Foreslået fradrag af morgenmad: {{ report.breakfast }} kr. · Produktudtræk før fradrag: {{ payload.products.total }} kr.</p>
 <p>Hotelmanager viser afrundet {{ payload.hotelmanager.total_price_rounded }} kr. Forskel: {{ report.hotel_difference }} kr.
-Både total og gennemsnitspris pr. værelse/seng afstemmes. Forskelle over 50 øre i de afrundede sammenligningstal spærrer økonomiimport.</p>
+Totalen skal stemme inden for 50 øre. Gennemsnitspriser vises som kontroloplysninger;
+Room Inhouse er ikke dokumenteret som samme nævner som rapportens ADR.</p>
+{% for issue in report.get('adr_issues', []) %}<div class="msg info">{{ issue }}</div>{% endfor %}
 <p class="foot">Der bruges trykte rumtypetotaler. Produktlinjer og totaler kan afrunde forskelligt; forskellen vises særskilt.
 Morgenmad foreslås kun fratrukket på linjer med morgenmad i beskrivelsen og uden antal gæster, nætter eller rum.
 Produkter med opholdsantal vises foreløbigt som logi, men pakkebeløb kan også indeholde morgenmad.
 Et ekstra fradrag på produktniveau kan ikke fordeles på rumtyper uden dokumentation. Kontrollér fradragene i originalerne.</p>
 {% for issue in report.issues %}<div class="msg err">{{ issue }}</div>{% endfor %}
+<details class="panel"><summary>Afklar produktlinjer og morgenmad i pakker</summary>
+<p>Angiv kun dokumenterede fradrag eksklusive moms. En linje uden opholdsantal kan bekræftes som logi,
+men en ukendt rumtype skal stadig afklares. Gem fordelingen for at beregne afstemningen igen.
+Originalrapporterne bevares, og økonomital gemmes først ved den særskilte bekræftelse nedenfor.</p>
+<form method="post" action="/resultater/rapporter/{{ record.id }}/fordeling">
+{% for row in payload.products.rows %}{% set index = loop.index0 %}
+{% if row.category != 'breakfast' %}
+{% set saved = payload.get('product_corrections', []) | selectattr('index', 'equalto', index) | list %}
+<fieldset><legend>{{ row.room_type }} · {{ row.description }} · {{ row.amount }} kr.</legend>
+<div class="field"><label>Morgenmad inkluderet i denne linje · kr. ekskl. moms
+<input type="number" name="breakfast_{{ index }}" min="0" max="{{ row.amount }}" step="0.01" value="{{ saved[0].breakfast if saved else '' }}"></label></div>
+{% if row.category == 'unknown' %}<label><input type="checkbox" name="lodging_{{ index }}" value="true" {% if saved and saved[0].lodging_confirmed %}checked{% endif %}> Jeg har dokumentation for, at denne linje er logi.</label>{% endif %}
+<div class="field"><label>Dokumentation: folio, bilag eller anden kilde og forklaring
+<input type="text" name="evidence_{{ index }}" value="{{ saved[0].note if saved else '' }}"></label></div>
+</fieldset>
+{% endif %}{% endfor %}
+<button type="submit">Gem dokumenteret fordeling og afstem igen</button>
+</form></details>
 <div class="msg info"><b>Kontrollér datogrundlaget.</b> Produktudtrækkets fodtekst siger “{{ payload.products.date_basis }}”.
 Afstemningen understøtter tallene for denne dato, men beviser ikke alene, at udtrækket fordeler flerdagesophold pr. opholdsnat.
 Bekræft derfor dato og fradrag før økonomital gemmes. Rapporten udelader desuden produkter flyttet til bilag uden tilknytning til reservationer; kontrollér eventuelle sådanne posteringer særskilt.</div>
@@ -56,6 +94,14 @@ Forskel mellem disse to: {{ report.accounting.product_net_vs_linked }} kr. · Fo
 En produktgruppe med flere rumtyper fordeles ikke proportionalt eller efter antal.</p>
 {% endif %}
 <h3>Uden produktkobling · “None”</h3>
+<p><b>Fast grundlag:</b> Hotelmanager eksklusive moms, pakker, kredit og ude af drift.
+Bogført logi minus Hotelmanager: <b>{{ report.accounting.ledger_vs_hotel }} kr.</b><br>
+Heraf logi uden produktkobling: <b>{{ report.accounting.unallocated_lodging }} kr.</b> ·
+Resterende forskel efter særskilt visning af disse poster: <b>{{ report.accounting.residual_after_unallocated }} kr.</b></p>
+{% if report.accounting.unallocated_explains_difference %}
+<div class="msg info">Forskellen svarer beløbsmæssigt til logi uden produktkobling, inden for Hotelmanagers afrunding.
+Det er ikke i sig selv en prisfejl eller dokumentation for opholdsdatoen. Beløbet bevares i bogføringen og vises særskilt fra modellens logi.</div>
+{% endif %}
 <div class="wrapx"><table><thead><tr><th>Konto</th><th>Tekst</th><th>Rapporteret Amount</th><th>Omsætningsfortegn · kredit − debet</th></tr></thead><tbody>
 {% for row in payload.accounts.unallocated_rows %}<tr><td>{{ row.account }}</td><td>{{ row.label }}</td><td>{{ row.amount }}</td><td>{{ row.revenue }} kr.</td></tr>{% else %}<tr><td colspan="4">Ingen poster uden produktkobling.</td></tr>{% endfor %}</tbody></table></div>
 <p>Ufordelt logi: <b>{{ report.accounting.unallocated_lodging }} kr.</b> · Ufordelte opgraderinger: <b>{{ report.accounting.unallocated_upgrade }} kr.</b><br>
@@ -66,6 +112,9 @@ Rundingsforskel mellem Result med omsætningsfortegn og summen af kontolinjerne:
 {% for issue in report.accounting.issues %}<div class="msg err">{{ issue }}</div>{% endfor %}
 <p class="foot">Kontrollér, at bogføringsdato, opholdsdato og momsgrundlag er sammenlignelige. Rettelser, flyttede produkter og tilbagebetalinger skal forklares;
 de bliver hverken behandlet som afrunding eller skjult i en rumtype.</p>
+<p>Ved manuelle sengesalg: dokumentér folio, bilagsnummer, beløb eksklusive moms og opholdsdato samt reservation, hvis den findes.
+En deaktiveret “Open Res” beviser ikke alene, at salget mangler reservationstilknytning.
+Ret ikke en postering alene for at få rapporterne til at stemme.</p>
 </div>
 {% endif %}
 <div class="panel" style="margin-top:16px">
@@ -85,4 +134,5 @@ de bliver hverken behandlet som afrunding eller skjult i en rumtype.</p>
 </form>
 <p class="foot">Originalfiler og alle rettelser bevares. Disse rapporter dokumenterer ikke, hvilken salgspris du lagde ind i Picasso, eller modellens økonomiske effekt.</p>
 </div>
+</details>
 {% endblock %}

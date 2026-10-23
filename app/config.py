@@ -17,6 +17,7 @@ from . import level as level_module
 from .bidprice import V4Config
 from .engine import BookingCurve, CurvePoint, Inventory, Params
 from .ladder import LadderConfig
+from .pricing_basis import PricingBasis
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 DEFAULT_CONFIG = BASE_DIR / "config" / "config.yaml"
@@ -96,7 +97,9 @@ def _v4(raw: dict | None) -> V4Config | None:
         if key not in raw:
             continue
         value = raw[key]
-        if isinstance(field_.default, bool):
+        if key.endswith("_scenarios"):
+            value = tuple(float(v) for v in value)
+        elif isinstance(field_.default, bool):
             value = bool(value)
         elif isinstance(field_.default, float):
             value = float(value)
@@ -179,6 +182,7 @@ def load_settings(path: str | Path | None = None) -> Settings:
         variable_cost=float(p["variable_cost"]),
         variable_cost_bed=float(p["variable_cost_bed"]),
         commission=float(p["commission"]),
+        pricing_basis=PricingBasis(**p.get("economics", {})),
         price_floor=float(p["price_floor"]),
         price_ceiling=float(p["price_ceiling"]),
         bed_floor=float(p["bed_floor"]),

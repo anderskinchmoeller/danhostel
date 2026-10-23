@@ -120,6 +120,12 @@ def reconcile(accounts,products,hotel):
     linked_breakfast=sum(Decimal(p['breakfast']) for p in by_product.values())
     unallocated_lodging=sum(Decimal(r['revenue']) for r in accounts['unallocated_rows'] if r['category']=='lodging')
     unallocated_upgrade=sum(Decimal(r['revenue']) for r in accounts['unallocated_rows'] if r['category']=='upgrade')
+    # Compare like-for-like lodging only. Unallocated cash sales stay in the
+    # ledger; this bridge neither deducts them from bookkeeping nor establishes
+    # a stay date or reservation link.
+    hotel_lodging=Decimal(hotel['total_price_rounded'])
+    ledger_difference=Decimal(accounts['summary']['lodging'])-hotel_lodging
+    residual=ledger_difference-unallocated_lodging
     product_net=Decimal(products['total'])-linked_breakfast if products else None
     issues=[]
     if products:
@@ -130,6 +136,9 @@ def reconcile(accounts,products,hotel):
     if any(Decimal(r['revenue'])!=0 for r in accounts['unallocated_rows'] if r['category'] in ('lodging','upgrade')):
         issues.append('Logi eller opgraderinger uden produktkobling er ufordelt; beløbene kan ikke fordeles på rumtyper automatisk.')
     return dict(comparisons=comparisons,issues=issues,unlinked=unlinked,
+        hotel_lodging=money(hotel_lodging),ledger_vs_hotel=money(ledger_difference),
+        residual_after_unallocated=money(residual),
+        unallocated_explains_difference=(unallocated_lodging!=0 and abs(residual)<=Decimal('.50')),
         linked_lodging=money(linked_lodging),linked_breakfast=money(linked_breakfast),
         unallocated_lodging=money(unallocated_lodging),unallocated_upgrade=money(unallocated_upgrade),
         lodging_all=accounts['summary']['lodging'],upgrades_all=accounts['summary']['upgrade'],

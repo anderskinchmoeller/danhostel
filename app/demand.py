@@ -155,6 +155,8 @@ class DemandModel:
     shrink: dict = field(default_factory=dict)          # lead -> vægt på bøgerne
     n_dates: int = 0
     note: str = ""
+    training_start: str = ""
+    training_end: str = ""
     # Runtime only. Lead 1 in the end-of-day cube is pickup during arrival day.
     # Historical lead 0 remains the final count; do not change backtest semantics.
     same_day_fraction: float | None = None
@@ -246,6 +248,7 @@ class DemandModel:
             "var_over_mean": self.var_over_mean,
             "seasonal_final": self.seasonal_final, "shrink": self.shrink,
             "n_dates": self.n_dates, "note": self.note,
+            "training_start": self.training_start, "training_end": self.training_end,
         }
 
     @classmethod
@@ -257,6 +260,7 @@ class DemandModel:
             seasonal_final=raw.get("seasonal_final", {}),
             shrink=raw.get("shrink", {}),
             n_dates=int(raw.get("n_dates", 0)), note=raw.get("note", ""),
+            training_start=raw.get("training_start", ""), training_end=raw.get("training_end", ""),
         )
 
 
@@ -384,6 +388,7 @@ def fit(rows: Sequence[dict], *, kind: str, column: str,
         kind=kind, mean=mean, season=season, shape=shape,
         var_over_mean=var_over_mean, seasonal_final=seasonal_final, shrink=shrink,
         n_dates=len(finals),
+        training_start=min(finals) if finals else "", training_end=max(finals) if finals else "",
         note=("Netto pickup: nysalg minus annulleringer. Formen er empirisk og "
               "rummer gruppespring og negativ pickup. Prognosen krympes mod "
               "sæsongennemsnittet med en vægt estimeret pr. lead time. "
@@ -391,7 +396,8 @@ def fit(rows: Sequence[dict], *, kind: str, column: str,
     )
 
 
-def fit_all(rows: Sequence[dict], *, exclude_ranges: Sequence[tuple] = ()) -> dict:
+def fit_all(rows: Sequence[dict], *, exclude_ranges: Sequence[tuple] = (),
+            bed_training_from: str | None = None) -> dict:
     """De fire modeller v4 bruger: rum og senge, i alt og kun transient."""
     for row in rows:
         row["rest_rum_transient"] = row["rest_rum"] - row["rest_rum_gruppe"]
@@ -402,9 +408,28 @@ def fit_all(rows: Sequence[dict], *, exclude_ranges: Sequence[tuple] = ()) -> di
         ("rum_transient", "rest_rum_transient", "endelig_rum"),
         ("senge_transient", "rest_senge_transient", "endelig_senge"),
     )
-    return {name: fit(rows, kind=name, column=col, final_column=final,
-                      exclude_ranges=exclude_ranges)
-            for name, col, final in specs}
+    models = {name: fit(rows, kind=name, column=col, final_column=final,
+                        exclude_ranges=exclude_ranges)
+              for name, col, final in specs}
+    if bed_training_from:
+        date.fromisoformat(bed_training_from)
+        recent = [r for r in rows if r["dato"] >= bed_training_from]
+        for name, col, final in specs:
+            if not name.startswith("senge"):
+                continue
+            model = fit(recent, kind=name, column=col, final_column=final,
+                        exclude_ranges=exclude_ranges)
+            if model.n_dates < 90:
+                raise ValueError("Nyt sengegrundlag kræver mindst 90 brugbare opholdsdatoer")
+            # Renovation removed Jan/Feb 2025. Keep only missing months' old
+            # seasonal factors, not their high old pickup levels or shapes.
+            missing = set(models[name].season) - set(model.season)
+            model.season.update({m: models[name].season[m] for m in missing})
+            model.note += f" Sengegrundlag fra {bed_training_from}."
+            if missing:
+                model.note += " Manglende sæsonmåneder fra ældre historik: " + ", ".join(sorted(missing)) + "."
+            models[name] = model
+    return models
 
 
 def save(models: dict, path: str | Path) -> None:
@@ -430,6 +455,9 @@ def main(argv: list[str] | None = None) -> int:
         description="Estimér fordelingen af resterende efterspørgsel fra bookingkuben")
     ap.add_argument("kube", nargs="?", default="kali/cube.csv")
     ap.add_argument("--ud", default="config/demand_model.json")
+    ap.add_argument("--config", default="config/config.yaml")
+    ap.add_argument("--beds-from", help="første opholdsdato i sengemodellens grundlag; "
+                    "ellers bruges demand_training.bed_training_from i konfigurationen")
     ap.add_argument("--udelad", default="2025-01-01:2025-03-07",
                     help="datointervaller der udelades, fx renoveringen; "
                          "flere adskilles med komma, tom streng udelader intet")
@@ -437,11 +465,16 @@ def main(argv: list[str] | None = None) -> int:
 
     ranges = tuple(tuple(part.split(":")) for part in args.udelad.split(",") if part.strip())
     rows = cube.load(args.kube)
-    models = fit_all(rows, exclude_ranges=ranges)
+    import yaml
+    policy = yaml.safe_load(Path(args.config).read_text(encoding="utf-8")) or {}
+    bed_from = (args.beds_from if args.beds_from is not None else
+                policy.get("demand_training", {}).get("bed_training_from"))
+    models = fit_all(rows, exclude_ranges=ranges, bed_training_from=bed_from)
     save(models, args.ud)
 
     print(f"{len(rows)} kuberækker, {models['rum'].n_dates} datoer efter frasortering")
     print(f"Udeladte perioder: {' '.join('-'.join(r) for r in ranges) or 'ingen'}")
+    print(f"Sengegrundlag: {models['senge'].training_start} – {models['senge'].training_end}")
     print()
     print("Varians i forhold til middelværdi (Poisson ville give 1,0):")
     print(f"{'lead':>6} {'rum':>8} {'senge':>8}")

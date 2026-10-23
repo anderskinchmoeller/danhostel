@@ -11,6 +11,10 @@ kan ikke alene fortælle, hvor prisfølsomme gæsterne er.</div>
 <p>Prisfølsomhed: værelser {{ '%.2f'|format(settings.params.v4.elasticity_rooms) }},
 senge {{ '%.2f'|format(settings.params.v4.elasticity_beds) }}. Det er konfigurerede værdier;
 den nye opfølgning har ikke estimeret dem fra et gennemført prisforsøg.</p>
+<p>Beslutningsregel: <b>{{ 'mindste største modeltab' if settings.params.v4.uncertainty_mode == 'minimax_regret' else 'enkelt estimat med stresstest' }}</b>.
+Ved mindste største modeltab afprøves kombinationer af værelsespris, sengepris og samme mulige
+flexfordeling. Valget mindsker den største afstand til den bedste kombination i hvert stress-scenarie.
+Det er en beregningsregel for denne dato, ikke dokumentation for højere fremtidig omsætning.</p>
 <p>Den eksisterende prisvariation er fortsat {{ 'slået til' if settings.params.ladder.explore else 'slået fra' }}.
 Fra nye beregninger gemmes begge mulige priser, valget og eventuel efterfølgende bremse/lås.
 En prisbekræftelse med valgt beregning gemmer også, om den anvendte pris stemte med forsøgsvalget.
@@ -18,6 +22,44 @@ En prisbekræftelse med valgt beregning gemmer også, om den anvendte pris stemt
 <p>Der mangler stadig et dokumenteret kontrolforløb med faktisk anvendte priser,
 tidsafgrænset salg, annulleringer og økonomiske resultater. Ændringer undervejs og forskelle i
 opholdsdatoer skal håndteres, før prisfølsomhed eller merindtjening kan vurderes.</p>
+</div>
+<div class="panel" style="margin-top:16px">
+<h2>Hvor meget afhænger priserne af antagelserne?</h2>
+<p>Stress-scenarier: værelser {{ settings.params.v4.elasticities()|join(', ') }};
+senge {{ settings.params.v4.elasticities(beds=True)|join(', ') }}. Tallene er valgte arbejdsantagelser,
+ikke målinger fra gæsterne eller statistiske konfidensgrænser. Lavere tal betyder mindre prisfølsomhed.</p>
+<p>Tabellen genberegner den endelige pris efter bremser og låse ved den endelige kapacitet.
+Bidrag er forventet salg minus provision og variable omkostninger. Sammenligningen med referenceprisen
+holder kapaciteten fast. Andre mulige stigepriser kan være begrænset af dagens bremse.</p>
+{% if coverage.sensitivity %}
+<details><summary>Se stresstest for {{ coverage.sensitivity|length }} produktdatoer</summary>
+<div style="overflow-x:auto"><table style="min-width:640px"><thead><tr><th>Dato</th><th>Produkt</th><th>Bedste pris i scenarier</th>
+<th>Bidrag ved endelig pris</th><th>Mindste forskel mod reference</th></tr></thead><tbody>
+{% for row in coverage.sensitivity %}<tr><td>{{ row.day.strftime('%d-%m-%Y') }}</td>
+<td>{{ 'Værelser' if row.product == 'rooms' else 'Senge' }}</td>
+<td>{% for s in row.rows %}{{ s.elasticity }}: {{ '%.0f'|format(s.best_price) }} kr.{% if not loop.last %}<br>{% endif %}{% endfor %}</td>
+<td>{{ '%.0f'|format(row.contribution_min) }}–{{ '%.0f'|format(row.contribution_max) }} kr.</td>
+<td>{{ '%+.0f'|format(row.worst_gain_vs_reference) }} kr.</td></tr>{% endfor %}
+</tbody></table></div></details>
+{% else %}<p>Den seneste beregning har endnu ingen stresstest. Den tilføjes ved næste prisberegning.</p>{% endif %}
+<p class="foot">Et negativt tal betyder, at referenceprisen klarer sig bedre i mindst ét valgt scenarie.
+Spændet er ikke et sandsynlighedsinterval, og referenceprisen er ikke en observeret kontrolgruppe.</p>
+</div>
+<div class="panel" style="margin-top:16px">
+<h2>Seneste prognosekontrol · {{ monitor.start }} – {{ monitor.end }}</h2>
+<p>Kun oprindeligt gemte prognoser med afsluttet dagsresultat tæller. Hvert produkt og hver horisont
+kræver mindst {{ monitor.min_dates }} forskellige opholdsdatoer i vinduet. Datoer uden facit tæller ikke som nul.</p>
+<div style="overflow-x:auto"><table><thead><tr><th>Produkt</th><th>Dage før</th><th>Datoer</th><th>Gennemsnitsfejl</th><th>Vurdering</th></tr></thead><tbody>
+{% for row in monitor.rows %}<tr><td>{{ 'Værelser' if row.product == 'rum' else 'Senge' }}</td><td>{{ row.lead }}</td><td>{{ row.n }}</td>
+<td>{{ '%.1f'|format(row.mae) if row.mae is not none else 'Mangler' }}</td>
+<td>{{ 'For få datoer' if row.status == 'insufficient' else 'Bør undersøges' if row.status == 'review' else 'Ingen kontrolregel udløst' }}
+{% for reason in row.reasons %}<br><small>{{ reason }}</small>{% endfor %}</td></tr>{% endfor %}
+</tbody></table></div>
+<p class="foot">Praktiske kontrolregler: systematisk fejl over 20 % (mindst én enhed), under 60 %
+dækning for et 80 %-interval eller større fejl end den simple reference. Referencekontrollen bruger
+samme datoer og kræver både over 20 % og over 0,5 enheds forværring. Dette er ikke en statistisk test
+af et markedsskift eller en priseffekt. Prisændringer, grupper og kapacitet kan påvirke fejlene.
+Vinduet kan omfatte flere modelversioner. Kontrollen ændrer ikke selv modellen eller elasticiteten.</p>
 </div>
 <div class="panel" style="margin-top:16px">
 <h2>Datadækning · seneste færdige beregning{% if run %} #{{ run.id }}{% endif %}</h2>
@@ -29,41 +71,36 @@ og kan derfor være ændret siden prisberegningen.</p>
 <p>Endelig bogført omsætning foreligger først for afsluttede datoer.
 Manglende bogførte tal på fremtidige opholdsdatoer kan ikke udfyldes med en historisk rapport.
 Reservationsværdi frem i tiden er et særskilt prognosegrundlag.</p>
-<table><thead><tr><th>Forslagslog i denne kørsel</th><th>Oprindelig pris valgt</th><th>Nabopris valgt</th><th>Bremset/låst</th></tr></thead>
+<div style="overflow-x:auto"><table><thead><tr><th>Forslagslog i denne kørsel</th><th>Oprindelig pris valgt</th><th>Nabopris valgt</th><th>Bremset/låst</th></tr></thead>
 <tbody>{% for product, label in [('rooms','Værelser'),('beds','Senge')] %}
-{% set counts=coverage.assignments[product] %}<tr><td>{{ label }}</td><td>{{ counts.control }}</td><td>{{ counts.alternative }}</td><td>{{ counts.overridden }}</td></tr>{% endfor %}</tbody></table>
+{% set counts=coverage.assignments[product] %}<tr><td>{{ label }}</td><td>{{ counts.control }}</td><td>{{ counts.alternative }}</td><td>{{ counts.overridden }}</td></tr>{% endfor %}</tbody></table></div>
 <p class="foot">Kun nye logposter med to forskellige priser tælles. Forslag er ikke dokumentation for
 anvendelse, og samme opholdsdato er ikke et nyt uafhængigt forsøg ved hver beregning.</p>
 </div>
 <div class="panel" style="margin-top:16px">
-<h2>Daglige rapporter fra Picasso</h2>
-<ol>
-<li><b>Hotelmanager:</b> Vælg en afsluttet dato efter natkørslen. Medtag part 1 og part 2 med Room/Bed.
-Ekskludér moms, pakker, kredit og ude af drift som i det afstemte eksempel.</li>
-<li><b>Reports (F7) → Statistik → Produkter:</b> Samme dato, Overnight, produktnavn og opdeling pr. rumtype,
-eksklusive moms. Medtag Confirmed, Guaranteed, In-House og Out of House; fravælg øvrige statusser.</li>
-<li><a href="/resultater">Upload de to PDF’er i Resultatlog</a>. Kontrollér endeligt salg, rumtyper, fradrag af morgenmad,
-opholdsdato og afstemning, før du bekræfter resultatet.</li>
-</ol>
-<p>Hvis produktudtrækket siger “Arrival date”, skal du kontrollere, at beløbene gælder opholdsdatoen.
-Et match for én dato beviser ikke en korrekt fordeling af flerdagesophold for alle datoer.</p>
-<p>Accounts / bogføringsrapport er valgfri og kan uploades som tredje fil. Produktgrupper afstemmes, og poster under “None” vises særskilt med fortegn.
-De fordeles ikke automatisk på rumtyper eller indregnes som ekstra omsætning. Flyttede produkter, kreditposteringer,
-provision og andre omkostninger kontrolleres særskilt. Hotelmanager kan også importeres alene til salgstal.</p>
+<h2>Test prognoserne med én daglig rapport</h2>
+<p>Upload Hotelmanager med part 1 og part 2 (Room/Bed) for en afsluttet dato.
+Brug eksklusive moms, pakker, kredit og ude af drift. Bekræft endeligt salg af værelser og senge.</p>
+<p><a href="/resultater">Importér dagsresultat</a> · <a href="/resultater/afvigelser?source=live">Se prognose mod faktisk salg</a></p>
+<p>De gemte prognoser fra 30, 14, 7 og 1 dag før sammenlignes med det faktiske salg.
+Produktudtræk, morgenmad og bogføringsafstemning er valgfrie detaljer og spærrer ikke denne test.</p>
+<p>Hotelmanagers samlede logiomsætning kan gemmes separat som et afrundet tal til økonomisk opfølgning.
+Det er ikke fordelt på rumtyper og er ikke i sig selv dokumentation for effekten af modellens priser.
+Priseffekt kræver faktisk anvendte priser og et sammenligningsgrundlag.</p>
 </div>
 <div class="panel" style="margin-top:16px">
 <h2>Faktiske økonomiske resultater</h2>
 <form class="bar" method="get"><label>Fra <input type="date" name="start" value="{{ start }}"></label>
 <label>Til <input type="date" name="end" value="{{ end }}"></label><button type="submit">Vis periode</button></form>
-<p>{{ rows|length }} afsluttede datoer; {{ revenue_dates }} med begge omsætningstal,
+<p>{{ rows|length }} afsluttede datoer; {{ revenue_dates }} med logiomsætning til opfølgning,
 {{ contribution_dates }} med tilstrækkelige oplysninger til dækningsbidrag.</p>
 <div style="overflow-x:auto"><table><thead><tr><th>Dato</th><th>Logiomsætning</th><th>RevPAB faktisk</th><th>Dækningsbidrag</th><th>Bidrag pr. tilgængelig seng</th><th>Kilde</th></tr></thead><tbody>
 {% for row in rows %}<tr><td>{{ row.day.strftime('%d-%m-%Y') }}</td>
 {% for key in ['revenue','revpab','contribution','contribution_per_bed'] %}<td>{{ '%.2f kr.'|format(row[key]) if row[key] is not none else 'Mangler' }}</td>{% endfor %}
-<td>{{ row.source }}{% if row.data.get('result_report_id') %}<br><a href="/resultater/rapporter/{{ row.data.result_report_id }}">Kilder og afstemning</a>
+<td>{% if row.overview_only %}<b>Hotelmanager · afrundet total</b><br>{% endif %}{{ row.source }}{% if row.data.get('result_report_id') %}<br><a href="/resultater/rapporter/{{ row.data.result_report_id }}">Kilde og dagsresultat</a>
 {% if row.data.get('revenue_adjustment') %}<br><small>Ufordelt afrunding inkluderet: {{ '%.2f'|format(row.data.revenue_adjustment) }} kr.</small>{% endif %}{% endif %}</td></tr>{% else %}<tr><td colspan="6">Ingen afsluttede resultater registreret endnu.</td></tr>{% endfor %}</tbody></table></div>
 <figure class="formula"><div data-latex="\operatorname{RevPAB}=\frac{\text{Logiomsætning}}{\text{Tilgængelige senge}}" data-display="true">RevPAB = logiomsætning divideret med tilgængelige senge.</div><figcaption>Faktisk logiomsætning eksklusive moms og morgenmad.</figcaption></figure>
-<p>RevPAB kræver faktisk tilgængelige senge. Dækningsbidrag kræver begge omsætningstal,
+<p>RevPAB kræver faktisk tilgængelige senge. Dækningsbidrag kræver detaljerede omsætningstal,
 provision og variable omkostninger. Ukendte beløb beregnes ikke med standardsatser.
 Faktisk indtjening er ikke i sig selv dokumentation for en forbedring fra modellen.</p>
 <p><a href="/resultater">Registrér eller importér faktiske resultater</a> ·

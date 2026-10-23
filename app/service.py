@@ -18,7 +18,7 @@ from pathlib import Path
 from . import db, level
 from .adapters import AdapterUnavailable, PricePush, get_pms_adapter, get_rateshop_adapter
 from .config import BASE_DIR, Settings
-from .engine import DayInput, EventUplift, Params, price_day, quality_index
+from .engine import DayInput, EventUplift, Params, flex_bounds, price_day, quality_index
 
 
 # --------------------------------------------------------------------------
@@ -339,6 +339,8 @@ def with_ladder_history(session, inputs, today: date, current_run_id: int,
             prev_bed_position=beds.get("smoothed_position"),
             rooms_otb_prior=snap[0].rooms_otb if snap else None,
             beds_otb_prior=snap[0].beds_otb if snap else None,
+            room_capacity_prior=snap[0].room_capacity if snap else None,
+            bed_capacity_prior=snap[0].bed_capacity if snap else None,
             prior_days=snap[1] if snap else None,
         ))
     return out
@@ -362,6 +364,7 @@ def update_demand_level(params, inputs, today: date):
     if state.updated and state.updated >= today.isoformat():
         return replace(params, demand_level=(state.rooms, state.beds)), ""
     pairs = {"rooms": [], "beds": []}
+    exclusions = {key: {"blocked": 0, "capacity_limited": 0} for key in pairs}
     for item in inputs:
         if item.prior_days is None or item.rooms_otb_prior is None:
             continue
@@ -369,23 +372,52 @@ def update_demand_level(params, inputs, today: date):
         # Intraday observations are incomplete; the training cube is end-of-day.
         if lead <= 0:
             continue
+        inv = params.inventory
+        try:
+            lower, upper = flex_bounds(inv, rooms_otb=item.rooms_otb, beds_otb=item.beds_otb,
+                blocked_rooms=item.blocked_rooms, blocked_beds=item.blocked_beds,
+                private_min=item.flex_private_min, private_max=item.flex_private_max)
+        except ValueError:
+            for counts in exclusions.values():
+                counts["capacity_limited"] += 1
+            continue
         for key, model_name, now, before in (
                 ("rooms", "rum", item.rooms_otb, item.rooms_otb_prior),
                 ("beds", "senge", item.beds_otb, item.beds_otb_prior)):
             if before is None:
                 continue
-            model = params.demand_models[model_name].bind(before)
+            beds = key == "beds"
+            blocked = item.blocked_beds if beds else item.blocked_rooms
+            capacity = (inv.max_bed_capacity-lower*inv.beds_per_flex_room if beds else
+                        inv.private_rooms+upper) - blocked
+            prior_capacity = item.bed_capacity_prior if beds else item.room_capacity_prior
+            # Sales at a capacity limit are a lower bound on demand. Do not
+            # interpret constrained pickup as evidence that demand fell.
+            # Historical recommendation capacity is only an exclusion signal:
+            # it does not prove channel availability throughout the window.
+            if blocked:
+                exclusions[key]["blocked"] += 1
+                continue
+            if (capacity <= 0 or now >= .98 * capacity or
+                    (prior_capacity is not None and prior_capacity > 0 and before >= .98 * prior_capacity)):
+                exclusions[key]["capacity_limited"] += 1
+                continue
+            # Estimate the window at the unadjusted historical level. Binding
+            # its endpoints to today's OTB would put the observed pickup into
+            # both the numerator and denominator of the learning signal.
+            model = params.demand_models[model_name]
             expected = max(0.0, model.expected(lead + item.prior_days, item.day)
-                           - params.demand_models[model_name]
-                             .bind(now).expected(lead, item.day))
-            pairs[key].append((expected, max(0, now - before)))
-    if not pairs["rooms"] and not pairs["beds"]:
+                           - model.expected(lead, item.day))
+            # Cancellations offset new bookings across the whole window.
+            pairs[key].append((expected, now - before))
+    excluded = sum(sum(counts.values()) for counts in exclusions.values())
+    if not pairs["rooms"] and not pairs["beds"] and not excluded:
         return replace(params, demand_level=(state.rooms, state.beds)), ""
     with level.locked(path):
         state = level.load(path)
         updated = level.update(state, rooms=pairs["rooms"], beds=pairs["beds"], today=today,
                                alpha=params.v4.level_alpha, low=params.v4.level_min,
-                               high=params.v4.level_max)
+                               high=params.v4.level_max, exclusions=exclusions)
         if updated is not state:
             level.save(updated, path)
             updated = level.load(path)
@@ -393,6 +425,8 @@ def update_demand_level(params, inputs, today: date):
     if abs(updated.rooms - state.rooms) > 0.005 or abs(updated.beds - state.beds) > 0.005:
         note = (f"Efterspørgselsniveau: rum {state.rooms:.2f} → {updated.rooms:.2f}, "
                 f"senge {state.beds:.2f} → {updated.beds:.2f}")
+    if excluded:
+        note += (" · " if note else "") + f"Læring: {excluded} produktvinduer udeladt pga. kapacitet/blokering"
     return replace(params, demand_level=(updated.rooms, updated.beds)), note
 
 

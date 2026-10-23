@@ -101,13 +101,54 @@ For hvert tilladt pristrin vurderes skematisk:
 
 ```text
 efterspørgselsfaktor = (trinpris / referencepris) ^ (−elasticitet)
-modelbidrag         = pris × (1 − provision) − variabel omkostning
+modelbidrag         = logi ekskl. moms − provision på bekræftet grundlag − omkostning ekskl. moms
 forventet bidrag     = modelbidrag × E[min(resterende efterspørgsel, ledig kapacitet)]
 ```
 
-Motoren vælger et trin ud fra denne beregning. Den aktive v4 styrer ikke efter
+Motoren sammenligner trinene over alle mulige flexfordelinger. Hvert alternativ
+bruger samme fælles lager til værelser og senge. Rumprisen vægtes med det
+resterende faste typemiks; ekstra flex-salg værdisættes særskilt, efter de faste
+værelser er fyldt. Det er en antagelse om fordeling af samlet rumefterspørgsel;
+ukendt miks er fortsat et skøn. Den aktive v4 styrer ikke efter
 den ældre vægtede målbelægningsformel, selv om ældre parametre og triggerfelter
 stadig findes i konfigurationen og på nogle skærmbilleder.
+
+Fra 23. oktober 2026 er `pricing.v4.uncertainty_mode: minimax_regret` aktiv.
+For hvert alternativ (rumtrin, sengetrin, én fælles flexfordeling) beregnes
+forventet bidrag ved ni kombinationer af prisfølsomhed. I hvert scenarie findes
+det bedste gennemregnede alternativ; motoren vælger alternativet med mindst
+største afstand til disse scenarieoptima. Flexfriktionen indgår i alle alternativer.
+Ved fastlagte endelige priser bruges samme scenarieoptima til at vælge flex.
+Marked, events, udglatning, bremse, prisvariation og manuelle låse gælder stadig
+efter trinoptimeringen. Den endelige pris og kapacitet stresstestes derfor igen.
+
+Rumscenarierne er `[0.8, 1.6, 2.4]`, sengescenarierne `[0.8, 2.0, 3.2]`.
+Det nominelle estimat medtages altid. Stresspunkterne er lokale arbejdsantagelser,
+ikke estimater fra et papir, en sandsynlighedsfordeling eller statistiske grænser.
+Det er en endags-scenarietilpasning, ikke en implementering af et publiceret
+sekventielt læringssystem eller dets garantier. `diagnostics` giver den tidligere
+nominelle optimering med samme stresstest. Ældre konfiguration uden feltet bruger
+`diagnostics`. Se [forskningsgennemgangen](docs/research-pricing-2026-10-23.md).
+
+`bid.uncertainty` viser forventet bidragsspænd, bedste pris pr. scenarie og
+mindste forskel til referenceprisen ved samme **endelige** kapacitet.
+Alternativerne i diagnostikken er tilladte stigepriser før dagens bremse/lås;
+det er ikke en påstand om, at alle kunne leveres nu. `bid.optimizer.uncertainty`
+bevarer den fælles optimerings beslutning og modeltab før efterbehandlingen.
+Minimax-regret kræver ikke, at alle scenarier slår referenceprisen, og valget
+kan stadig være dårligere end den gamle politik. Der er ingen målt priseffekt.
+
+Læringen udelader nu produktvinduer med blokeringer eller kapacitetsbinding ved
+et af de observerede endepunkter (98 % af muligt lager, inkl. fælles flexbinding).
+Tidligere anbefalet kapacitet bruges kun som udeladelsessignal. Antal brugte og
+udeladte vinduer logges i niveauhistorikken. Kanaltilgængelighed mellem snapshots
+er ukendt; udeladelse løser ikke fuldt ud efterspørgselscensur eller selektionsbias.
+
+Økonomisiden viser desuden en rullende 28-dages prognosekontrol med mindst 14
+afsluttede opholdsdatoer pr. produkt og horisont. Den bruger oprindeligt gemte
+prognoser og sidste afsluttede facit; duplikater og fremtidige datoer tæller ikke.
+Kontrolreglerne er praktiske reviewgrænser, ikke signifikanstests eller bevis for
+et strukturelt markedsskift. De genestimerer ikke modellen automatisk.
 
 | Parameter | Nuværende værdi |
 |---|---:|
@@ -119,13 +160,23 @@ stadig findes i konfigurationen og på nogle skærmbilleder.
 | Prisgulv / loft, basisseng | 165 / 600 kr. |
 | Afrunding | 10 kr., med kontrol af tilladte prisgrænser |
 | Antaget provision | 16 % |
-| Antaget variabel omkostning, værelse / seng | 91 / 39,84 kr. |
+| Antaget variabel omkostning, værelse / seng | 111,56 / 39,84 kr. |
 
 De økonomiske satser ovenfor bruges i prisberegningen. De erstatter ikke
 faktiske omkostninger i resultatloggen. Modelpriser er bekræftet inklusive
-25 % moms og uden morgenmad. Motorens bidragsformel omregner ikke selv alle
-beløb til et særskilt regnskabsgrundlag; kald derfor ikke dens modelbidrag for
-målt, regnskabsmæssigt dækningsbidrag.
+25 % moms og uden morgenmad. `pricing.economics` registrerer særskilt
+`price_vat_basis`, `cost_vat_basis` (`ex_vat`, `incl_25` eller `unknown`) og
+`commission_basis` (`guest_price`, `ex_vat` eller `unknown`). Når alle tre er
+bekræftet, regnes modelbidrag eksklusive moms. Ved ukendt grundlag bevares
+det gamle skøn `pris × (1 − provision) − omkostning` med en udtrykkelig
+advarsel; der foretages ingen delvis omregning. Gruppens beregnede bidrag
+omregnes tilbage til en salgspris på samme grundlag. Modelbidrag er fortsat
+ikke målt, regnskabsmæssigt dækningsbidrag.
+
+Aktuelt grundlag, bekræftet 23-10-2026: modelpriser inklusive 25 % moms,
+variable omkostninger eksklusive moms og 16 % provision af logi eksklusive moms.
+Eksempel: basisværelse til 645 kr. giver modelbidrag
+`645 / 1,25 × 0,84 − 111,56 = 321,88 kr.`
 
 Markedet kan flytte v4’s valgte position via stigens markedsvægt og kvalitetsindeks.
 Events giver eventtrin og referencegulv; eventfaktoren er begrænset til 1,45.
@@ -141,9 +192,16 @@ V4 bruger ikke den ældre knaphedsbeskyttelse og ratchet som ekstra gulve.
   findes. Ankeret holdes i 24 timer, så gentagne importer ikke flytter grænsen.
 - Prisgulv, prisloft, bremse og afrunding kontrolleres samlet. Modstridende
   grænser fastfryser datoen. Grænserne gælder basispriserne; typer følger faktorerne.
+- Rabatgrænsen er også et gulv gennem marked, udglatning, eksploration og
+  ændringsbremse. En manuel prislås kan tilsidesætte det automatiske gulv.
 - En manuel lås respekteres; afledte priser og prognose genberegnes ved næste kørsel.
 - Det adaptive niveau opdateres højst én gang pr. lokal dato under fil-lås.
   Aktuelt `alpha=0,07`, med niveau begrænset til `[0,6; 1,6]`.
+  Forventningen i læringsvinduet bruger det ujusterede historiske niveau,
+  og annulleringer modregnes på tværs af datoer. Niveauet udglattes mod
+  `(faktisk+1)/(forventet+1)` i log-rum; en stabil afvigelse ophobes ikke
+  som en ny procentvis ændring hver dag. Eksisterende niveauer nulstilles
+  ikke og kan bevæge sig tilbage fra en grænse med nye observationer.
 - På ankomstdagen fordeles historisk samme-dags-pickup over den resterende tid
   til lokal midnat. Det er en tilnærmelse uden bookingtidspunkter. Uafsluttet
   ankomstdag bruges ikke til den daglige niveaulæring.
@@ -155,9 +213,31 @@ koden; feltet er ikke aktiveret eller rettet som del af dokumentationsoprydninge
 
 ### Flex og grupper
 
-Flexberegningen sammenligner marginalværdien af endnu et helt rum med værdien
-af de senge, det koster. `flex_min_gain: 25` begrænser små fordelsskøn.
-Fordelingen respekterer solgte enheder, blokeringer og oplyste grænser.
+Prisberegningen gennemgår alle mulige flexfordelinger og vælger pristrin
+ud fra fælles forventet modelbidrag. `flex_min_gain: 25` fratrækkes pr.
+ekstra flex-rum over den tvungne minimumsfordeling, så små forskelle ikke
+udløser flytninger. Efter marked, prisbremser og manuelle låse beregnes
+fordelingen igen ved de faktiske forslag. Fordelingen respekterer solgte
+enheder, blokeringer og oplyste grænser. Bid price, salgsskøn og
+udsolgtssandsynlighed beskriver de endelige priser og den valgte kapacitet;
+det oprindelige optimeringsvalg bevares særskilt under `optimizer`.
+Prisregler kan flytte den endelige pris væk fra det matematiske optimum.
+
+### Sengemodellens træningsperiode
+
+`demand_training.bed_training_from: "2025-03-08"` begrænser ved næste
+`python -m app.demand` sengemodellernes pickup, form og krympning til det
+nyere salgsniveau. Værelsesmodellerne bruger fortsat hele den brugbare historik.
+Der kræves mindst 90 brugbare datoer. Manglende sæsonmåneder låner alene
+sæsonfaktoren fra ældre historik; deres gamle pickupniveau genbruges ikke.
+Modelfilen gemmer træningens første og sidste dato. Efter genestimering på et
+nyt grundniveau skal senges niveau rebaseres til 1,0 med bevaret historik.
+Niveaufiler til en tidligere model må ikke uden videre anvendes som ny evidens.
+
+Den særskilte udviklingskontrol på oktober–december 2025 bruger kun træningsdata
+fra før 1. oktober. Den erstatter ikke den oprindelige 2024→2025-rapport eller
+en ny fremadrettet måling. Elasticiteten er fortsat umålt; en bedre salgsprognose
+dokumenterer ikke større indtjening.
 
 Gruppens minimumspris bygger på summen af fortrængningsværdier pr. enhed og nat.
 `minimum_rate` er forventet fortrængning; `minimum_rate_certain` viser værdien,
@@ -475,7 +555,14 @@ og modelgrundlag. Ændringer i YAML eller `.env` kræver genstart.
 Projektmappe: `/Users/anderskinch/hostel`.
 `scripts/run-prismotor.sh` skifter til denne mappe, indlæser `.env` og starter
 uvicorn på **0.0.0.0:8000**. Appen kan derfor nås via serverens lokale IP,
-aktuelt `192.168.1.63`. Andre enheder bruger denne adresse, ikke deres egen localhost.
+men brug den faste navneadresse
+[http://MacBook-Pro.local:8000/](http://MacBook-Pro.local:8000/) som bogmærke
+på Mac’en og andre enheder på samme lokale netværk. Navnet følger Mac’ens
+aktuelle IP-adresse via lokal navneopslag (Bonjour/mDNS), så et nyt IP-nummer
+fra routeren ikke kræver et nyt bogmærke. Det lokale værtsnavn skal fortsat
+være `MacBook-Pro`; det kan kontrolleres med `scutil --get LocalHostName`.
+Andre enheders egen localhost peger ikke på denne Mac. Navneadressen giver
+ikke adgang fra internettet.
 
 LaunchAgent ligger under `~/Library/LaunchAgents/`, med label
 `dk.danhostel.prismotor`. Genstart den allerede installerede tjeneste med:

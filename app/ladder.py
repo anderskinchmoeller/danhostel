@@ -197,7 +197,8 @@ def ladder_step(*, base: float, rungs: Sequence[float], rounder, cfg: LadderConf
                 scarcity_protect: bool = True,
                 use_ratchet: bool | None = None,
                 explore_seed: str | None = None,
-                bid: dict | None = None) -> LadderResult:
+                bid: dict | None = None,
+                minimum_rung: int = 0) -> LadderResult:
     """Vælg trin for ét produkt på én dato.
 
     `position_override` er version 4: bid price har allerede valgt trinnet ud
@@ -278,7 +279,8 @@ def ladder_step(*, base: float, rungs: Sequence[float], rounder, cfg: LadderConf
                 reasons.append("Holdt: prognosen er på vej mod målet, prisen sænkes ikke")
 
     # -- gulve på stigen ----------------------------------------------------
-    min_rung = 0
+    # A policy floor constrains smoothing, market moves and exploration too.
+    min_rung = max(0, min(n - 1, minimum_rung))
     if lead_days >= cfg.far_out_days:
         min_rung = max(min_rung, ref + cfg.far_out_min_offset)
     if event_rungs:
@@ -297,6 +299,8 @@ def ladder_step(*, base: float, rungs: Sequence[float], rounder, cfg: LadderConf
             reasons.append("Event: ikke under referencetrinnet")
         elif lead_days >= cfg.far_out_days:
             reasons.append(f"Over {cfg.far_out_days} dage ude: ingen dyb rabat endnu")
+        elif minimum_rung:
+            reasons.append("Rabatgrænse: elasticiteten er ikke målt endnu")
         rung = min_rung
 
     # -- bundet eksploration ----------------------------------------------

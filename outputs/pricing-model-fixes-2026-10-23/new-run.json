@@ -1,0 +1,9 @@
+{
+  "status": "done",
+  "run_id": 50,
+  "n_days": 120,
+  "proposal_statuses": {
+    "pending": 120
+  },
+  "note": "Belægning: Ingen indbakke konfigureret — brug upload i dashboardet | Konkurrentpriser: Manuel rate shopping: upload konkurrentpriser i dashboardet | Fastfrosset 2026-10-31: sengepris: prisgulv/-loft og ændringsbremse kan ikke overholdes samtidigt | Gemte 0 nye prognoser ved 30/14/7/1 dage"
+}

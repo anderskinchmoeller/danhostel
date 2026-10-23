@@ -33,7 +33,7 @@ def live_rows(session, today):
         actual=finals.get(snapshot.day)
         payload=json.loads(snapshot.payload)
         financial=payload.get('revenue_checkpoint')
-        if actual is None or actual['revenue'] is None:
+        if actual is None or actual['revenue'] is None or actual.get('overview_only'):
             continue
         if financial is None:
             pending+=1

@@ -770,6 +770,13 @@ def health():
             "v4_notes": list(config.V4_NOTES),
             "exploration": bool(params.ladder and params.ladder.explore),
             "elasticity_measured": bool(params.v4 and params.v4.elasticity_measured),
+            "uncertainty_mode": params.v4.uncertainty_mode,
+            "elasticity_stress_scenarios": {"rooms": params.v4.elasticities(),
+                                            "beds": params.v4.elasticities(beds=True)},
+            "contribution_basis_confirmed": params.pricing_basis.confirmed,
+            "demand_training": {kind: {"from": model.training_start, "through": model.training_end}
+                                for kind, model in params.demand_models.items()
+                                if kind in ("rum", "senge")},
             "demand_level": {"rum": round(params.demand_level[0], 3),
                              "senge": round(params.demand_level[1], 3)},
         }

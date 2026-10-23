@@ -1,0 +1,1222 @@
+{
+  "date": "2026-10-23",
+  "reference_run": 49,
+  "dates": 121,
+  "recalculated": 120,
+  "frozen": [
+    {
+      "date": "2026-10-31",
+      "reason": "sengepris: prisgulv/-loft og ændringsbremse kan ikke overholdes samtidigt"
+    }
+  ],
+  "discount_breaches": [],
+  "diagnostic_errors": [],
+  "elapsed_seconds": 10.13,
+  "room_prices_changed": 0,
+  "bed_prices_changed": 9,
+  "allocations_changed": 54,
+  "persistent_20_percent_shortfall_limit": 0.80198,
+  "economic_basis_confirmed": true,
+  "prices": [
+    {
+      "date": "2026-10-23",
+      "old_room": 680.0,
+      "room": 680.0,
+      "old_bed": 320.0,
+      "bed": 320.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2026-10-24",
+      "old_room": 650.0,
+      "room": 650.0,
+      "old_bed": 350.0,
+      "bed": 350.0,
+      "old_flex": 7,
+      "flex": 1,
+      "locked": false
+    },
+    {
+      "date": "2026-10-25",
+      "old_room": 570.0,
+      "room": 570.0,
+      "old_bed": 230.0,
+      "bed": 250.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2026-10-26",
+      "old_room": 540.0,
+      "room": 540.0,
+      "old_bed": 240.0,
+      "bed": 240.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2026-10-27",
+      "old_room": 580.0,
+      "room": 580.0,
+      "old_bed": 250.0,
+      "bed": 250.0,
+      "old_flex": 17,
+      "flex": 11,
+      "locked": false
+    },
+    {
+      "date": "2026-10-28",
+      "old_room": 600.0,
+      "room": 600.0,
+      "old_bed": 250.0,
+      "bed": 250.0,
+      "old_flex": 18,
+      "flex": 18,
+      "locked": false
+    },
+    {
+      "date": "2026-10-29",
+      "old_room": 630.0,
+      "room": 630.0,
+      "old_bed": 250.0,
+      "bed": 270.0,
+      "old_flex": 17,
+      "flex": 4,
+      "locked": false
+    },
+    {
+      "date": "2026-10-30",
+      "old_room": 680.0,
+      "room": 680.0,
+      "old_bed": 300.0,
+      "bed": 320.0,
+      "old_flex": 17,
+      "flex": 16,
+      "locked": false
+    },
+    {
+      "date": "2026-11-01",
+      "old_room": 600.0,
+      "room": 600.0,
+      "old_bed": 240.0,
+      "bed": 240.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2026-11-02",
+      "old_room": 600.0,
+      "room": 600.0,
+      "old_bed": 230.0,
+      "bed": 230.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2026-11-03",
+      "old_room": 520.0,
+      "room": 520.0,
+      "old_bed": 240.0,
+      "bed": 240.0,
+      "old_flex": 14,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2026-11-04",
+      "old_room": 530.0,
+      "room": 530.0,
+      "old_bed": 240.0,
+      "bed": 240.0,
+      "old_flex": 17,
+      "flex": 7,
+      "locked": false
+    },
+    {
+      "date": "2026-11-05",
+      "old_room": 560.0,
+      "room": 560.0,
+      "old_bed": 240.0,
+      "bed": 240.0,
+      "old_flex": 17,
+      "flex": 5,
+      "locked": false
+    },
+    {
+      "date": "2026-11-06",
+      "old_room": 650.0,
+      "room": 650.0,
+      "old_bed": 270.0,
+      "bed": 290.0,
+      "old_flex": 17,
+      "flex": 17,
+      "locked": false
+    },
+    {
+      "date": "2026-11-07",
+      "old_room": 620.0,
+      "room": 620.0,
+      "old_bed": 290.0,
+      "bed": 320.0,
+      "old_flex": 16,
+      "flex": 17,
+      "locked": false
+    },
+    {
+      "date": "2026-11-08",
+      "old_room": 510.0,
+      "room": 510.0,
+      "old_bed": 240.0,
+      "bed": 240.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2026-11-09",
+      "old_room": 550.0,
+      "room": 550.0,
+      "old_bed": 250.0,
+      "bed": 250.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2026-11-10",
+      "old_room": 560.0,
+      "room": 560.0,
+      "old_bed": 250.0,
+      "bed": 250.0,
+      "old_flex": 14,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2026-11-11",
+      "old_room": 530.0,
+      "room": 530.0,
+      "old_bed": 240.0,
+      "bed": 240.0,
+      "old_flex": 13,
+      "flex": 4,
+      "locked": false
+    },
+    {
+      "date": "2026-11-12",
+      "old_room": 560.0,
+      "room": 560.0,
+      "old_bed": 240.0,
+      "bed": 240.0,
+      "old_flex": 17,
+      "flex": 6,
+      "locked": false
+    },
+    {
+      "date": "2026-11-13",
+      "old_room": 650.0,
+      "room": 650.0,
+      "old_bed": 270.0,
+      "bed": 290.0,
+      "old_flex": 17,
+      "flex": 17,
+      "locked": false
+    },
+    {
+      "date": "2026-11-14",
+      "old_room": 670.0,
+      "room": 670.0,
+      "old_bed": 320.0,
+      "bed": 320.0,
+      "old_flex": 17,
+      "flex": 17,
+      "locked": false
+    },
+    {
+      "date": "2026-11-15",
+      "old_room": 510.0,
+      "room": 510.0,
+      "old_bed": 240.0,
+      "bed": 240.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2026-11-16",
+      "old_room": 520.0,
+      "room": 520.0,
+      "old_bed": 230.0,
+      "bed": 230.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2026-11-17",
+      "old_room": 560.0,
+      "room": 560.0,
+      "old_bed": 250.0,
+      "bed": 250.0,
+      "old_flex": 4,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2026-11-18",
+      "old_room": 530.0,
+      "room": 530.0,
+      "old_bed": 240.0,
+      "bed": 240.0,
+      "old_flex": 17,
+      "flex": 9,
+      "locked": false
+    },
+    {
+      "date": "2026-11-19",
+      "old_room": 560.0,
+      "room": 560.0,
+      "old_bed": 240.0,
+      "bed": 240.0,
+      "old_flex": 18,
+      "flex": 9,
+      "locked": false
+    },
+    {
+      "date": "2026-11-20",
+      "old_room": 610.0,
+      "room": 610.0,
+      "old_bed": 290.0,
+      "bed": 290.0,
+      "old_flex": 17,
+      "flex": 18,
+      "locked": false
+    },
+    {
+      "date": "2026-11-21",
+      "old_room": 670.0,
+      "room": 670.0,
+      "old_bed": 290.0,
+      "bed": 320.0,
+      "old_flex": 17,
+      "flex": 17,
+      "locked": false
+    },
+    {
+      "date": "2026-11-22",
+      "old_room": 600.0,
+      "room": 600.0,
+      "old_bed": 260.0,
+      "bed": 260.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2026-11-23",
+      "old_room": 600.0,
+      "room": 600.0,
+      "old_bed": 250.0,
+      "bed": 250.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2026-11-24",
+      "old_room": 520.0,
+      "room": 520.0,
+      "old_bed": 240.0,
+      "bed": 240.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2026-11-25",
+      "old_room": 530.0,
+      "room": 530.0,
+      "old_bed": 240.0,
+      "bed": 240.0,
+      "old_flex": 17,
+      "flex": 8,
+      "locked": false
+    },
+    {
+      "date": "2026-11-26",
+      "old_room": 560.0,
+      "room": 560.0,
+      "old_bed": 250.0,
+      "bed": 250.0,
+      "old_flex": 18,
+      "flex": 8,
+      "locked": false
+    },
+    {
+      "date": "2026-11-27",
+      "old_room": 610.0,
+      "room": 610.0,
+      "old_bed": 290.0,
+      "bed": 290.0,
+      "old_flex": 17,
+      "flex": 18,
+      "locked": false
+    },
+    {
+      "date": "2026-11-28",
+      "old_room": 620.0,
+      "room": 620.0,
+      "old_bed": 320.0,
+      "bed": 320.0,
+      "old_flex": 16,
+      "flex": 18,
+      "locked": false
+    },
+    {
+      "date": "2026-11-29",
+      "old_room": 550.0,
+      "room": 550.0,
+      "old_bed": 260.0,
+      "bed": 260.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2026-11-30",
+      "old_room": 550.0,
+      "room": 550.0,
+      "old_bed": 250.0,
+      "bed": 250.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2026-12-01",
+      "old_room": 550.0,
+      "room": 550.0,
+      "old_bed": 230.0,
+      "bed": 230.0,
+      "old_flex": 9,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2026-12-02",
+      "old_room": 530.0,
+      "room": 530.0,
+      "old_bed": 240.0,
+      "bed": 240.0,
+      "old_flex": 16,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2026-12-03",
+      "old_room": 560.0,
+      "room": 560.0,
+      "old_bed": 250.0,
+      "bed": 250.0,
+      "old_flex": 14,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2026-12-04",
+      "old_room": 600.0,
+      "room": 600.0,
+      "old_bed": 290.0,
+      "bed": 290.0,
+      "old_flex": 17,
+      "flex": 7,
+      "locked": false
+    },
+    {
+      "date": "2026-12-05",
+      "old_room": 580.0,
+      "room": 580.0,
+      "old_bed": 290.0,
+      "bed": 290.0,
+      "old_flex": 17,
+      "flex": 12,
+      "locked": false
+    },
+    {
+      "date": "2026-12-06",
+      "old_room": 510.0,
+      "room": 510.0,
+      "old_bed": 240.0,
+      "bed": 240.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2026-12-07",
+      "old_room": 550.0,
+      "room": 550.0,
+      "old_bed": 260.0,
+      "bed": 260.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2026-12-08",
+      "old_room": 550.0,
+      "room": 550.0,
+      "old_bed": 230.0,
+      "bed": 230.0,
+      "old_flex": 10,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2026-12-09",
+      "old_room": 570.0,
+      "room": 570.0,
+      "old_bed": 240.0,
+      "bed": 240.0,
+      "old_flex": 9,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2026-12-10",
+      "old_room": 600.0,
+      "room": 600.0,
+      "old_bed": 230.0,
+      "bed": 230.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2026-12-11",
+      "old_room": 650.0,
+      "room": 650.0,
+      "old_bed": 250.0,
+      "bed": 270.0,
+      "old_flex": 18,
+      "flex": 5,
+      "locked": false
+    },
+    {
+      "date": "2026-12-12",
+      "old_room": 620.0,
+      "room": 620.0,
+      "old_bed": 270.0,
+      "bed": 290.0,
+      "old_flex": 17,
+      "flex": 12,
+      "locked": false
+    },
+    {
+      "date": "2026-12-13",
+      "old_room": 570.0,
+      "room": 570.0,
+      "old_bed": 240.0,
+      "bed": 240.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2026-12-14",
+      "old_room": 550.0,
+      "room": 550.0,
+      "old_bed": 240.0,
+      "bed": 240.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2026-12-15",
+      "old_room": 550.0,
+      "room": 550.0,
+      "old_bed": 250.0,
+      "bed": 250.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2026-12-16",
+      "old_room": 570.0,
+      "room": 570.0,
+      "old_bed": 240.0,
+      "bed": 240.0,
+      "old_flex": 13,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2026-12-17",
+      "old_room": 560.0,
+      "room": 560.0,
+      "old_bed": 250.0,
+      "bed": 250.0,
+      "old_flex": 18,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2026-12-18",
+      "old_room": 600.0,
+      "room": 600.0,
+      "old_bed": 290.0,
+      "bed": 290.0,
+      "old_flex": 17,
+      "flex": 13,
+      "locked": false
+    },
+    {
+      "date": "2026-12-19",
+      "old_room": 620.0,
+      "room": 620.0,
+      "old_bed": 290.0,
+      "bed": 290.0,
+      "old_flex": 17,
+      "flex": 12,
+      "locked": false
+    },
+    {
+      "date": "2026-12-20",
+      "old_room": 510.0,
+      "room": 510.0,
+      "old_bed": 250.0,
+      "bed": 250.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2026-12-21",
+      "old_room": 550.0,
+      "room": 550.0,
+      "old_bed": 230.0,
+      "bed": 230.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2026-12-22",
+      "old_room": 510.0,
+      "room": 510.0,
+      "old_bed": 230.0,
+      "bed": 230.0,
+      "old_flex": 9,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2026-12-23",
+      "old_room": 570.0,
+      "room": 570.0,
+      "old_bed": 240.0,
+      "bed": 240.0,
+      "old_flex": 18,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2026-12-24",
+      "old_room": 600.0,
+      "room": 600.0,
+      "old_bed": 230.0,
+      "bed": 230.0,
+      "old_flex": 16,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2026-12-25",
+      "old_room": 600.0,
+      "room": 600.0,
+      "old_bed": 290.0,
+      "bed": 290.0,
+      "old_flex": 17,
+      "flex": 14,
+      "locked": false
+    },
+    {
+      "date": "2026-12-26",
+      "old_room": 580.0,
+      "room": 580.0,
+      "old_bed": 290.0,
+      "bed": 290.0,
+      "old_flex": 17,
+      "flex": 16,
+      "locked": false
+    },
+    {
+      "date": "2026-12-27",
+      "old_room": 570.0,
+      "room": 570.0,
+      "old_bed": 240.0,
+      "bed": 240.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2026-12-28",
+      "old_room": 510.0,
+      "room": 510.0,
+      "old_bed": 230.0,
+      "bed": 230.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2026-12-29",
+      "old_room": 510.0,
+      "room": 510.0,
+      "old_bed": 250.0,
+      "bed": 250.0,
+      "old_flex": 12,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2026-12-30",
+      "old_room": 530.0,
+      "room": 530.0,
+      "old_bed": 260.0,
+      "bed": 260.0,
+      "old_flex": 18,
+      "flex": 2,
+      "locked": false
+    },
+    {
+      "date": "2026-12-31",
+      "old_room": 520.0,
+      "room": 520.0,
+      "old_bed": 250.0,
+      "bed": 250.0,
+      "old_flex": 17,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2027-01-01",
+      "old_room": 640.0,
+      "room": 640.0,
+      "old_bed": 260.0,
+      "bed": 260.0,
+      "old_flex": 9,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2027-01-02",
+      "old_room": 650.0,
+      "room": 650.0,
+      "old_bed": 290.0,
+      "bed": 290.0,
+      "old_flex": 8,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2027-01-03",
+      "old_room": 540.0,
+      "room": 540.0,
+      "old_bed": 270.0,
+      "bed": 270.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2027-01-04",
+      "old_room": 550.0,
+      "room": 550.0,
+      "old_bed": 240.0,
+      "bed": 240.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2027-01-05",
+      "old_room": 580.0,
+      "room": 580.0,
+      "old_bed": 270.0,
+      "bed": 270.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2027-01-06",
+      "old_room": 560.0,
+      "room": 560.0,
+      "old_bed": 230.0,
+      "bed": 230.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2027-01-07",
+      "old_room": 550.0,
+      "room": 550.0,
+      "old_bed": 230.0,
+      "bed": 230.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2027-01-08",
+      "old_room": 590.0,
+      "room": 590.0,
+      "old_bed": 260.0,
+      "bed": 260.0,
+      "old_flex": 8,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2027-01-09",
+      "old_room": 650.0,
+      "room": 650.0,
+      "old_bed": 290.0,
+      "bed": 290.0,
+      "old_flex": 8,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2027-01-10",
+      "old_room": 570.0,
+      "room": 570.0,
+      "old_bed": 230.0,
+      "bed": 230.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2027-01-11",
+      "old_room": 550.0,
+      "room": 550.0,
+      "old_bed": 240.0,
+      "bed": 240.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2027-01-12",
+      "old_room": 540.0,
+      "room": 540.0,
+      "old_bed": 230.0,
+      "bed": 230.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2027-01-13",
+      "old_room": 520.0,
+      "room": 520.0,
+      "old_bed": 250.0,
+      "bed": 250.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2027-01-14",
+      "old_room": 440.0,
+      "room": 440.0,
+      "old_bed": 200.0,
+      "bed": 200.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2027-01-15",
+      "old_room": 480.0,
+      "room": 480.0,
+      "old_bed": 240.0,
+      "bed": 240.0,
+      "old_flex": 4,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2027-01-16",
+      "old_room": 490.0,
+      "room": 490.0,
+      "old_bed": 270.0,
+      "bed": 270.0,
+      "old_flex": 4,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2027-01-17",
+      "old_room": 380.0,
+      "room": 380.0,
+      "old_bed": 190.0,
+      "bed": 190.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2027-01-18",
+      "old_room": 380.0,
+      "room": 380.0,
+      "old_bed": 180.0,
+      "bed": 180.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2027-01-19",
+      "old_room": 440.0,
+      "room": 440.0,
+      "old_bed": 190.0,
+      "bed": 190.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2027-01-20",
+      "old_room": 450.0,
+      "room": 450.0,
+      "old_bed": 190.0,
+      "bed": 190.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2027-01-21",
+      "old_room": 440.0,
+      "room": 440.0,
+      "old_bed": 200.0,
+      "bed": 200.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2027-01-22",
+      "old_room": 480.0,
+      "room": 480.0,
+      "old_bed": 240.0,
+      "bed": 240.0,
+      "old_flex": 6,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2027-01-23",
+      "old_room": 490.0,
+      "room": 490.0,
+      "old_bed": 270.0,
+      "bed": 270.0,
+      "old_flex": 1,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2027-01-24",
+      "old_room": 380.0,
+      "room": 380.0,
+      "old_bed": 190.0,
+      "bed": 190.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2027-01-25",
+      "old_room": 380.0,
+      "room": 380.0,
+      "old_bed": 180.0,
+      "bed": 180.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2027-01-26",
+      "old_room": 440.0,
+      "room": 440.0,
+      "old_bed": 190.0,
+      "bed": 190.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2027-01-27",
+      "old_room": 450.0,
+      "room": 450.0,
+      "old_bed": 190.0,
+      "bed": 190.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2027-01-28",
+      "old_room": 440.0,
+      "room": 440.0,
+      "old_bed": 200.0,
+      "bed": 200.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2027-01-29",
+      "old_room": 480.0,
+      "room": 480.0,
+      "old_bed": 240.0,
+      "bed": 240.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2027-01-30",
+      "old_room": 490.0,
+      "room": 490.0,
+      "old_bed": 270.0,
+      "bed": 270.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2027-01-31",
+      "old_room": 380.0,
+      "room": 380.0,
+      "old_bed": 190.0,
+      "bed": 190.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2027-02-01",
+      "old_room": 380.0,
+      "room": 380.0,
+      "old_bed": 180.0,
+      "bed": 180.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2027-02-02",
+      "old_room": 440.0,
+      "room": 440.0,
+      "old_bed": 190.0,
+      "bed": 190.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2027-02-03",
+      "old_room": 450.0,
+      "room": 450.0,
+      "old_bed": 190.0,
+      "bed": 190.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2027-02-04",
+      "old_room": 440.0,
+      "room": 440.0,
+      "old_bed": 200.0,
+      "bed": 200.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2027-02-05",
+      "old_room": 480.0,
+      "room": 480.0,
+      "old_bed": 240.0,
+      "bed": 240.0,
+      "old_flex": 18,
+      "flex": 8,
+      "locked": false
+    },
+    {
+      "date": "2027-02-06",
+      "old_room": 490.0,
+      "room": 490.0,
+      "old_bed": 270.0,
+      "bed": 270.0,
+      "old_flex": 17,
+      "flex": 9,
+      "locked": false
+    },
+    {
+      "date": "2027-02-07",
+      "old_room": 380.0,
+      "room": 380.0,
+      "old_bed": 190.0,
+      "bed": 190.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2027-02-08",
+      "old_room": 380.0,
+      "room": 380.0,
+      "old_bed": 180.0,
+      "bed": 180.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2027-02-09",
+      "old_room": 440.0,
+      "room": 440.0,
+      "old_bed": 190.0,
+      "bed": 190.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2027-02-10",
+      "old_room": 450.0,
+      "room": 450.0,
+      "old_bed": 190.0,
+      "bed": 190.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2027-02-11",
+      "old_room": 440.0,
+      "room": 440.0,
+      "old_bed": 200.0,
+      "bed": 200.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2027-02-12",
+      "old_room": 480.0,
+      "room": 480.0,
+      "old_bed": 240.0,
+      "bed": 240.0,
+      "old_flex": 18,
+      "flex": 9,
+      "locked": false
+    },
+    {
+      "date": "2027-02-13",
+      "old_room": 490.0,
+      "room": 490.0,
+      "old_bed": 270.0,
+      "bed": 270.0,
+      "old_flex": 16,
+      "flex": 10,
+      "locked": false
+    },
+    {
+      "date": "2027-02-14",
+      "old_room": 380.0,
+      "room": 380.0,
+      "old_bed": 190.0,
+      "bed": 190.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2027-02-15",
+      "old_room": 380.0,
+      "room": 380.0,
+      "old_bed": 180.0,
+      "bed": 180.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2027-02-16",
+      "old_room": 440.0,
+      "room": 440.0,
+      "old_bed": 190.0,
+      "bed": 190.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2027-02-17",
+      "old_room": 450.0,
+      "room": 450.0,
+      "old_bed": 190.0,
+      "bed": 190.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2027-02-18",
+      "old_room": 440.0,
+      "room": 440.0,
+      "old_bed": 200.0,
+      "bed": 200.0,
+      "old_flex": 0,
+      "flex": 0,
+      "locked": false
+    },
+    {
+      "date": "2027-02-19",
+      "old_room": 480.0,
+      "room": 480.0,
+      "old_bed": 240.0,
+      "bed": 240.0,
+      "old_flex": 18,
+      "flex": 9,
+      "locked": false
+    },
+    {
+      "date": "2027-02-20",
+      "old_room": 490.0,
+      "room": 490.0,
+      "old_bed": 270.0,
+      "bed": 270.0,
+      "old_flex": 16,
+      "flex": 9,
+      "locked": false
+    }
+  ]
+}

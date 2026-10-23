@@ -1,0 +1,84 @@
+# Research applied to the hostel pricing model
+
+Review date: 23 October 2026. Status: implemented, mechanically verified and active for new recommendations; future commercial effect has not been measured.
+
+## Scope and evidence standard
+
+This is a targeted review of recent, relevant research, not a claim to have read every new paper. Searches covered hotel demand and causal price sensitivity, offline pricing with incomplete coverage, nonstationary learning, inventory censoring, conservative learning and experimental evaluation. Priority was given to 2024–2026 work, with older papers retained where they directly explain identification or experimental design.
+
+Fourteen primary-source papers were reviewed at different depths below. “Full text” means the accessible methods, assumptions and evaluation sections were examined; “abstract/preview” does not mean the complete paper was accessible. Preprints have not been treated as settled empirical evidence. Papers about unrelated markets were screened for transferable methods, not used as evidence of hostel revenue gains. No percentage improvement from another business is a forecast for this hostel.
+
+## Decisions and sources
+
+| Research | Evidence examined | What transfers here | Implementation decision |
+|---|---|---|---|
+| Bian, Wang & Qi, **A Tale of Two Cities: Pessimism and Opportunism in Offline Dynamic Pricing**, revised May 2026 ([paper](https://arxiv.org/html/2411.08126v3)) | Full text, preprint. Partial identification for missing price coverage; pessimistic and minimax-regret decisions. Real-data exercise is evaluated through a calibrated simulator. | An uncertain price response should produce a set of decision outcomes. | Implement a finite elasticity-scenario minimax-regret optimizer. This is a local adaptation, **not** their fitted identification sets, sequential recursion, confidence bounds or guarantees. |
+| Jiang & Zhao, **On Non-Stationary Dynamic Pricing: Adaptivity and Optimality**, revised August 2026 ([paper](https://arxiv.org/html/2607.24115v2)) | Full-text model and methods, preprint. Contextual GLM demand, exploration and multiscale change detection. | Demand relationships can shift, including price response. | Add recent operational forecast checks. Do not implement its likelihood-ratio detector or claim to detect elasticity changes without price-response observations. |
+| Yang, Xu, Hu & Hu, **Nonparametric Learning and Earning with One-Point Feedback under Nonstationarity**, May 2026 ([paper](https://arxiv.org/html/2605.21263v1)) | Full-text assumptions and algorithms, preprint. One-point revenue feedback, restarts and meta-learning; smooth concave revenue assumptions. | Old evidence may lose relevance; changes require monitoring. | Retain stable demand-level adaptation and add review flags. No automatic resets or gradient-based price learning from recommendation logs. Required reward observations and assumptions are unverified. |
+| Hausenblas et al., **Improving network dynamic pricing policies through offline reinforcement learning**, June 2025 ([paper](https://link.springer.com/article/10.1007/s00291-025-00821-2)) | Full text. Critic-regularized regression on generated network pricing instances; variation in logged actions matters. Authors identify lack of a real-life application as a limitation. | Preserve shared inventory and action support; simulator gains need external validation. | Keep explicit room/bed/flex constraints. Defer neural offline RL until logged state/action/reward trajectories support it. |
+| Madhow et al., **Rates for Offline Reinforcement Learning with Adaptively Collected Data**, 2025 ([paper](https://proceedings.mlr.press/v283/madhow25a.html)) | Abstract. Tabular offline learning and evaluation with adaptive logging. | Daily recommendations and adaptive observations are not independent experiments. | Retain prospective experimental evaluation. Do not generate an off-policy value estimate from the current sparse logs. |
+| Wang et al., **Transfer Learning for Nonparametric Contextual Dynamic Pricing**, ICML 2025 ([paper](https://proceedings.mlr.press/v267/wang25aq.html)) | Abstract. Transfer under covariate shift with shared reward functions. | Borrowing information requires compatibility, not just more rows. | Do not pool old bed demand, competitors or other hotels into a causal elasticity model. Compatible source/target rewards have not been established. |
+| Ye & Jiang, **Smoothness-Adaptive Dynamic Pricing with Nonparametric Demand Learning**, AISTATS 2024 ([paper](https://proceedings.mlr.press/v238/ye24b.html)) | Abstract and assumptions summary. Adaptivity requires additional structure. | A flexible learner does not remove assumptions or the need to explore. | Defer adaptive nonparametric price learning; no relevant live response sample yet. |
+| Yang et al., **Nonparametric multi-product dynamic pricing with demand learning via simultaneous price perturbation**, November 2024 ([publisher](https://www.sciencedirect.com/science/article/pii/S037722172400465X)) | Publisher abstract/preview; complete methods unavailable through the reader. Multiple products, perturbation learning and inventory extensions. | Joint product decisions matter; perturbation needs measured responses. | Implement joint scenario decisions using the existing distribution. Do not start SPSA experimentation or treat the existing neighbor-price log as a completed learning design. |
+| Liu et al., **Dynamic pricing and learning with censored demand**, online 2026 ([publisher](https://www.sciencedirect.com/science/article/pii/S037722172600473X)) | Publisher abstract/preview. Discrete prices, unobserved lost sales, distribution estimation and testing inventory. | Sold-out sales cannot be equated to unconstrained demand. | Add endpoint capacity/block exclusions to online level updates and audit those exclusions. This is a partial guard, **not** the paper's censored-distribution estimator. |
+| Anand, Agrawal & Bodas, **Bayesian optimization for dynamic pricing and learning**, November 2025 ([publisher](https://www.sciencedirect.com/science/article/pii/S0166531625000537)) | Publisher abstract/preview. Finite and infinite inventory learning; sample efficiency studied in experiments. | Limited experimentation budgets favor parsimonious methods. | Defer Bayesian optimization: it still needs actual price/reward feedback and a defined experiment budget. |
+| Garcia, Tolvanen & Wagner, **Demand Estimation Using Managerial Responses to Automated Price Recommendations**, 2022 ([paper](https://pubsonline.informs.org/doi/10.1287/mnsc.2021.4261)) | Hotel-specific identification method. Delayed managerial responses support a control-function and difference-in-differences design. | Price and demand are confounded; recommendation timestamps and actual responses matter. | Preserve existing assignment/applied-price evidence. No elasticity regression on bookings and recommended prices. Local validity of their instrument is unestablished. |
+| Bojinov, Simchi-Levi & Zhao, **Design and Analysis of Switchback Experiments**, revised September 2025 ([paper](https://arxiv.org/abs/2009.00148)) | Experiment-design methods; carryover assumptions affect design and inference. | Shared inventory and cross-date stays complicate randomization. | Keep existing preregistered protocol and one final analysis. No experiment launched; longer stay-date blocks alone do not establish absence of interference. |
+| Kazerouni et al., **Conservative Contextual Linear Bandits**, NeurIPS 2017 ([paper](https://proceedings.neurips.cc/paper/2017/file/bdc4626aa1d1df8e14d80d345b2a442d-Paper.pdf)) | Full-text model and guarantee. Cumulative expected reward relative to a baseline under a linear model and noise assumptions. | Baseline-relative uncertainty is useful, but “safe” has a precise conditional meaning. | Do not claim the scenario optimizer is CLUCB, a baseline safety guarantee or a promise of realized future revenue. |
+| Song, **Research on the application of deep learning in E-commerce dynamic pricing and demand forecasting**, October 2026 ([publisher](https://link.springer.com/article/10.1007/s10791-026-10745-2)) | Publisher abstract and evaluation preview. Forecast/pricing feedback; pricing revenue reported in a simulator. | Forecast improvement and simulated revenue must be distinguished from field impact. | Defer Transformer/PPO replacement. The hostel has neither the required response data nor a validated causal simulator. |
+
+## Implemented behavior
+
+### 1. Scenario decisions with shared physical inventory
+
+The old objective chose prices using room elasticity 1.6 and bed elasticity 2.0. These remain nominal **working assumptions**, not measured guest behavior or verified industry estimates.
+
+The new configurable rule evaluates room elasticities **0.8, 1.6, 2.4** and bed elasticities **0.8, 2.0, 3.2**, including every cross-combination. These deliberately span weaker and stronger price responses. Their endpoints are engineering stress assumptions, not empirically calibrated bounds or values copied from a paper. The true response may lie outside them or violate constant elasticity altogether.
+
+An action is one room-price rung, one bed-price rung and one feasible flex allocation. It cannot use different physical inventory in different scenarios. For each scenario, calculate the best modeled contribution over the action set. Choose the action minimizing its largest difference from these scenario optima. Contribution includes the configured VAT/commission basis and variable costs; the existing allocation-friction term is included consistently.
+
+This is a one-stay-date optimization of remaining expected sales. It does not optimize the full sequential booking path or identify a causal price-response function. It is designed to reduce dependence on one assumption within the chosen scenario set. It can produce higher or lower prices and can underperform the previous policy in reality.
+
+`pricing.v4.uncertainty_mode: minimax_regret` enables the rule. `diagnostics` restores nominal optimization with the same final-price stress reports; that is also the default for older configuration files without the new setting. Existing discount limits, brakes, manual locks, smoothing, market/event controls and neighbor-price variation still apply. Controls may change the optimizer's selected action.
+
+### 2. Final-price transparency
+
+Every new recommendation stores the optimizer's scenario decision and a separate evaluation of its final price at its final allocated capacity. This matters after a brake, manual lock or exploration changes a proposed price.
+
+The economics page shows the best rung under each elasticity assumption, the expected contribution range at the final price and the smallest modeled difference from the reference price at the same capacity. A negative difference is displayed honestly; the algorithm does not require all scenarios to beat the reference. Diagnostic alternative prices are ladder alternatives before daily controls and may not all be deliverable now.
+
+These are scenario comparisons, not statistical confidence intervals or estimates of causal lift. The reference price is a seasonal/weekday ladder anchor, not an observed control strategy. Demand shape and level uncertainty, substitution between products, competitor responses and cross-date interactions remain outside this scenario set.
+
+### 3. Capacity-aware demand-level learning
+
+Online learning excludes a product's pickup window if it has current blocks, is at least 98% of feasible current capacity, or was at least 98% of recorded capacity at the earlier endpoint. Current feasibility includes shared flex constraints and PMS flex bounds. Infeasible input windows are excluded too. Exclusions and used-window counts are recorded in the existing level history.
+
+This prevents some constrained sales observations being interpreted as low demand. Recommendation capacity at the earlier endpoint is advisory; it is only used to exclude potentially constrained windows. Availability between endpoints, channel closures, changing inventory and lost sales remain unobserved. Exclusion can itself select the observed sample, so this is not a consistent estimator of unconstrained demand or a complete censoring solution. Negative net pickup from cancellations remains included in eligible windows.
+
+### 4. Recent forecast monitoring
+
+The economics page examines frozen operational forecasts with completed outcomes in the last 28 calendar days. Each product/horizon needs at least 14 distinct stay dates. Future dates, missing outcomes and duplicate date/horizon observations do not increase the sample. Multiple horizons for one date are shown separately, not pooled as independent observations.
+
+Review rules flag absolute mean bias above the greater of one unit or 20% of mean actual sales; fewer than 60% of outcomes inside the model's 80% interval; or worse paired MAE than the simple reference by both 20% and 0.5 unit. Interval and paired checks require their own 14 eligible dates. These thresholds are operational choices, not calibrated hypothesis tests, confidence sequences or proof of a structural break. Price changes, groups and capacity can also create forecast errors. Flags do not automatically refit the model or elasticity.
+
+### 5. Reproducible financial evaluation
+
+The preregistered experiment fingerprint now includes the new scenario-selection module and economic-basis calculation. Changing these calculations after registration must change the policy fingerprint. Existing assignment logs, actual-price confirmation, missing-cost handling and final-analysis restrictions are retained. No live experiment or customer-price publication is authorized by a research result alone.
+
+## Still needed for learning price sensitivity
+
+The app can record proposed assignments and confirmed applied prices, but that is not yet a complete source of time-bounded exposure and attributable demand responses. Collect the actual price by stay date, product and channel, its active start/end time, inventory/closure history, booking arrivals and cancellations, and final reconciled finances. Use a specified randomized design or a defensible identification strategy. Fit uncertainty-aware broad room/bed responses before attempting sparse segments or time-varying estimates. Validate the complete policy prospectively against the normal strategy.
+
+The current optimization target remains expected contribution after variable costs, rather than gross revenue alone. Higher forecast accuracy, lower scenario regret and passing software tests are separate achievements from increased future revenue. A controlled financial comparison is still required to establish commercial improvement.
+
+## Verification
+
+Mechanical results and the current-data replay are in [the verification artifact](../outputs/research-pricing-2026-10-23/verification.json). The replay compares nominal and scenario decisions on the same inputs, without updating learning, approving prices or publishing. Software checks include an independently computed exhaustive oracle for joint price/inventory selection, single-scenario equivalence, final locked-price diagnostics, constrained-window learning exclusions and completed-date requirements for monitoring.
+
+These tests establish the implemented calculations and controls. They do not verify that the elasticity ranges contain the true response or establish a future financial gain.
+
+The full suite passed **325 tests**. Focused follow-up checks passed after the final learning guard and page changes. A read-only replay evaluated 121 current stay dates: 120 computed, zero price-floor/shared-capacity violations, and 31 October held because the bed-price floor conflicts with the daily-change brake. On identical inputs, scenario decisions changed 43 room prices, one bed price and 22 flex allocations relative to nominal optimization. These counts describe decisions, not revenue improvements.
+
+The running service was reloaded and produced **run 52**, with 120 persisted recommendations, all **pending**. Final price/capacity diagnostics match the stored proposals. Automatic publication remains off; no customer prices were posted and no experiment was started. Desktop and phone checks verified the stress-table interaction and contained horizontal table scrolling without page overflow or browser errors. The current monitor has only three completed one-day forecasts per product and no completed longer-horizon samples; all cells correctly report insufficient evidence.
+
+See [persisted-run verification](../outputs/research-pricing-2026-10-23/new-run.json), [service status](../outputs/research-pricing-2026-10-23/live-health.json) and [interface checks](../outputs/research-pricing-2026-10-23/ui-verification.json).

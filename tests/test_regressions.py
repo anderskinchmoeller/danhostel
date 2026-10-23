@@ -186,19 +186,21 @@ def test_delivery_checks_freshness_again_and_inventory_confirmation(database):
 
 def test_reimports_do_not_compound_daily_price_changes(database):
     with db.get_session() as session:
-        service.upsert_inventory(session, [InventoryRow(TODAY, current_room_price=600,
-                                                        current_bed_price=200)])
+        # Anchors must admit the configured automatic discount floors as well
+        # as the daily brake; conflicting bounds are covered separately.
+        service.upsert_inventory(session, [InventoryRow(TODAY, current_room_price=800,
+                                                        current_bed_price=350)])
         session.commit()
-        service.upsert_inventory(session, [InventoryRow(TODAY, current_room_price=690,
-                                                        current_bed_price=230)])
+        service.upsert_inventory(session, [InventoryRow(TODAY, current_room_price=920,
+                                                        current_bed_price=400)])
         session.commit()
         state = session.get(db.DayState, TODAY)
         item = service.build_inputs([state], database)[0]
-        assert item.current_room_price == 600
-        assert item.current_bed_price == 200
+        assert item.current_room_price == 800
+        assert item.current_bed_price == 350
         r = price_day(item, database.params, today=TODAY)
-        assert r.room_price <= 690
-        assert r.bed_price <= 230
+        assert r.room_price <= 920
+        assert r.bed_price <= 350 * 1.15
 
 
 def test_version_two_schema_migration_preserves_data(tmp_path, monkeypatch):

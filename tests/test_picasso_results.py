@@ -86,7 +86,8 @@ def test_unknown_type_or_bad_total_blocks_revenue_but_not_counts():
     p=parsed();p['hotelmanager']['total_price_rounded']='27000.00'
     assert not reports.review(p)['revenue_ready']
     p=parsed();p['hotelmanager']['adr_bed_rounded']='240.00'
-    assert not reports.review(p)['revenue_ready']
+    assert reports.review(p)['revenue_ready']
+    assert reports.review(p)['adr_issues']
 
 
 def test_stage_is_draft_source_archived_and_repeated_renames_are_idempotent(session):
@@ -229,3 +230,103 @@ def test_bad_manual_supplements_cannot_create_a_partial_outcome(session,suppleme
     record=staged(session)
     with pytest.raises(ValueError): do_confirm(session,record,supplements=supplements)
     assert session.scalars(select(db.ValidationRecord).where(db.ValidationRecord.kind=='outcome')).all()==[]
+
+
+def test_documented_package_split_and_unknown_lodging_unlock_only_after_reconciliation(session):
+    record=staged(session)
+    original=json.loads(record.payload)
+    # A package contains breakfast; another amount has no occupancy quantities.
+    original['products']['rows'][0]['amount']=str(float(original['products']['rows'][0]['amount'])+10)
+    original['products']['declared_by_type']['D2']=str(float(original['products']['declared_by_type']['D2'])+10)
+    original['products']['total']=str(float(original['products']['total'])+10)
+    original['products']['rows'][1]['category']='unknown'
+    record.payload=json.dumps(original,ensure_ascii=False,sort_keys=True)
+    assert not reports.review(original)['revenue_ready']
+    corrections=[dict(index=0,breakfast='10.00',note='Folio: documented breakfast',lodging_confirmed=False),
+                 dict(index=1,breakfast='0',note='Folio: documented overnight',lodging_confirmed=True)]
+    revised=reports.correct_products(session,record,corrections,'test')
+    assert revised.id!=record.id
+    result=reports.review(json.loads(revised.payload))
+    assert result['revenue_ready'] and result['hotel_difference']=='-0.14'
+    assert reports.review(original)['revenue_ready'] is False
+    assert do_confirm(session,revised)
+    saved=json.loads(session.scalar(select(db.ValidationRecord).where(db.ValidationRecord.kind=='outcome')).payload)
+    assert saved['breakfast_excluded']==467.60
+    assert saved['reported_lodging_total']==26151.86
+
+
+@pytest.mark.parametrize('value,note', [('NaN','source'),('-1','source'),('999999','source'),('0.001','source'),('1','')])
+def test_package_corrections_reject_invalid_or_undocumented_deductions(value,note):
+    with pytest.raises((ValueError,ArithmeticError)):
+        reports.apply_product_corrections(parsed(),[dict(index=0,breakfast=value,note=note)])
+
+
+def test_product_allocation_form_saves_new_review_and_keeps_original(session):
+    record=staged(session);session.commit()
+    app=FastAPI(); templates=Jinja2Templates(directory='app/templates')
+    templates.env.globals['freshness']=lambda:dict(stale=False,age_text='Test')
+    settings=SimpleNamespace(timezone='Europe/Copenhagen',params=PARAMS)
+    app.include_router(router(settings,templates,lambda:'test'))
+    with TestClient(app) as client:
+        response=client.post(f'/resultater/rapporter/{record.id}/fordeling',data={
+            'breakfast_0':'0','evidence_0':'Kontrolleret folio'},follow_redirects=False)
+        assert response.status_code==303
+        assert response.headers['location']!=f'/resultater/rapporter/{record.id}'
+        page=client.get(response.headers['location'])
+        assert page.status_code==200
+        assert 'Kontrolleret folio' in page.text
+        assert 'Gem dokumenteret fordeling' in page.text
+
+
+@pytest.mark.parametrize('with_products', [False, True])
+def test_simple_flow_validates_sales_despite_unresolved_finances(session,with_products):
+    from app import forecast_charts, forecast_validation
+    record=staged(session) if with_products else reports.stage(session,b'hotel test source',None,
+        SimpleNamespace(timezone='Europe/Copenhagen',params=PARAMS),'test')
+    if with_products:
+        p=json.loads(record.payload)
+        p['products']['rows'][0]['category']='unknown'
+        record.payload=json.dumps(p,ensure_ascii=False,sort_keys=True)
+    day=record.day
+    for product in ('rum','senge'):
+        session.add(db.ForecastSnapshot(day=day,lead=7,product=product,run_id=1,
+            observed_at=datetime(2026,10,8),payload=json.dumps(dict(forecast=10,baseline=12,
+                intervals={},capacity=100,weekend=False,
+                revenue_checkpoint=dict(expected_ex_vat=25000,basis='ex_vat')))))
+    session.commit()
+    app=FastAPI(); templates=Jinja2Templates(directory='app/templates')
+    templates.env.globals['freshness']=lambda:dict(stale=False,age_text='Test')
+    app.include_router(router(SimpleNamespace(timezone='Europe/Copenhagen',params=PARAMS),templates,lambda:'test'))
+    with TestClient(app) as client:
+        page=client.get(f'/resultater/rapporter/{record.id}')
+        assert 'Gem dagsresultat til prognosevalidering' in page.text
+        # An explicit final-count confirmation is still required.
+        client.post(f'/resultater/rapporter/{record.id}/enkelt',data={'hotel_total':'true'})
+        assert session.scalar(select(db.ValidationRecord).where(db.ValidationRecord.kind=='outcome')) is None
+        for _ in range(2):
+            response=client.post(f'/resultater/rapporter/{record.id}/enkelt',
+                data={'final_counts':'true','hotel_total':'true'})
+            assert response.status_code==200
+        result=economics.final_results(session,day,day,date(2026,10,18))[0]
+        assert result['revenue']==26152 and result['overview_only']
+        assert result['contribution'] is None
+        assert 'room_revenue' not in result['data'] and 'amounts_by_type' not in result['data']
+        rows,_,_=forecast_validation.live_rows(session,date(2026,10,18))
+        assert {r['product']:r['actual'] for r in rows}=={'rum':43,'senge':4}
+        assert not any(r['product']=='revenue' for r in forecast_charts.live_rows(session,date(2026,10,18))[0])
+        export=client.get(f'/resultater/export.csv?start={day}&end={day}')
+        assert 'hotelmanager_logi_afrundet' in export.text and '26152' in export.text
+        assert len(session.scalars(select(db.ValidationRecord).where(db.ValidationRecord.kind=='outcome')).all())==1
+
+
+def test_simple_total_preserves_previously_confirmed_detailed_revenue(session):
+    record=staged(session)
+    assert do_confirm(session,record)
+    reports.confirm(session,record,actor='test',final_counts=True,accept_revenue=False,
+                    date_confirmed=False,accept_hotel_total=True)
+    records=session.scalars(select(db.ValidationRecord).where(db.ValidationRecord.kind=='outcome')
+                           .order_by(db.ValidationRecord.id.desc())).all()
+    saved=json.loads(records[0].payload)
+    assert saved['hotelmanager_lodging_total']==26152
+    assert validation.actual_revenue(saved)==26151.86
+    assert saved['amounts_by_type']

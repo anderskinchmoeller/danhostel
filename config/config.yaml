@@ -6,6 +6,12 @@
 
 database_url: "sqlite:///data/rms.db"
 
+# 2024's sengesalg beskriver ikke det lavere niveau i 2025. Kun senge:
+# nyere pickup og fordelingsform; manglende sæsonmåneder lånes fra ældre data.
+# Historiske valideringer angiver selv træningsperioden og bruger ikke dette felt.
+demand_training:
+  bed_training_from: "2025-03-08"
+
 adapters:
   pms: csv          # eneste værdi i dag: belægning uploades eller læses fra en mappe
   rateshop: manual  # eneste værdi i dag: konkurrentpriser uploades i hånden
@@ -88,6 +94,13 @@ pricing:
   variable_cost: 111.56         # de har i gennemsnit 2.28 senge pr vœrelse de sœlger. pr. solgt privat værelse: rengøring, linned, forbrug
   variable_cost_bed: 39.84        # pr. solgt seng
   commission: 0.16         # vægtet gennemsnit over kanaler; direkte tæller som 0
+  # Modelbidrag omregnes samlet til ekskl. moms, når alle tre grundlag er
+  # bekræftet. Unknown bevarer det tydeligt mærkede gamle skøn; ingen delvis
+  # momsblanding. Provisionsgrundlag: guest_price eller ex_vat.
+  economics:
+    price_vat_basis: incl_25
+    cost_vat_basis: ex_vat       # bekræftet af Anders 23-10-2026
+    commission_basis: ex_vat    # 16 % af logi ekskl. moms; bekræftet 23-10-2026
   price_floor: 375
   price_ceiling: 1400
   bed_floor: 165
@@ -273,14 +286,19 @@ pricing:
     model_path: config/demand_model.json
     level_path: data/demand_level.json
 
-    # Standardestimat for egenpriselasticitet. Det ENESTE ukendte tal tilbage i
-    # prisbeslutningen, og det er med vilje: ældre motorer havde triggervægte,
-    # målbelægninger og en trinafstand, som alle var gæt. Tallene her er et
-    # konservativt litteraturniveau, ikke en måling på jeres gæster. De
-    # erstattes af eksplorationens målinger efter en sæson.
-    # Sættes de til 0, bliver den højeste pris altid den bedste.
+    # Arbejdsantagelser, ikke målte eller dokumenterede brancheestimater.
+    # Prisforslag alene identificerer ikke gæsternes kausale prisrespons.
     elasticity_rooms: 1.6
     elasticity_beds: 2.0
+
+    # Lokal scenarietilpasning inspireret af minimax-regret-litteraturen.
+    # Tallene er bevidst brede stresspunkter, ikke statistiske grænser eller
+    # estimater hentet fra et papir. Ingen garanti uden for dette modelsæt.
+    # diagnostics bevarer den nominelle optimering; minimax_regret vælger
+    # mindste største modeltab på tværs af priser og samme fysiske flexlager.
+    uncertainty_mode: minimax_regret
+    elasticity_rooms_scenarios: [0.8, 1.6, 2.4]
+    elasticity_beds_scenarios: [0.8, 2.0, 3.2]
 
     # Adaptivt niveau: fanger et strukturelt skift som efteråret 2025
     # (august -21 %, oktober -25 %, november -35 %) uden at nogen skal finde

@@ -10,7 +10,7 @@ import io
 import json
 import statistics
 from dataclasses import asdict
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from functools import lru_cache
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -199,6 +199,48 @@ def historical_report(rows, params):
                          "Travle datoer og grupper opdeles efter facit, kun til efterfølgende fejlanalyse.",
                          "95 %-interval bruger kalenderbaseret Newey–West/HAC med lag max(7, horisont−1), mindst 60 datoer og 8 blokke; tilnærmet punktvist interval."],
                 metrics=score(observations)), observations
+
+
+def bed_regime_report(rows, params, *, training_from="2025-03-08", test_from="2025-10-01"):
+    """Development comparison, separate from the frozen 2024→2025 report.
+
+    Both candidates use only observations before the test period. Results
+    informed model selection; they are not an independent approval test.
+    """
+    date.fromisoformat(training_from)
+    date.fromisoformat(test_from)
+    train = [r for r in rows if r["dato"] < test_from]
+    test = [r for r in rows if test_from <= r["dato"] < "2026-01-01" and r["lead"] in CHECKPOINTS]
+    metrics = []
+    baseline_model = None
+    for label, training in (("all_history", train),
+                             ("recent_beds", [r for r in train if r["dato"] >= training_from])):
+        model = demand.fit(training, kind="senge", column="rest_senge", final_column="endelig_senge",
+                           exclude_ranges=(("2025-01-01", "2025-03-07"),))
+        if baseline_model is None:
+            baseline_model = model
+        else:
+            # Use the production recipe, including seasonal factors for
+            # months absent from the recent training period.
+            model.season.update({m: value for m, value in baseline_model.season.items()
+                                 if m not in model.season})
+        observations = []
+        for row in test:
+            day = date.fromisoformat(row["dato"])
+            value = demand.sales_forecast(model, row["otb_senge"], row["lead"], day,
+                                           params.inventory.max_bed_capacity)
+            observations.append(dict(value, day=row["dato"], lead=row["lead"], product="senge",
+                actual=row["endelig_senge"], groups=None, censored=bool(row["censureret"]),
+                weekend=params.is_weekend(day), baseline=None))
+        metrics.extend(dict(m, candidate=label) for m in score(observations) if m["segment"] == "all")
+    return dict(created_at=db.utcnow().isoformat()+"Z", training_from=training_from,
+        training_through=(date.fromisoformat(test_from)-timedelta(days=1)).isoformat(),
+        test_from=test_from, test_through="2025-12-31", levels=[1.0, 1.0],
+        purpose="Development comparison; used for selection, not an independent acceptance test",
+        caveats=["Ingen træningsobservationer fra testperioden.",
+                 "Rekonstrueret historik; blokeringer, flex og ændringshistorik er ukendte.",
+                 "Måler salg ved historiske priser, ikke priseffekt eller omsætningsgevinst.",
+                 "Nyere fremadrettede resultater skal fortsat indsamles."], metrics=metrics)
 
 
 def csv_details(rows):

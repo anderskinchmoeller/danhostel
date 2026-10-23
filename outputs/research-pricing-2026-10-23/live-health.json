@@ -1,0 +1,39 @@
+{
+  "status": "ok",
+  "last_run": "2026-10-23T18:29:12.177399",
+  "last_run_status": "done",
+  "auto_publish": false,
+  "pricing_version": 4,
+  "v4_requested": true,
+  "v4_notes": [],
+  "exploration": true,
+  "elasticity_measured": false,
+  "uncertainty_mode": "minimax_regret",
+  "elasticity_stress_scenarios": {
+    "rooms": [
+      0.8,
+      1.6,
+      2.4
+    ],
+    "beds": [
+      0.8,
+      2.0,
+      3.2
+    ]
+  },
+  "contribution_basis_confirmed": true,
+  "demand_training": {
+    "rum": {
+      "from": "2024-01-01",
+      "through": "2025-12-31"
+    },
+    "senge": {
+      "from": "2025-03-08",
+      "through": "2025-12-31"
+    }
+  },
+  "demand_level": {
+    "rum": 1.119,
+    "senge": 1.0
+  }
+}

@@ -27,12 +27,14 @@ from __future__ import annotations
 import math
 from dataclasses import asdict, dataclass, field, replace
 from datetime import date
+from functools import lru_cache
 from typing import Iterable, Sequence
 
 from . import bidprice
 from .bidprice import V4Config
 from .demand import DemandModel, sales_forecast
 from .ladder import LadderConfig, ladder_step
+from .pricing_basis import PricingBasis
 
 
 def clamp(value: float, low: float, high: float) -> float:
@@ -303,6 +305,7 @@ class Params:
     variable_cost: float = 95.0       # pr. solgt privat værelse
     variable_cost_bed: float = 45.0   # pr. solgt seng
     commission: float = 0.16
+    pricing_basis: PricingBasis = field(default_factory=PricingBasis)
     price_floor: float = 375.0
     price_ceiling: float = 1400.0
     bed_floor: float = 165.0
@@ -329,6 +332,10 @@ class Params:
 
     def is_weekend(self, day: date) -> bool:
         return day.weekday() in self.weekend_days
+
+    def contribution(self, price: float, *, beds: bool = False) -> float:
+        return self.pricing_basis.contribution(price, self.commission,
+            self.variable_cost_bed if beds else self.variable_cost)
 
 
 # --------------------------------------------------------------------------
@@ -368,6 +375,8 @@ class DayInput:
     prev_bed_position: float | None = None
     rooms_otb_prior: int | None = None
     beds_otb_prior: int | None = None
+    room_capacity_prior: int | None = None
+    bed_capacity_prior: int | None = None
     prior_days: int | None = None
     same_day_fraction: float | None = None
     market_notes: tuple = ()
@@ -535,6 +544,9 @@ def price_day(item: DayInput, params: Params, events: Iterable[EventUplift] = ()
     weekend = params.is_weekend(item.day)
     inv = params.inventory
     warnings: list = list(item.market_notes)
+    if not params.pricing_basis.confirmed:
+        warnings.append("Modelbidrag er et skøn: bekræft momsgrundlag for priser og "
+                        "omkostninger samt provisionsgrundlag i konfigurationen")
     if lead == 0 and item.same_day_fraction is not None and params.v4_active:
         if not math.isfinite(item.same_day_fraction) or not 0 <= item.same_day_fraction <= 1:
             raise ValueError("Resterende andel af ankomstdagen skal være mellem 0 og 1")
@@ -619,18 +631,24 @@ def price_day(item: DayInput, params: Params, events: Iterable[EventUplift] = ()
         if any(r.startswith("Intet tempo") for r in room_ladder.reasons):
             warnings.append("Stige: intet tempo-signal endnu (kræver en kørsel fra ca. en uge siden)")
 
-    room_price = round_within(raw_room, params.price_floor, params.price_ceiling, params.rounding)
-    bed_price = round_within(raw_bed, params.bed_floor, params.bed_ceiling, params.rounding)
+    room_floor, bed_floor = params.price_floor, params.bed_floor
+    if params.v4_active:
+        room_floor = max(room_floor, room_ladder.rung_prices[
+            _discount_minimum(params, params.ladder.rungs_rooms)])
+        bed_floor = max(bed_floor, bed_ladder.rung_prices[
+            _discount_minimum(params, params.ladder.rungs_beds)])
+    room_price = round_within(raw_room, room_floor, params.price_ceiling, params.rounding)
+    bed_price = round_within(raw_bed, bed_floor, params.bed_ceiling, params.rounding)
 
     # Linking products is advisory: privacy and dorm beds are distinct products.
     # Apply all hard price bounds last; never override the daily brake afterwards.
     room_price = (item.locked_room_price if item.locked_room_price is not None else
                   _brake(room_price, item.current_room_price, params, warnings,
-                         "værelsespris", params.price_floor, params.price_ceiling,
+                         "værelsespris", room_floor, params.price_ceiling,
                          room_ladder.rung_prices if room_ladder else None))
     bed_price = (item.locked_bed_price if item.locked_bed_price is not None else
                  _brake(bed_price, item.current_bed_price, params, warnings,
-                        "sengepris", params.bed_floor, params.bed_ceiling,
+                        "sengepris", bed_floor, params.bed_ceiling,
                         bed_ladder.rung_prices if bed_ladder else None))
     # Stigen skal huske det trin prisen faktisk endte på — efter bremse og lås —
     # ellers starter morgendagens hysterese fra et trin der aldrig blev brugt.
@@ -666,54 +684,39 @@ def price_day(item: DayInput, params: Params, events: Iterable[EventUplift] = ()
     if bed_price * inv.beds_per_flex_room < family_price * 0.9:
         warnings.append("Dorm underbyder familieværelse — kontrollér produktforskel; sengepris fastholdt")
 
-    minimum = item.flex_private_min or 0
-    if item.room_type_otb and inv.private_room_types:
-        for code, count in item.room_type_otb.items():
-            if code in flex and not inv.flex_room_types:
-                continue  # samlet familie_4: loftet håndhæves af allokeringen
-            if count > inv.private_room_types.get(code, 0) + flex.get(code, 0):
-                raise ValueError("Bookede rumtyper overstiger det faste lager")
-        minimum = max(minimum, sum(
-            max(0, item.room_type_otb.get(c, 0) - inv.private_room_types.get(c, 0))
-            for c in flex))
+    lower, upper = _day_flex_bounds(item, params)
     flex_steps = None
     if params.v4_active and params.v4.use_for_flex:
-        # Marginalt i stedet for gennemsnitligt: det ekstra rum sammenlignes med
-        # de otte senge det koster, og den ottende seng er mindre værd end den
-        # første. Netop den aftagende del fanger et gennemsnit ikke.
-        lower, upper = flex_bounds(
-            inv, rooms_otb=rooms_otb, beds_otb=beds_otb,
-            blocked_rooms=item.blocked_rooms, blocked_beds=item.blocked_beds,
-            private_min=minimum, private_max=item.flex_private_max)
-        level_rooms, level_beds = params.demand_level
-        flex_to_private, flex_steps = bidprice.flex_allocation(
-            room_model=params.demand_models["rum"].bind(rooms_otb),
-            bed_model=params.demand_models["senge"].bind(beds_otb),
-            lead=lead, day=item.day,
-            rooms_free=max(0, inv.private_rooms - item.blocked_rooms - rooms_otb),
-            beds_free=max(0, inv.max_bed_capacity - item.blocked_beds - beds_otb),
-            flex_rooms=inv.flex_rooms, beds_per_flex_room=inv.beds_per_flex_room,
-            room_net=family_price * (1 - params.commission) - params.variable_cost,
-            bed_net=bed_price * (1 - params.commission) - params.variable_cost_bed,
-            lower=lower, upper=upper, room_level=level_rooms, bed_level=level_beds,
-            min_gain=params.v4.flex_min_gain,
-            room_multiplier=room_ladder.bid["multiplier"] if room_ladder and room_ladder.bid else 1.0,
-            bed_multiplier=bed_ladder.bid["multiplier"] if bed_ladder and bed_ladder.bid else 1.0)
+        # Controls and locks can change the optimized prices. Allocate against
+        # those actual prices, with the same shared inventory and type mix.
+        flex_to_private, flex_steps = _allocation_at_prices(
+            item, params, lead, base_room, base_bed, room_price, bed_price,
+            oracle=room_ladder.bid.get("uncertainty", {}).get("scenario_oracle"))
     else:
         flex_to_private = allocate_flex(
-            inv, forecast_rooms, forecast_beds, family_price, bed_price,
+            inv, forecast_rooms, forecast_beds, params.contribution(family_price),
+            params.contribution(bed_price, beds=True),
             rooms_otb=rooms_otb, beds_otb=beds_otb,
             blocked_rooms=item.blocked_rooms, blocked_beds=item.blocked_beds,
-            private_min=minimum, private_max=item.flex_private_max,
-            commission=params.commission, room_cost=params.variable_cost,
-            bed_cost=params.variable_cost_bed,
+            private_min=lower, private_max=upper,
+            commission=0, room_cost=0, bed_cost=0,
         )
     room_capacity = max(0, inv.private_rooms + flex_to_private - item.blocked_rooms)
     bed_capacity = max(0, inv.dorm_beds + (inv.flex_rooms - flex_to_private) *
                        inv.beds_per_flex_room - item.blocked_beds)
 
-    net_room = room_price * (1 - params.commission) - params.variable_cost
-    net_bed = bed_price * (1 - params.commission) - params.variable_cost_bed
+    if params.v4_active:
+        _final_bid(item, params, lead, room_ladder, room_price,
+                   room_capacity - rooms_otb, beds=False)
+        _final_bid(item, params, lead, bed_ladder, bed_price,
+                   bed_capacity - beds_otb, beds=True)
+        for label, ladder in (("Værelser", room_ladder), ("Senge", bed_ladder)):
+            stress = ladder.bid["uncertainty"]
+            if stress["sensitive"]:
+                warnings.append(f"{label}: bedste pris afhænger af antaget prisfølsomhed; se økonomi")
+
+    net_room = params.contribution(room_price)
+    net_bed = params.contribution(bed_price, beds=True)
 
     # 7. RevPAB — husets samlede nøgletal
     revpab, revenue_basis = revenue_forecast(
@@ -787,10 +790,9 @@ def _ladder(item, params, lead, weekend, base_room, base_bed, f_event,
     room_override = bed_override = None
     room_bid = bed_bid = None
     if params.v4_active:
-        room_choice, bed_choice = _bid_choices(item, params, lead, max_rooms, max_beds,
-                                               base_room, base_bed)
-        room_override = _capped(room_choice, list(cfg.rungs_rooms).index(1.0), params)
-        bed_override = _capped(bed_choice, list(cfg.rungs_beds).index(1.0), params)
+        room_choice, bed_choice = _bid_choices(item, params, lead, base_room, base_bed)
+        room_override = float(room_choice.rung)
+        bed_override = float(bed_choice.rung)
         room_bid, bed_bid = room_choice.as_dict(), bed_choice.as_dict()
     protect = not params.v4_active
     seed_room = f"{item.day.isoformat()}|rum" if params.v4_active else None
@@ -806,7 +808,8 @@ def _ladder(item, params, lead, weekend, base_room, base_bed, f_event,
         previous_position=item.prev_room_position,
         position_override=room_override, scarcity_protect=protect,
         use_ratchet=None if protect else False,
-        explore_seed=seed_room, bid=room_bid)
+        explore_seed=seed_room, bid=room_bid,
+        minimum_rung=_discount_minimum(params, cfg.rungs_rooms))
     bed = ladder_step(
         base=base_bed, rungs=cfg.rungs_beds, cfg=cfg,
         rounder=lambda v: round_within(v, params.bed_floor, params.bed_ceiling, params.rounding),
@@ -817,56 +820,258 @@ def _ladder(item, params, lead, weekend, base_room, base_bed, f_event,
         previous_position=item.prev_bed_position,
         position_override=bed_override, scarcity_protect=protect,
         use_ratchet=None if protect else False,
-        explore_seed=seed_bed, bid=bed_bid)
+        explore_seed=seed_bed, bid=bed_bid,
+        minimum_rung=_discount_minimum(params, cfg.rungs_beds))
     return room, bed
 
 
-def _capped(choice, reference_rung: int, params: Params) -> float:
-    """Hold rabatten inde, så længe elasticiteten ikke er målt.
-
-    Beregningen bag trinnet er den samme; kun hvor dybt den må gå er bundet.
-    Klemmes trinnet, står det i begrundelsen — en usynlig begrænsning er værre
-    end ingen.
-    """
-    if params.v4.elasticity_measured:
-        return float(choice.rung)
-    floor = reference_rung - max(0, params.v4.max_discount_rungs)
-    if choice.rung < floor:
-        choice.reasons.append(
-            f"Rabatten holdt på trin {floor + 1}: elasticiteten er ikke målt endnu "
-            f"(bid price pegede på trin {choice.rung + 1})")
-        return float(floor)
-    return float(choice.rung)
+def _discount_minimum(params: Params, rungs: Sequence[float]) -> int:
+    if not params.v4_active or params.v4.elasticity_measured:
+        return 0
+    return max(0, list(rungs).index(1.0) - params.v4.max_discount_rungs)
 
 
 def _bid_choices(item: DayInput, params: Params, lead: int,
-                 max_rooms: int, max_beds: int,
                  base_room: float, base_bed: float) -> tuple:
-    """Kør bid price-beregningen for begge lagre på én dato.
-
-    Kapaciteten er den *maksimale* — altså med alle flex-rum i det lager der
-    regnes på. Det er samme valg som prognosen træffer: et privat værelse er
-    ikke knapt, så længe der står flex-rum der kan laves om, og måltes der mod
-    den allokerede kapacitet, ville allokeringen gøre hver dato udsolgt på
-    papiret.
-    """
+    """Choose prices across feasible allocations of the same shared rooms."""
     cfg = params.ladder
     level_rooms, level_beds = params.demand_level
-    room = bidprice.choose_rung(
-        model=params.demand_models["rum"].bind(item.rooms_otb),
-        rung_prices=rung_prices_for(base_room, cfg.rungs_rooms, params, beds=False),
-        reference_rung=list(cfg.rungs_rooms).index(1.0), lead=lead, day=item.day,
-        capacity_remaining=max(0, max_rooms - item.rooms_otb),
-        commission=params.commission, variable_cost=params.variable_cost,
-        elasticity=params.v4.elasticity_rooms, level=level_rooms)
-    bed = bidprice.choose_rung(
-        model=params.demand_models["senge"].bind(item.beds_otb),
-        rung_prices=rung_prices_for(base_bed, cfg.rungs_beds, params, beds=True),
-        reference_rung=list(cfg.rungs_beds).index(1.0), lead=lead, day=item.day,
-        capacity_remaining=max(0, max_beds - item.beds_otb),
-        commission=params.commission, variable_cost=params.variable_cost_bed,
-        elasticity=params.v4.elasticity_beds, level=level_beds)
-    return room, bed
+    room_model = _CachedDemand(params.demand_models["rum"].bind(item.rooms_otb))
+    bed_model = _CachedDemand(params.demand_models["senge"].bind(item.beds_otb))
+    private_factor, flex_factor, private_free = _room_mix(item, params)
+    lower, upper = _day_flex_bounds(item, params)
+    best, score = None, -math.inf
+    actions, contexts = [], {}
+    robust = params.v4.uncertainty_mode == "minimax_regret"
+    room_es, bed_es = params.v4.elasticities(), params.v4.elasticities(beds=True)
+    scenarios = [(r, b) for r in room_es for b in bed_es]
+    for n in range(lower, upper + 1):
+        rooms, beds = _free_capacity(item, params, n)
+        room_args = dict(
+            model=room_model,
+            rung_prices=rung_prices_for(base_room, cfg.rungs_rooms, params, beds=False),
+            reference_rung=list(cfg.rungs_rooms).index(1.0), lead=lead, day=item.day,
+            capacity_remaining=rooms, commission=params.commission,
+            variable_cost=params.variable_cost, elasticity=params.v4.elasticity_rooms,
+            level=level_rooms, price_factor=private_factor,
+            fixed_capacity=private_free, flex_price_factor=flex_factor,
+            minimum_rung=_discount_minimum(params, cfg.rungs_rooms),
+            contribution=params.contribution)
+        bed_args = dict(
+            model=bed_model,
+            rung_prices=rung_prices_for(base_bed, cfg.rungs_beds, params, beds=True),
+            reference_rung=list(cfg.rungs_beds).index(1.0), lead=lead, day=item.day,
+            capacity_remaining=beds, commission=params.commission,
+            variable_cost=params.variable_cost_bed, elasticity=params.v4.elasticity_beds,
+            level=level_beds, minimum_rung=_discount_minimum(params, cfg.rungs_beds),
+            contribution=lambda p: params.contribution(p, beds=True))
+        room = bidprice.choose_rung(**room_args)
+        bed = bidprice.choose_rung(**bed_args)
+        if robust:
+            from .uncertainty import Action
+            rt = {e: bidprice.choose_rung(**dict(room_args, elasticity=e)).table for e in room_es}
+            bt = {e: bidprice.choose_rung(**dict(bed_args, elasticity=e)).table for e in bed_es}
+            contexts[n] = (room_args, bed_args)
+            # Each action contains ONE shared allocation, not independently
+            # optimized room/bed capacities in different scenarios.
+            for r in range(room_args["minimum_rung"], len(room.table)):
+                for b in range(bed_args["minimum_rung"], len(bed.table)):
+                    actions.append(Action((n, r, b), tuple(
+                        rt[er][r][3] + bt[eb][b][3] - params.v4.flex_min_gain * (n-lower)
+                        for er, eb in scenarios)))
+        objective = (room.expected_revenue + bed.expected_revenue
+                     - params.v4.flex_min_gain * (n - lower))
+        if objective > score + 1e-9:
+            best, score = (room, bed), objective
+    if robust:
+        from .uncertainty import minimax_regret
+        nominal = scenarios.index((params.v4.elasticity_rooms, params.v4.elasticity_beds))
+        action, regret = minimax_regret(actions, nominal)
+        oracle = [max(a.values[i] for a in actions) for i in range(len(scenarios))]
+        n, r, b = action.key
+        room_args, bed_args = contexts[n]
+        best = (bidprice.choose_rung(**room_args, selected_rung=r),
+                bidprice.choose_rung(**bed_args, selected_rung=b))
+        for choice in best:
+            choice.uncertainty = dict(mode="minimax_regret", scenario_count=len(scenarios),
+                joint_worst_regret=round(regret, 2), allocation=n,
+                scenario_oracle=oracle, scenarios=scenarios,
+                scope="Optimizer before market, smoothing, exploration, brakes and locks",
+                basis="Configured stress scenarios, not confidence limits")
+    return best
+
+
+class _CachedDemand:
+    """Cache distribution queries only within this date's allocation search."""
+    def __init__(self, model):
+        self.survival = lru_cache(maxsize=None)(model.survival)
+
+
+def _day_flex_bounds(item: DayInput, params: Params) -> tuple:
+    inv, minimum = params.inventory, item.flex_private_min or 0
+    if item.room_type_otb and inv.private_room_types:
+        for code, count in item.room_type_otb.items():
+            if code in inv.flex_mix and not inv.flex_room_types:
+                continue
+            if count > inv.private_room_types.get(code, 0) + inv.flex_mix.get(code, 0):
+                raise ValueError("Bookede rumtyper overstiger det faste lager")
+        minimum = max(minimum, sum(max(0, item.room_type_otb.get(c, 0)
+                                      - inv.private_room_types.get(c, 0)) for c in inv.flex_mix))
+    return flex_bounds(inv, rooms_otb=item.rooms_otb, beds_otb=item.beds_otb,
+        blocked_rooms=item.blocked_rooms, blocked_beds=item.blocked_beds,
+        private_min=minimum, private_max=item.flex_private_max)
+
+
+def _free_capacity(item: DayInput, params: Params, n: int) -> tuple:
+    inv = params.inventory
+    return (max(0, inv.private_rooms + n - item.blocked_rooms - item.rooms_otb),
+            max(0, inv.max_bed_capacity - n * inv.beds_per_flex_room
+                - item.blocked_beds - item.beds_otb))
+
+
+def _room_mix(item: DayInput, params: Params) -> tuple:
+    """Fixed rooms fill before extra flex capacity; opening a dorm must not
+    reprice the same fixed-room demand as more expensive family-room sales.
+    """
+    inv = params.inventory
+    known = sum(item.room_type_otb.values()) == item.rooms_otb
+    private = dict(inv.private_room_types) or {"dobbelt_uden_bad": inv.private_rooms}
+    fixed_count = fixed_value = 0
+    for code, count in private.items():
+        free = max(0, count - (item.room_type_otb.get(code, 0) if known else 0))
+        fixed_count += free
+        fixed_value += free * params.room_types.get(code, 1.0)
+    flex_factor = sum(params.room_types.get(c, 1.0) * count for c, count in inv.flex_mix.items()) / max(1, inv.flex_rooms)
+    private_otb = (sum(min(count, item.room_type_otb.get(c, 0)) for c, count in private.items())
+                   if known else item.rooms_otb)
+    private_free = max(0, inv.private_rooms - item.blocked_rooms - private_otb)
+    return fixed_value / max(1, fixed_count), flex_factor, private_free
+
+
+def _allocation_at_prices(item, params, lead, base_room, base_bed, room_price, bed_price, *, oracle=None):
+    lower, upper = _day_flex_bounds(item, params)
+    room_model = _CachedDemand(params.demand_models["rum"].bind(item.rooms_otb))
+    bed_model = _CachedDemand(params.demand_models["senge"].bind(item.beds_otb))
+    private_factor, flex_factor, private_free = _room_mix(item, params)
+    room_ref = rung_prices_for(base_room, params.ladder.rungs_rooms, params, beds=False)[
+        list(params.ladder.rungs_rooms).index(1.0)]
+    bed_ref = rung_prices_for(base_bed, params.ladder.rungs_beds, params, beds=True)[
+        list(params.ladder.rungs_beds).index(1.0)]
+    robust = params.v4.uncertainty_mode == "minimax_regret"
+    room_es = params.v4.elasticities() if robust else (params.v4.elasticity_rooms,)
+    bed_es = params.v4.elasticities(beds=True) if robust else (params.v4.elasticity_beds,)
+    scenarios = [(r, b) for r in room_es for b in bed_es]
+    actions = []
+    best, score, steps, previous = lower, -math.inf, [], None
+    for n in range(lower, upper + 1):
+        rooms, beds = _free_capacity(item, params, n)
+        room_sales = bidprice.expected_sales(room_model, lead, item.day, rooms,
+            level=params.demand_level[0], multiplier=bidprice.demand_multiplier(
+                room_price, room_ref, params.v4.elasticity_rooms))
+        bed_sales = bidprice.expected_sales(bed_model, lead, item.day, beds,
+            level=params.demand_level[1], multiplier=bidprice.demand_multiplier(
+                bed_price, bed_ref, params.v4.elasticity_beds))
+        fixed_sales = bidprice.expected_sales(room_model, lead, item.day, min(rooms, private_free),
+            level=params.demand_level[0], multiplier=bidprice.demand_multiplier(
+                room_price, room_ref, params.v4.elasticity_rooms))
+        room_value = (params.contribution(room_price * private_factor) * fixed_sales
+                      + params.contribution(room_price * flex_factor) * max(0, room_sales - fixed_sales))
+        bed_value = params.contribution(bed_price, beds=True) * bed_sales
+        if robust:
+            from .uncertainty import Action
+            rv, bv = {}, {}
+            for e in room_es:
+                mult = bidprice.demand_multiplier(room_price, room_ref, e)
+                sales = bidprice.expected_sales(room_model, lead, item.day, rooms,
+                    level=params.demand_level[0], multiplier=mult)
+                fixed = bidprice.expected_sales(room_model, lead, item.day, min(rooms, private_free),
+                    level=params.demand_level[0], multiplier=mult)
+                rv[e] = (params.contribution(room_price * private_factor) * fixed
+                         + params.contribution(room_price * flex_factor) * max(0, sales-fixed))
+            for e in bed_es:
+                bv[e] = params.contribution(bed_price, beds=True) * bidprice.expected_sales(
+                    bed_model, lead, item.day, beds, level=params.demand_level[1],
+                    multiplier=bidprice.demand_multiplier(bed_price, bed_ref, e))
+            actions.append(Action((n,), tuple(rv[r]+bv[b]-params.v4.flex_min_gain*(n-lower)
+                                               for r, b in scenarios)))
+        objective = room_value + bed_value - params.v4.flex_min_gain * (n - lower)
+        if previous is not None:
+            steps.append((n, round(room_value - previous[0], 2), round(previous[1] - bed_value, 2)))
+        previous = (room_value, bed_value)
+        if objective > score + 1e-9:
+            best, score = n, objective
+    if robust:
+        from .uncertainty import minimax_regret
+        nominal = scenarios.index((params.v4.elasticity_rooms, params.v4.elasticity_beds))
+        selected, _ = minimax_regret(actions, nominal, oracle=oracle)
+        best = selected.key[0]
+    return best, steps
+
+
+def _final_bid(item, params, lead, ladder, price, capacity, *, beds):
+    """Describe the posted price and actual shared capacity after every control."""
+    model = _CachedDemand(params.demand_models["senge" if beds else "rum"].bind(
+        item.beds_otb if beds else item.rooms_otb))
+    elasticity = params.v4.elasticity_beds if beds else params.v4.elasticity_rooms
+    level = params.demand_level[1 if beds else 0]
+    multiplier = bidprice.demand_multiplier(price, ladder.rung_prices[ladder.reference_rung], elasticity)
+    factor, flex_factor, private_free = (1.0, 1.0, None) if beds else _room_mix(item, params)
+    net = params.contribution(price * factor, beds=beds)
+    sales = bidprice.expected_sales(model, lead, item.day, capacity, level=level, multiplier=multiplier)
+    revenue, marginal_net = net * sales, net
+    if not beds:
+        fixed_sales = bidprice.expected_sales(model, lead, item.day, min(capacity, private_free),
+                                              level=level, multiplier=multiplier)
+        flex_net = params.contribution(price * flex_factor)
+        revenue = net * fixed_sales + flex_net * max(0, sales - fixed_sales)
+        if capacity > private_free:
+            marginal_net = flex_net
+        net = revenue / sales if sales > 0 else net
+    original = dict(ladder.bid)
+    evaluated = bidprice.choose_rung(model=model, rung_prices=ladder.rung_prices,
+        reference_rung=ladder.reference_rung, lead=lead, day=item.day,
+        capacity_remaining=capacity, commission=params.commission,
+        variable_cost=params.variable_cost_bed if beds else params.variable_cost,
+        elasticity=elasticity, level=level, price_factor=factor,
+        fixed_capacity=private_free, flex_price_factor=flex_factor,
+        contribution=lambda p: params.contribution(p, beds=beds))
+    ladder.bid.update(rung=ladder.rung, price=price, net_price=round(net, 2),
+        expected_sales=round(sales, 2), expected_revenue=round(revenue, 1),
+        capacity_remaining=capacity, multiplier=round(multiplier, 3),
+        bid_price=round(bidprice.bid_price(model, lead, item.day, capacity, marginal_net,
+                                         level=level, multiplier=multiplier), 1),
+        optimizer=original, table=evaluated.as_dict()["table"])
+    ladder.p_sellout = (model.survival(capacity / multiplier, lead, item.day, level)
+                        if capacity > 0 else 1.0)
+    ladder.bid["p_sellout"] = round(ladder.p_sellout, 4)
+    # Evaluate the FINAL price and allocation, even when an off-ladder lock or
+    # a control changed the optimizer's selection. No scenario is a probability.
+    rows = []
+    reference = ladder.rung_prices[ladder.reference_rung]
+    minimum = _discount_minimum(params, params.ladder.rungs_beds if beds else params.ladder.rungs_rooms)
+    for e in params.v4.elasticities(beds=beds):
+        actual = bidprice.choose_rung(model=model, rung_prices=[*ladder.rung_prices, price],
+            reference_rung=ladder.reference_rung, lead=lead, day=item.day,
+            capacity_remaining=capacity, commission=params.commission,
+            variable_cost=params.variable_cost_bed if beds else params.variable_cost,
+            elasticity=e, level=level, price_factor=factor, fixed_capacity=private_free,
+            flex_price_factor=flex_factor, contribution=lambda p: params.contribution(p, beds=beds),
+            minimum_rung=minimum, selected_rung=len(ladder.rung_prices))
+        eligible = actual.table[minimum:len(ladder.rung_prices)]
+        optimal = max(eligible, key=lambda row: row[3])
+        ref_value = actual.table[ladder.reference_rung][3]
+        rows.append(dict(elasticity=e, best_price=optimal[1],
+            expected_contribution=round(actual.expected_revenue, 2),
+            gain_vs_reference=round(actual.expected_revenue-ref_value, 2),
+            regret=round(max(0, optimal[3]-actual.expected_revenue), 2)))
+    ladder.bid["uncertainty"] = dict(mode=params.v4.uncertainty_mode,
+        basis="Configured stress scenarios, not confidence limits", reference_price=reference,
+        rows=rows, sensitive=len({r["best_price"] for r in rows}) > 1,
+        contribution_min=min(r["expected_contribution"] for r in rows),
+        contribution_max=max(r["expected_contribution"] for r in rows),
+        worst_gain_vs_reference=min(r["gain_vs_reference"] for r in rows),
+        worst_regret=max(r["regret"] for r in rows),
+        scope="Final price and fixed final capacity; alternatives are ladder prices before daily controls")
 
 
 def rung_prices_for(base: float, rungs: Sequence[float], params: Params,
@@ -998,6 +1203,9 @@ def group_quote(recommendations: Sequence[Recommendation], rooms_requested: int,
     for rec in recommendations:
         spare = max(0.0, rec.room_capacity - rec.forecast_rooms)
         displaced = max(0.0, rooms_requested - spare)
+        basis = params.pricing_basis
+        unit_value = (params.contribution(rec.room_price) if basis.confirmed else
+                      rec.room_price * (1 - params.commission))
         if use_bid:
             # Fortrængningen er summen af bid price for hver enkelt enhed. De
             # første værelser er næsten gratis, hvis der er rigeligt tilbage;
@@ -1015,15 +1223,20 @@ def group_quote(recommendations: Sequence[Recommendation], rooms_requested: int,
                 model=params.demand_models["rum"].bind(rec.rooms_otb),
                 lead=rec.lead_days, day=rec.day,
                 capacity_remaining=free, units=rooms_requested,
-                net_price=rec.room_price * (1 - params.commission),
+                net_price=unit_value,
                 level=params.demand_level[0], multiplier=multiplier)
-            displaced = displaced_revenue / max(1e-9, rec.room_price * (1 - params.commission))
+            displaced = displaced_revenue / max(1e-9, unit_value)
         else:
-            displaced_revenue = displaced * rec.room_price * (1 - params.commission)
-        minimum = displaced_revenue / max(1, rooms_requested) + params.variable_cost
-        certain = (max(0.0, rooms_requested - max(0.0, rec.room_capacity - rec.forecast_rooms))
-                   * rec.room_price * (1 - params.commission)
-                   / max(1, rooms_requested) + params.variable_cost)
+            displaced_revenue = displaced * unit_value
+        expected_cost = displaced_revenue / max(1, rooms_requested)
+        certain_cost = (max(0.0, rooms_requested - max(0.0, rec.room_capacity - rec.forecast_rooms))
+                        * unit_value / max(1, rooms_requested))
+        if basis.confirmed:
+            minimum = basis.price_for_contribution(expected_cost, params.commission, params.variable_cost)
+            certain = basis.price_for_contribution(certain_cost, params.commission, params.variable_cost)
+        else:
+            minimum = expected_cost + params.variable_cost
+            certain = certain_cost + params.variable_cost
         quotes.append(GroupQuote(
             day=rec.day,
             forecast_rooms=rec.forecast_rooms,

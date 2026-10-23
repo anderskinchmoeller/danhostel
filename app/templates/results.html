@@ -6,7 +6,7 @@
 <p class="sub">Registrér anvendte priser, upload afsluttede dagsresultater, og følg det faktiske salg.</p>
 <ul class="link-index" aria-label="Opgaver i resultatloggen">
 <li><a href="#anvendte-priser">Registrér priser lagt ind i Picasso</a></li>
-<li><a href="#dagsresultat">Upload Hotelmanager og produktomsætning</a></li>
+<li><a href="#dagsresultat">Upload Hotelmanager og test prognoserne</a></li>
 <li><a href="#arrivals-historik">Upload Arrivals fra Picasso</a></li>
 <li><a href="#manuelle-resultater">Registrér faktiske resultater manuelt</a></li>
 <li><a href="#resultatoversigt">Se registreringer og hent historik</a></li>
@@ -17,20 +17,20 @@
 
 <details class="panel task-section" id="dagsresultat">
 <summary>Importér afsluttet dagsresultat</summary>
-<p>Hotelmanager (part 1 og part 2 med Room/Bed) giver antal værelser og senge.
-Tilføj produktomsætning pr. rumtype og eventuelt bogføringsrapport for samme afsluttede dato.
-Du får en kontrolside før tallene registreres som faktiske resultater.</p>
+<p>Upload kun Hotelmanager (part 1 og part 2 med Room/Bed) for en afsluttet dato.
+Bekræft antal solgte værelser og senge, så de kan sammenlignes med modellens gemte prognoser.
+Samlet logiomsætning kan tilføjes til økonomisk opfølgning uden fordeling pr. rumtype.</p>
 <form method="post" action="/resultater/rapporter" enctype="multipart/form-data">
 <div class="grid2">
 <div class="field"><label for="hotelmanager">Hotelmanager-PDF</label><input id="hotelmanager" type="file" name="hotelmanager" accept=".pdf" required></div>
-<div class="field"><label for="products">Produktomsætnings-PDF · til økonomi</label><input id="products" type="file" name="products" accept=".pdf"></div>
+<details><summary>Valgfri detaljeafstemning</summary>
+<div class="field"><label for="products">Produktomsætnings-PDF · valgfri</label><input id="products" type="file" name="products" accept=".pdf"></div>
 <div class="field"><label for="accounts">Bogføringsrapport · valgfri afstemning</label><input id="accounts" type="file" name="accounts" accept=".pdf"></div>
+</details>
 </div><button class="primary" type="submit">Indlæs og kontrollér dagsresultat</button>
 </form>
-<p class="foot">Eksklusive moms; produktudtræk med Overnight og Confirmed, Guaranteed, In-House, Out of House.
-Fjern venteliste, tentative, provisional, annullerede og no-show. Morgenmad kontrolleres på næste side.
-Accounts-rapporten afstemmer produktgrupper og viser rettelser uden produktkobling særskilt.
-Beløbene fordeles ikke automatisk på værelser, senge eller rumtyper. Hotelmanager kan importeres alene.</p>
+<p class="foot">Hotelmanager eksklusive moms, pakker, kredit og ude af drift.
+Produkt- og bogføringsrapporter er ikke nødvendige for at teste prognoserne.</p>
 {% if report_pairs %}<details><summary>Seneste rapportpar til kontrol</summary><ul>
 {% for pair in report_pairs %}<li><a href="/resultater/rapporter/{{ pair.id }}">{{ pair.day.strftime('%d-%m-%Y') }} · rapportpar {{ pair.id }}</a> · {{ pair.actor }}</li>{% endfor %}
 </ul></details>{% endif %}

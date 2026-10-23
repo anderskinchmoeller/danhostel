@@ -43,7 +43,8 @@ def policy_snapshot(settings):
     state = level.load(path if path.is_absolute() else ROOT/path)
     parameters['demand_level'] = [state.rooms,state.beds]
     files = {p: hashlib.sha256((ROOT / 'app' / p).read_bytes()).hexdigest() for p in
-             ('engine.py', 'bidprice.py', 'ladder.py', 'demand.py', 'level.py', 'service.py', 'config.py')}
+             ('engine.py', 'bidprice.py', 'ladder.py', 'demand.py', 'level.py', 'service.py',
+              'config.py', 'pricing_basis.py', 'uncertainty.py')}
     payload = dict(parameters=parameters, files=files, timezone=settings.timezone,
                    horizon_days=settings.horizon_days)
     return dict(payload=payload, digest=hashlib.sha256(dumps(payload).encode()).hexdigest())

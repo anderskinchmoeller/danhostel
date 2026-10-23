@@ -6,6 +6,7 @@ and bed codes. Arrival-date footers always require explicit date attestation.
 from __future__ import annotations
 
 import hashlib
+import copy
 import json
 import re
 from datetime import datetime, timedelta, timezone
@@ -181,6 +182,9 @@ def parse_products(text, tz, params, now=None):
 
 
 def review(payload):
+    payload=copy.deepcopy(payload)
+    if payload.get('product_corrections'):
+        apply_product_corrections(payload, payload['product_corrections'])
     hotel, products = payload['hotelmanager'], payload['products']
     from .picasso_accounts import reconcile
     accounting=reconcile(payload.get('accounts'),products,hotel)
@@ -221,11 +225,12 @@ def review(payload):
     # Half a krone is the uncertainty from printing a whole-krone amount.
     if abs(hotel_difference)>Decimal('.50'):
         checks.append('Logi efter fradrag af morgenmad afviger fra Hotelmanager med mere end 50 øre.')
+    adr_issues=[]
     for key, count, revenue in [('room',hotel['rooms'],room),('bed',hotel['beds'],bed)]:
         adr=hotel.get('adr_'+key+'_rounded')
         if count is not None and adr is not None and unknown==0:
             if (count==0 and revenue!=0) or (count>0 and abs(revenue/count-Decimal(adr))>Decimal('.50')):
-                checks.append('Prisgennemsnittet for '+('værelser' if key=='room' else 'senge')+' stemmer ikke med Hotelmanager.')
+                adr_issues.append('Prisgennemsnittet for '+('værelser' if key=='room' else 'senge')+' afviger. Room Inhouse er ikke dokumenteret som Hotelmanagers ADR-nævner; gennemsnittet bruges kun som kontroloplysning.')
     if unresolved:
         checks.append('Der er uafklarede beløb eller ukendte rumtyper; økonomital kan ikke bekræftes.')
     if accounting:
@@ -235,8 +240,48 @@ def review(payload):
     return dict(by_type=[dict(g, lodging=money(g['lodging']),breakfast=money(g['breakfast']),unknown=money(g['unknown']))
                          for g in grouped.values()], room=money(room),bed=money(bed),breakfast=money(breakfast),
                 unknown=money(unknown), difference=money(difference), total_lodging=money(target),
-                hotel_difference=money(hotel_difference), issues=checks,accounting=accounting,
+                hotel_difference=money(hotel_difference), issues=checks,accounting=accounting,adr_issues=adr_issues,
                 revenue_ready=not checks, date_attestation_required=True)
+
+
+def apply_product_corrections(payload, corrections):
+    """Apply explicitly documented row splits without changing source PDFs."""
+    if not payload.get('products'):
+        raise ValueError('Produktudtræk mangler')
+    rows=payload['products']['rows']
+    original_count=len(rows)
+    seen=set()
+    for correction in corrections:
+        index=correction['index']
+        if type(index) is not int or index<0 or index>=original_count or index in seen:
+            raise ValueError('Ukendt eller gentaget produktlinje')
+        seen.add(index)
+        row=rows[index]
+        if not correction.get('note','').strip():
+            raise ValueError('Angiv dokumentation for hver rettet produktlinje')
+        deduction=Decimal(str(correction['breakfast']))
+        if not deduction.is_finite() or deduction<0 or deduction>Decimal(row['amount']) or deduction!=deduction.quantize(Decimal('.01')):
+            raise ValueError('Morgenmadsfradrag skal være mellem nul og linjens beløb med højst to decimaler')
+        if row['category']=='breakfast':
+            raise ValueError('Særskilte morgenmadslinjer er allerede fratrukket')
+        if row['category']=='unknown' and not correction.get('lodging_confirmed'):
+            raise ValueError('Bekræft at den uafklarede linje er logi')
+        row['category']='lodging'
+        row['amount']=money(Decimal(row['amount'])-deduction)
+        if deduction:
+            rows.append(dict(row,category='breakfast',amount=money(deduction)))
+
+
+def correct_products(session, record, corrections, actor):
+    payload=json.loads(record.payload)
+    payload.pop('product_corrections',None)
+    apply_product_corrections(copy.deepcopy(payload),corrections)
+    payload['product_corrections']=corrections
+    payload['corrected_from_report_id']=record.id
+    validation.append(session,'report_pair',record.day,record.observed_at,payload,
+                      actor=actor,source='Dokumenteret produktfordeling')
+    return session.scalar(select(db.ValidationRecord).where(db.ValidationRecord.kind=='report_pair',
+        db.ValidationRecord.day==record.day,db.ValidationRecord.payload==json.dumps(payload,ensure_ascii=False,sort_keys=True)))
 
 
 def archive(data):
@@ -287,7 +332,8 @@ def stage(session, hotel_data, product_data, settings, actor, *, hotel_name='', 
     return record
 
 
-def confirm(session, record, *, actor, final_counts, accept_revenue, date_confirmed, note='', supplements=None):
+def confirm(session, record, *, actor, final_counts, accept_revenue, date_confirmed, note='', supplements=None,
+            accept_hotel_total=False):
     if record.kind!='report_pair': raise ValueError('Ukendt rapportpar')
     payload=json.loads(record.payload)
     report=review(payload)
@@ -309,6 +355,9 @@ def confirm(session, record, *, actor, final_counts, accept_revenue, date_confir
                   result_report_id=record.id,hotel_pdf_hash=payload['hotel_pdf_hash'],
                   product_pdf_hash=payload['product_pdf_hash'],
                   report_counts_confirmed=True)
+    if accept_hotel_total:
+        values.update(hotelmanager_lodging_total=float(hotel['total_price_rounded']),
+            hotelmanager_total_report_id=record.id,hotelmanager_total_rounded=True)
     if payload.get('accounts'):
         values.update(account_pdf_hash=payload['account_pdf_hash'],accounts_report_id=record.id,
                       accounts_reconciliation=report['accounting'],
@@ -338,8 +387,9 @@ def confirm(session, record, *, actor, final_counts, accept_revenue, date_confir
         if 'carried_forward_from_record' in old:
             values['carried_forward_from_record']=old['carried_forward_from_record']
     added=validation.append(session,'outcome',record.day,record.observed_at,values,actor=actor,
-                             source='Bekræftet Hotelmanager'+(' + produktomsætning' if accept_revenue else ' · kun salgstal'))
+                             source='Bekræftet Hotelmanager'+(' + produktomsætning' if accept_revenue else
+                                 ' · salgstal og afrundet logi' if accept_hotel_total else ' · kun salgstal'))
     if added:
         db.log(session,'result_reports_confirm',actor=actor,day=record.day,
-               detail=json.dumps(dict(report_id=record.id,revenue=accept_revenue)))
+               detail=json.dumps(dict(report_id=record.id,revenue=accept_revenue,hotel_total=accept_hotel_total)))
     return added

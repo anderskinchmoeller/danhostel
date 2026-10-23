@@ -9,7 +9,11 @@ Niveauet her lukker hullet uden at nogen skal finde årsagen. Efter hver kørsel
 sammenlignes den pickup der faktisk kom med den pickup fordelingen forventede,
 og niveauet justeres en lille smule:
 
-    niveau_ny = niveau_gammel x (faktisk / forventet) ^ alfa
+    niveau_ny = niveau_gammel ^ (1-alfa) x (faktisk / forventet) ^ alfa
+
+Forventet pickup er altid det ujusterede historiske niveau. Forholdet er
+derfor et nyt niveauskøn, ikke endnu en procentvis ændring. En vedvarende
+afvigelse på -20 % skal nærme sig 0,8, ikke blive ganget ind hver dag.
 
 Alfa er lille (0,07) og niveauet er bundet til [0,6 ; 1,6]. Det er med vilje:
 en enkelt skæv uge skal ikke flytte noget, et skift på 25 % skal fanges på
@@ -75,7 +79,7 @@ def adjust(current: float, expected: float, actual: float, *,
     if actual < 0:
         actual = 0.0
     ratio = (actual + 1.0) / (expected + 1.0)   # +1: en uge med nul salg må ikke nulstille niveauet
-    updated = current * (ratio ** alpha)
+    updated = current ** (1 - alpha) * ratio ** alpha
     updated = max(low, min(high, updated))
     if updated >= high - 1e-9 or updated <= low + 1e-9:
         return updated, f"ved grænsen ({updated:.2f}) — kontrollér datagrundlaget"
@@ -84,7 +88,8 @@ def adjust(current: float, expected: float, actual: float, *,
 
 def update(level: Level, *, rooms: Sequence[tuple] = (), beds: Sequence[tuple] = (),
            today: date | None = None, alpha: float = DEFAULT_ALPHA,
-           low: float = DEFAULT_MIN, high: float = DEFAULT_MAX) -> Level:
+           low: float = DEFAULT_MIN, high: float = DEFAULT_MAX,
+           exclusions: dict | None = None) -> Level:
     """`rooms` og `beds` er par af (forventet, faktisk) pickup i enheder.
 
     Parrene summeres først: ét samlet forhold over alle datoer i vinduet er
@@ -95,6 +100,9 @@ def update(level: Level, *, rooms: Sequence[tuple] = (), beds: Sequence[tuple] =
     if level.updated and level.updated >= today.isoformat():
         return level
     entry = {"dato": today.isoformat()}
+    if exclusions is not None:
+        entry["learning_windows"] = dict(rooms=len(rooms), beds=len(beds), excluded=exclusions,
+            scope="Endpoint capacity/block checks; intermediate availability unknown")
     new_rooms, why_rooms = adjust(level.rooms, sum(e for e, _ in rooms),
                                   sum(a for _, a in rooms), alpha=alpha, low=low, high=high)
     new_beds, why_beds = adjust(level.beds, sum(e for e, _ in beds),

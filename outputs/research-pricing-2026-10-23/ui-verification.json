@@ -1,0 +1,15 @@
+{
+  "results": [
+    {
+      "width": 1280,
+      "stress_rows": 240,
+      "no_horizontal_page_overflow": true
+    },
+    {
+      "width": 390,
+      "stress_rows": 240,
+      "no_horizontal_page_overflow": true
+    }
+  ],
+  "page_errors": []
+}

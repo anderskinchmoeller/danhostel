@@ -1,0 +1,1160 @@
+<!doctype html>
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Økonomi og prisfølsomhed · Prismotor</title>
+<meta name="theme-color" content="#fffff8">
+<link rel="preload" href="/static/fonts/et-book/et-book-roman-line-figures.woff" as="font" type="font/woff" crossorigin>
+<link rel="stylesheet" href="/static/vendor/katex/katex.min.css">
+<link rel="stylesheet" href="/static/academic.css?v=et-book-notes-14">
+<script defer src="/static/vendor/katex/katex.min.js"></script>
+<script defer src="/static/academic.js?v=space-mono-article-4"></script>
+<script defer src="/static/notes.js?v=1"></script>
+</head>
+<body>
+<a class="skip-link" href="#content">Gå til indhold</a>
+<header class="top">
+  <div class="masthead">
+    <a class="brand" href="/">Prismotor<small>Danhostel Aarhus City</small></a>
+    <div class="document-meta">
+      <div class="mode">Prisanalyse &amp; driftsopfølgning<br>
+        Manuel godkendelse
+      </div>
+      
+      <div class="fresh">
+        <span class="k">Sidst opdateret</span><b>for 0 min. siden</b>
+      </div>
+    </div>
+  </div>
+  <nav aria-label="Hovednavigation">
+    <a href="/" class="" >Priser</a>
+    <a href="/grupper" class="" >Grupper</a>
+    <a href="/data" class="" >Data</a>
+    <a href="/resultater" class="on" aria-current="page">Resultater</a>
+    <a href="/events" class="" >Events</a>
+    <a href="/settings" class="" >Indstillinger</a>
+  </nav>
+</header>
+<aside class="side-notes" aria-label="Huskeliste">
+  <a class="btn" href="/daglig-koersel" aria-haspopup="dialog" aria-controls="notes-popup" aria-expanded="false" >Daglig kørsel</a>
+  <a class="btn" href="/to-do" aria-haspopup="dialog" aria-controls="notes-popup" aria-expanded="false" >To-do</a>
+</aside>
+
+<main id="content">
+
+<nav class="section-links" aria-label="Resultater">
+  <a href="/resultater">Registreringer</a>
+  <a href="/resultater/afvigelser">Graf og statistik</a>
+  <a href="/resultater/prognoser">Prognoser</a>
+  <a href="/resultater/oekonomi">Økonomi</a>
+  <a href="/resultater/ab">A/B-forsøg</a>
+</nav>
+
+
+<h1>Økonomi og prisfølsomhed</h1>
+<div class="msg info"><b>Økonomisk effekt er ikke målt.</b> Ingen beregning på denne side beviser,
+at modellen øger omsætningen eller indtjeningen. Historiske prisstigninger på travle datoer
+kan ikke alene fortælle, hvor prisfølsomme gæsterne er.</div>
+<div class="panel">
+<h2>Aktuelle antagelser</h2>
+<p>Prisfølsomhed: værelser 1.60,
+senge 2.00. Det er konfigurerede værdier;
+den nye opfølgning har ikke estimeret dem fra et gennemført prisforsøg.</p>
+<p>Beslutningsregel: <b>mindste største modeltab</b>.
+Ved mindste største modeltab afprøves kombinationer af værelsespris, sengepris og samme mulige
+flexfordeling. Valget mindsker den største afstand til den bedste kombination i hvert stress-scenarie.
+Det er en beregningsregel for denne dato, ikke dokumentation for højere fremtidig omsætning.</p>
+<p>Den eksisterende prisvariation er fortsat slået til.
+Fra nye beregninger gemmes begge mulige priser, valget og eventuel efterfølgende bremse/lås.
+En prisbekræftelse med valgt beregning gemmer også, om den anvendte pris stemte med forsøgsvalget.
+Ældre beregninger får ikke genskabt manglende forsøgsoplysninger.</p>
+<p>Der mangler stadig et dokumenteret kontrolforløb med faktisk anvendte priser,
+tidsafgrænset salg, annulleringer og økonomiske resultater. Ændringer undervejs og forskelle i
+opholdsdatoer skal håndteres, før prisfølsomhed eller merindtjening kan vurderes.</p>
+</div>
+<div class="panel" style="margin-top:16px">
+<h2>Hvor meget afhænger priserne af antagelserne?</h2>
+<p>Stress-scenarier: værelser 0.8, 1.6, 2.4;
+senge 0.8, 2.0, 3.2. Tallene er valgte arbejdsantagelser,
+ikke målinger fra gæsterne eller statistiske konfidensgrænser. Lavere tal betyder mindre prisfølsomhed.</p>
+<p>Tabellen genberegner den endelige pris efter bremser og låse ved den endelige kapacitet.
+Bidrag er forventet salg minus provision og variable omkostninger. Sammenligningen med referenceprisen
+holder kapaciteten fast. Andre mulige stigepriser kan være begrænset af dagens bremse.</p>
+
+<details><summary>Se stresstest for 240 produktdatoer</summary>
+<div style="overflow-x:auto"><table><thead><tr><th>Dato</th><th>Produkt</th><th>Bedste pris i scenarier</th>
+<th>Bidrag ved endelig pris</th><th>Mindste forskel mod reference</th></tr></thead><tbody>
+<tr><td>23-10-2026</td>
+<td>Værelser</td>
+<td>0.8: 640 kr.<br>1.6: 640 kr.<br>2.4: 640 kr.</td>
+<td>132–132 kr.</td>
+<td>+0 kr.</td></tr><tr><td>23-10-2026</td>
+<td>Senge</td>
+<td>0.8: 520 kr.<br>2.0: 430 kr.<br>3.2: 320 kr.</td>
+<td>10–19 kr.</td>
+<td>-1 kr.</td></tr><tr><td>24-10-2026</td>
+<td>Værelser</td>
+<td>0.8: 1040 kr.<br>1.6: 650 kr.<br>2.4: 650 kr.</td>
+<td>1718–1969 kr.</td>
+<td>-39 kr.</td></tr><tr><td>24-10-2026</td>
+<td>Senge</td>
+<td>0.8: 560 kr.<br>2.0: 350 kr.<br>3.2: 350 kr.</td>
+<td>722–891 kr.</td>
+<td>-21 kr.</td></tr><tr><td>25-10-2026</td>
+<td>Værelser</td>
+<td>0.8: 680 kr.<br>1.6: 430 kr.<br>2.4: 430 kr.</td>
+<td>334–536 kr.</td>
+<td>-169 kr.</td></tr><tr><td>25-10-2026</td>
+<td>Senge</td>
+<td>0.8: 360 kr.<br>2.0: 250 kr.<br>3.2: 250 kr.</td>
+<td>157–196 kr.</td>
+<td>-2 kr.</td></tr><tr><td>26-10-2026</td>
+<td>Værelser</td>
+<td>0.8: 800 kr.<br>1.6: 500 kr.<br>2.4: 500 kr.</td>
+<td>2062–2327 kr.</td>
+<td>-195 kr.</td></tr><tr><td>26-10-2026</td>
+<td>Senge</td>
+<td>0.8: 380 kr.<br>2.0: 240 kr.<br>3.2: 240 kr.</td>
+<td>239–301 kr.</td>
+<td>-3 kr.</td></tr><tr><td>27-10-2026</td>
+<td>Værelser</td>
+<td>0.8: 920 kr.<br>1.6: 580 kr.<br>2.4: 580 kr.</td>
+<td>5171–5171 kr.</td>
+<td>+0 kr.</td></tr><tr><td>27-10-2026</td>
+<td>Senge</td>
+<td>0.8: 400 kr.<br>2.0: 250 kr.<br>3.2: 250 kr.</td>
+<td>342–418 kr.</td>
+<td>-7 kr.</td></tr><tr><td>28-10-2026</td>
+<td>Værelser</td>
+<td>0.8: 950 kr.<br>1.6: 600 kr.<br>2.4: 600 kr.</td>
+<td>5992–6821 kr.</td>
+<td>-622 kr.</td></tr><tr><td>28-10-2026</td>
+<td>Senge</td>
+<td>0.8: 400 kr.<br>2.0: 250 kr.<br>3.2: 250 kr.</td>
+<td>533–655 kr.</td>
+<td>-21 kr.</td></tr><tr><td>29-10-2026</td>
+<td>Værelser</td>
+<td>0.8: 930 kr.<br>1.6: 590 kr.<br>2.4: 590 kr.</td>
+<td>5172–5172 kr.</td>
+<td>+0 kr.</td></tr><tr><td>29-10-2026</td>
+<td>Senge</td>
+<td>0.8: 420 kr.<br>2.0: 270 kr.<br>3.2: 270 kr.</td>
+<td>508–562 kr.</td>
+<td>-7 kr.</td></tr><tr><td>30-10-2026</td>
+<td>Værelser</td>
+<td>0.8: 1010 kr.<br>1.6: 640 kr.<br>2.4: 640 kr.</td>
+<td>6803–6803 kr.</td>
+<td>+0 kr.</td></tr><tr><td>30-10-2026</td>
+<td>Senge</td>
+<td>0.8: 520 kr.<br>2.0: 320 kr.<br>3.2: 320 kr.</td>
+<td>1616–2014 kr.</td>
+<td>-58 kr.</td></tr><tr><td>01-11-2026</td>
+<td>Værelser</td>
+<td>0.8: 600 kr.<br>1.6: 380 kr.<br>2.4: 380 kr.</td>
+<td>539–1147 kr.</td>
+<td>-431 kr.</td></tr><tr><td>01-11-2026</td>
+<td>Senge</td>
+<td>0.8: 350 kr.<br>2.0: 220 kr.<br>3.2: 220 kr.</td>
+<td>311–311 kr.</td>
+<td>+0 kr.</td></tr><tr><td>02-11-2026</td>
+<td>Værelser</td>
+<td>0.8: 710 kr.<br>1.6: 450 kr.<br>2.4: 450 kr.</td>
+<td>2340–3414 kr.</td>
+<td>-722 kr.</td></tr><tr><td>02-11-2026</td>
+<td>Senge</td>
+<td>0.8: 340 kr.<br>2.0: 220 kr.<br>3.2: 220 kr.</td>
+<td>323–323 kr.</td>
+<td>+0 kr.</td></tr><tr><td>03-11-2026</td>
+<td>Værelser</td>
+<td>0.8: 820 kr.<br>1.6: 520 kr.<br>2.4: 520 kr.</td>
+<td>5936–5936 kr.</td>
+<td>+0 kr.</td></tr><tr><td>03-11-2026</td>
+<td>Senge</td>
+<td>0.8: 350 kr.<br>2.0: 220 kr.<br>3.2: 220 kr.</td>
+<td>412–412 kr.</td>
+<td>+0 kr.</td></tr><tr><td>04-11-2026</td>
+<td>Værelser</td>
+<td>0.8: 850 kr.<br>1.6: 530 kr.<br>2.4: 530 kr.</td>
+<td>5628–5628 kr.</td>
+<td>+0 kr.</td></tr><tr><td>04-11-2026</td>
+<td>Senge</td>
+<td>0.8: 360 kr.<br>2.0: 220 kr.<br>3.2: 220 kr.</td>
+<td>391–391 kr.</td>
+<td>+0 kr.</td></tr><tr><td>05-11-2026</td>
+<td>Værelser</td>
+<td>0.8: 830 kr.<br>1.6: 520 kr.<br>2.4: 520 kr.</td>
+<td>6643–6643 kr.</td>
+<td>+0 kr.</td></tr><tr><td>05-11-2026</td>
+<td>Senge</td>
+<td>0.8: 380 kr.<br>2.0: 240 kr.<br>3.2: 240 kr.</td>
+<td>313–345 kr.</td>
+<td>-5 kr.</td></tr><tr><td>06-11-2026</td>
+<td>Værelser</td>
+<td>0.8: 900 kr.<br>1.6: 570 kr.<br>2.4: 570 kr.</td>
+<td>8919–8919 kr.</td>
+<td>+0 kr.</td></tr><tr><td>06-11-2026</td>
+<td>Senge</td>
+<td>0.8: 460 kr.<br>2.0: 290 kr.<br>3.2: 290 kr.</td>
+<td>999–1161 kr.</td>
+<td>-31 kr.</td></tr><tr><td>07-11-2026</td>
+<td>Værelser</td>
+<td>0.8: 920 kr.<br>1.6: 580 kr.<br>2.4: 580 kr.</td>
+<td>8966–8966 kr.</td>
+<td>+0 kr.</td></tr><tr><td>07-11-2026</td>
+<td>Senge</td>
+<td>0.8: 500 kr.<br>2.0: 320 kr.<br>3.2: 320 kr.</td>
+<td>1282–1492 kr.</td>
+<td>-29 kr.</td></tr><tr><td>08-11-2026</td>
+<td>Værelser</td>
+<td>0.8: 600 kr.<br>1.6: 380 kr.<br>2.4: 380 kr.</td>
+<td>1033–1526 kr.</td>
+<td>-333 kr.</td></tr><tr><td>08-11-2026</td>
+<td>Senge</td>
+<td>0.8: 350 kr.<br>2.0: 220 kr.<br>3.2: 220 kr.</td>
+<td>336–336 kr.</td>
+<td>+0 kr.</td></tr><tr><td>09-11-2026</td>
+<td>Værelser</td>
+<td>0.8: 710 kr.<br>1.6: 450 kr.<br>2.4: 450 kr.</td>
+<td>3117–3908 kr.</td>
+<td>-530 kr.</td></tr><tr><td>09-11-2026</td>
+<td>Senge</td>
+<td>0.8: 340 kr.<br>2.0: 220 kr.<br>3.2: 220 kr.</td>
+<td>302–375 kr.</td>
+<td>-64 kr.</td></tr><tr><td>10-11-2026</td>
+<td>Værelser</td>
+<td>0.8: 820 kr.<br>1.6: 520 kr.<br>2.4: 520 kr.</td>
+<td>6058–6768 kr.</td>
+<td>-487 kr.</td></tr><tr><td>10-11-2026</td>
+<td>Senge</td>
+<td>0.8: 350 kr.<br>2.0: 220 kr.<br>3.2: 220 kr.</td>
+<td>437–491 kr.</td>
+<td>-46 kr.</td></tr><tr><td>11-11-2026</td>
+<td>Værelser</td>
+<td>0.8: 850 kr.<br>1.6: 530 kr.<br>2.4: 530 kr.</td>
+<td>3650–3650 kr.</td>
+<td>+0 kr.</td></tr><tr><td>11-11-2026</td>
+<td>Senge</td>
+<td>0.8: 360 kr.<br>2.0: 220 kr.<br>3.2: 220 kr.</td>
+<td>540–540 kr.</td>
+<td>+0 kr.</td></tr><tr><td>12-11-2026</td>
+<td>Værelser</td>
+<td>0.8: 830 kr.<br>1.6: 520 kr.<br>2.4: 520 kr.</td>
+<td>4831–5371 kr.</td>
+<td>-344 kr.</td></tr><tr><td>12-11-2026</td>
+<td>Senge</td>
+<td>0.8: 380 kr.<br>2.0: 240 kr.<br>3.2: 240 kr.</td>
+<td>523–578 kr.</td>
+<td>-10 kr.</td></tr><tr><td>13-11-2026</td>
+<td>Værelser</td>
+<td>0.8: 900 kr.<br>1.6: 570 kr.<br>2.4: 570 kr.</td>
+<td>9502–10754 kr.</td>
+<td>-1078 kr.</td></tr><tr><td>13-11-2026</td>
+<td>Senge</td>
+<td>0.8: 460 kr.<br>2.0: 290 kr.<br>3.2: 290 kr.</td>
+<td>1293–1518 kr.</td>
+<td>-41 kr.</td></tr><tr><td>14-11-2026</td>
+<td>Værelser</td>
+<td>0.8: 920 kr.<br>1.6: 580 kr.<br>2.4: 580 kr.</td>
+<td>8487–9915 kr.</td>
+<td>-1266 kr.</td></tr><tr><td>14-11-2026</td>
+<td>Senge</td>
+<td>0.8: 500 kr.<br>2.0: 320 kr.<br>3.2: 320 kr.</td>
+<td>1541–1777 kr.</td>
+<td>-36 kr.</td></tr><tr><td>15-11-2026</td>
+<td>Værelser</td>
+<td>0.8: 600 kr.<br>1.6: 380 kr.<br>2.4: 380 kr.</td>
+<td>720–1091 kr.</td>
+<td>-261 kr.</td></tr><tr><td>15-11-2026</td>
+<td>Senge</td>
+<td>0.8: 350 kr.<br>2.0: 220 kr.<br>3.2: 220 kr.</td>
+<td>345–345 kr.</td>
+<td>+0 kr.</td></tr><tr><td>16-11-2026</td>
+<td>Værelser</td>
+<td>0.8: 710 kr.<br>1.6: 450 kr.<br>2.4: 450 kr.</td>
+<td>2704–3092 kr.</td>
+<td>-266 kr.</td></tr><tr><td>16-11-2026</td>
+<td>Senge</td>
+<td>0.8: 340 kr.<br>2.0: 220 kr.<br>3.2: 220 kr.</td>
+<td>382–382 kr.</td>
+<td>+0 kr.</td></tr><tr><td>17-11-2026</td>
+<td>Værelser</td>
+<td>0.8: 820 kr.<br>1.6: 520 kr.<br>2.4: 520 kr.</td>
+<td>2622–2622 kr.</td>
+<td>+0 kr.</td></tr><tr><td>17-11-2026</td>
+<td>Senge</td>
+<td>0.8: 350 kr.<br>2.0: 220 kr.<br>3.2: 220 kr.</td>
+<td>469–528 kr.</td>
+<td>-50 kr.</td></tr><tr><td>18-11-2026</td>
+<td>Værelser</td>
+<td>0.8: 850 kr.<br>1.6: 530 kr.<br>2.4: 530 kr.</td>
+<td>6694–7425 kr.</td>
+<td>-479 kr.</td></tr><tr><td>18-11-2026</td>
+<td>Senge</td>
+<td>0.8: 360 kr.<br>2.0: 220 kr.<br>3.2: 220 kr.</td>
+<td>569–569 kr.</td>
+<td>+0 kr.</td></tr><tr><td>19-11-2026</td>
+<td>Værelser</td>
+<td>0.8: 830 kr.<br>1.6: 520 kr.<br>2.4: 520 kr.</td>
+<td>8319–8319 kr.</td>
+<td>+0 kr.</td></tr><tr><td>19-11-2026</td>
+<td>Senge</td>
+<td>0.8: 380 kr.<br>2.0: 240 kr.<br>3.2: 240 kr.</td>
+<td>556–619 kr.</td>
+<td>-11 kr.</td></tr><tr><td>20-11-2026</td>
+<td>Værelser</td>
+<td>0.8: 900 kr.<br>1.6: 610 kr.<br>2.4: 570 kr.</td>
+<td>7567–8204 kr.</td>
+<td>-362 kr.</td></tr><tr><td>20-11-2026</td>
+<td>Senge</td>
+<td>0.8: 460 kr.<br>2.0: 290 kr.<br>3.2: 290 kr.</td>
+<td>1295–1485 kr.</td>
+<td>-39 kr.</td></tr><tr><td>21-11-2026</td>
+<td>Værelser</td>
+<td>0.8: 920 kr.<br>1.6: 580 kr.<br>2.4: 580 kr.</td>
+<td>11255–12977 kr.</td>
+<td>-1424 kr.</td></tr><tr><td>21-11-2026</td>
+<td>Senge</td>
+<td>0.8: 500 kr.<br>2.0: 320 kr.<br>3.2: 320 kr.</td>
+<td>1531–1765 kr.</td>
+<td>-31 kr.</td></tr><tr><td>22-11-2026</td>
+<td>Værelser</td>
+<td>0.8: 600 kr.<br>1.6: 380 kr.<br>2.4: 380 kr.</td>
+<td>876–1769 kr.</td>
+<td>-604 kr.</td></tr><tr><td>22-11-2026</td>
+<td>Senge</td>
+<td>0.8: 350 kr.<br>2.0: 220 kr.<br>3.2: 220 kr.</td>
+<td>284–366 kr.</td>
+<td>-69 kr.</td></tr><tr><td>23-11-2026</td>
+<td>Værelser</td>
+<td>0.8: 450 kr.<br>1.6: 450 kr.<br>2.4: 450 kr.</td>
+<td>6–22 kr.</td>
+<td>-25 kr.</td></tr><tr><td>23-11-2026</td>
+<td>Senge</td>
+<td>0.8: 340 kr.<br>2.0: 220 kr.<br>3.2: 220 kr.</td>
+<td>350–440 kr.</td>
+<td>-71 kr.</td></tr><tr><td>24-11-2026</td>
+<td>Værelser</td>
+<td>0.8: 820 kr.<br>1.6: 520 kr.<br>2.4: 520 kr.</td>
+<td>2078–2357 kr.</td>
+<td>-74 kr.</td></tr><tr><td>24-11-2026</td>
+<td>Senge</td>
+<td>0.8: 350 kr.<br>2.0: 220 kr.<br>3.2: 220 kr.</td>
+<td>572–572 kr.</td>
+<td>+0 kr.</td></tr><tr><td>25-11-2026</td>
+<td>Værelser</td>
+<td>0.8: 850 kr.<br>1.6: 530 kr.<br>2.4: 530 kr.</td>
+<td>8221–8221 kr.</td>
+<td>+0 kr.</td></tr><tr><td>25-11-2026</td>
+<td>Senge</td>
+<td>0.8: 360 kr.<br>2.0: 220 kr.<br>3.2: 220 kr.</td>
+<td>615–615 kr.</td>
+<td>+0 kr.</td></tr><tr><td>26-11-2026</td>
+<td>Værelser</td>
+<td>0.8: 830 kr.<br>1.6: 520 kr.<br>2.4: 520 kr.</td>
+<td>8077–8972 kr.</td>
+<td>-569 kr.</td></tr><tr><td>26-11-2026</td>
+<td>Senge</td>
+<td>0.8: 380 kr.<br>2.0: 240 kr.<br>3.2: 240 kr.</td>
+<td>614–614 kr.</td>
+<td>+0 kr.</td></tr><tr><td>27-11-2026</td>
+<td>Værelser</td>
+<td>0.8: 900 kr.<br>1.6: 570 kr.<br>2.4: 570 kr.</td>
+<td>11608–11608 kr.</td>
+<td>+0 kr.</td></tr><tr><td>27-11-2026</td>
+<td>Senge</td>
+<td>0.8: 460 kr.<br>2.0: 290 kr.<br>3.2: 290 kr.</td>
+<td>1266–1452 kr.</td>
+<td>-41 kr.</td></tr><tr><td>28-11-2026</td>
+<td>Værelser</td>
+<td>0.8: 920 kr.<br>1.6: 580 kr.<br>2.4: 580 kr.</td>
+<td>11724–11724 kr.</td>
+<td>+0 kr.</td></tr><tr><td>28-11-2026</td>
+<td>Senge</td>
+<td>0.8: 500 kr.<br>2.0: 320 kr.<br>3.2: 320 kr.</td>
+<td>1268–1448 kr.</td>
+<td>-36 kr.</td></tr><tr><td>29-11-2026</td>
+<td>Værelser</td>
+<td>0.8: 600 kr.<br>1.6: 380 kr.<br>2.4: 380 kr.</td>
+<td>1152–1943 kr.</td>
+<td>-520 kr.</td></tr><tr><td>29-11-2026</td>
+<td>Senge</td>
+<td>0.8: 350 kr.<br>2.0: 220 kr.<br>3.2: 220 kr.</td>
+<td>150–199 kr.</td>
+<td>-41 kr.</td></tr><tr><td>30-11-2026</td>
+<td>Værelser</td>
+<td>0.8: 710 kr.<br>1.6: 450 kr.<br>2.4: 450 kr.</td>
+<td>2896–3632 kr.</td>
+<td>-499 kr.</td></tr><tr><td>30-11-2026</td>
+<td>Senge</td>
+<td>0.8: 340 kr.<br>2.0: 220 kr.<br>3.2: 220 kr.</td>
+<td>282–360 kr.</td>
+<td>-66 kr.</td></tr><tr><td>01-12-2026</td>
+<td>Værelser</td>
+<td>0.8: 760 kr.<br>1.6: 480 kr.<br>2.4: 480 kr.</td>
+<td>4653–5262 kr.</td>
+<td>-406 kr.</td></tr><tr><td>01-12-2026</td>
+<td>Senge</td>
+<td>0.8: 320 kr.<br>2.0: 200 kr.<br>3.2: 200 kr.</td>
+<td>318–359 kr.</td>
+<td>-34 kr.</td></tr><tr><td>02-12-2026</td>
+<td>Værelser</td>
+<td>0.8: 780 kr.<br>1.6: 490 kr.<br>2.4: 490 kr.</td>
+<td>5634–5634 kr.</td>
+<td>+0 kr.</td></tr><tr><td>02-12-2026</td>
+<td>Senge</td>
+<td>0.8: 330 kr.<br>2.0: 210 kr.<br>3.2: 210 kr.</td>
+<td>430–545 kr.</td>
+<td>-92 kr.</td></tr><tr><td>03-12-2026</td>
+<td>Værelser</td>
+<td>0.8: 770 kr.<br>1.6: 480 kr.<br>2.4: 480 kr.</td>
+<td>4640–5233 kr.</td>
+<td>-395 kr.</td></tr><tr><td>03-12-2026</td>
+<td>Senge</td>
+<td>0.8: 350 kr.<br>2.0: 220 kr.<br>3.2: 220 kr.</td>
+<td>316–398 kr.</td>
+<td>-69 kr.</td></tr><tr><td>04-12-2026</td>
+<td>Værelser</td>
+<td>0.8: 830 kr.<br>1.6: 520 kr.<br>2.4: 520 kr.</td>
+<td>6685–7474 kr.</td>
+<td>-543 kr.</td></tr><tr><td>04-12-2026</td>
+<td>Senge</td>
+<td>0.8: 420 kr.<br>2.0: 270 kr.<br>3.2: 270 kr.</td>
+<td>1077–1077 kr.</td>
+<td>+0 kr.</td></tr><tr><td>05-12-2026</td>
+<td>Værelser</td>
+<td>0.8: 850 kr.<br>1.6: 530 kr.<br>2.4: 530 kr.</td>
+<td>8697–8697 kr.</td>
+<td>+0 kr.</td></tr><tr><td>05-12-2026</td>
+<td>Senge</td>
+<td>0.8: 460 kr.<br>2.0: 290 kr.<br>3.2: 290 kr.</td>
+<td>1151–1365 kr.</td>
+<td>-32 kr.</td></tr><tr><td>06-12-2026</td>
+<td>Værelser</td>
+<td>0.8: 560 kr.<br>1.6: 380 kr.<br>2.4: 380 kr.</td>
+<td>975–1651 kr.</td>
+<td>-430 kr.</td></tr><tr><td>06-12-2026</td>
+<td>Senge</td>
+<td>0.8: 330 kr.<br>2.0: 200 kr.<br>3.2: 200 kr.</td>
+<td>322–411 kr.</td>
+<td>-69 kr.</td></tr><tr><td>07-12-2026</td>
+<td>Værelser</td>
+<td>0.8: 660 kr.<br>1.6: 410 kr.<br>2.4: 410 kr.</td>
+<td>2413–3507 kr.</td>
+<td>-706 kr.</td></tr><tr><td>07-12-2026</td>
+<td>Senge</td>
+<td>0.8: 320 kr.<br>2.0: 200 kr.<br>3.2: 200 kr.</td>
+<td>237–431 kr.</td>
+<td>-156 kr.</td></tr><tr><td>08-12-2026</td>
+<td>Værelser</td>
+<td>0.8: 760 kr.<br>1.6: 480 kr.<br>2.4: 480 kr.</td>
+<td>4646–5253 kr.</td>
+<td>-408 kr.</td></tr><tr><td>08-12-2026</td>
+<td>Senge</td>
+<td>0.8: 320 kr.<br>2.0: 200 kr.<br>3.2: 200 kr.</td>
+<td>330–372 kr.</td>
+<td>-34 kr.</td></tr><tr><td>09-12-2026</td>
+<td>Værelser</td>
+<td>0.8: 780 kr.<br>1.6: 490 kr.<br>2.4: 490 kr.</td>
+<td>3556–4006 kr.</td>
+<td>-310 kr.</td></tr><tr><td>09-12-2026</td>
+<td>Senge</td>
+<td>0.8: 330 kr.<br>2.0: 210 kr.<br>3.2: 210 kr.</td>
+<td>445–561 kr.</td>
+<td>-93 kr.</td></tr><tr><td>10-12-2026</td>
+<td>Værelser</td>
+<td>0.8: 770 kr.<br>1.6: 480 kr.<br>2.4: 480 kr.</td>
+<td>2063–2639 kr.</td>
+<td>-408 kr.</td></tr><tr><td>10-12-2026</td>
+<td>Senge</td>
+<td>0.8: 350 kr.<br>2.0: 220 kr.<br>3.2: 220 kr.</td>
+<td>482–482 kr.</td>
+<td>+0 kr.</td></tr><tr><td>11-12-2026</td>
+<td>Værelser</td>
+<td>0.8: 830 kr.<br>1.6: 560 kr.<br>2.4: 520 kr.</td>
+<td>6710–8383 kr.</td>
+<td>-978 kr.</td></tr><tr><td>11-12-2026</td>
+<td>Senge</td>
+<td>0.8: 420 kr.<br>2.0: 270 kr.<br>3.2: 270 kr.</td>
+<td>1180–1413 kr.</td>
+<td>-38 kr.</td></tr><tr><td>12-12-2026</td>
+<td>Værelser</td>
+<td>0.8: 850 kr.<br>1.6: 530 kr.<br>2.4: 530 kr.</td>
+<td>10168–11334 kr.</td>
+<td>-823 kr.</td></tr><tr><td>12-12-2026</td>
+<td>Senge</td>
+<td>0.8: 460 kr.<br>2.0: 290 kr.<br>3.2: 290 kr.</td>
+<td>1305–1546 kr.</td>
+<td>-37 kr.</td></tr><tr><td>13-12-2026</td>
+<td>Værelser</td>
+<td>0.8: 560 kr.<br>1.6: 380 kr.<br>2.4: 380 kr.</td>
+<td>1307–2661 kr.</td>
+<td>-827 kr.</td></tr><tr><td>13-12-2026</td>
+<td>Senge</td>
+<td>0.8: 330 kr.<br>2.0: 200 kr.<br>3.2: 200 kr.</td>
+<td>408–518 kr.</td>
+<td>-88 kr.</td></tr><tr><td>14-12-2026</td>
+<td>Værelser</td>
+<td>0.8: 660 kr.<br>1.6: 410 kr.<br>2.4: 410 kr.</td>
+<td>838–1273 kr.</td>
+<td>-310 kr.</td></tr><tr><td>14-12-2026</td>
+<td>Senge</td>
+<td>0.8: 320 kr.<br>2.0: 200 kr.<br>3.2: 200 kr.</td>
+<td>236–343 kr.</td>
+<td>-88 kr.</td></tr><tr><td>15-12-2026</td>
+<td>Værelser</td>
+<td>0.8: 760 kr.<br>1.6: 480 kr.<br>2.4: 480 kr.</td>
+<td>3000–3403 kr.</td>
+<td>-281 kr.</td></tr><tr><td>15-12-2026</td>
+<td>Senge</td>
+<td>0.8: 320 kr.<br>2.0: 200 kr.<br>3.2: 200 kr.</td>
+<td>273–394 kr.</td>
+<td>-100 kr.</td></tr><tr><td>16-12-2026</td>
+<td>Værelser</td>
+<td>0.8: 780 kr.<br>1.6: 490 kr.<br>2.4: 490 kr.</td>
+<td>4286–4826 kr.</td>
+<td>-369 kr.</td></tr><tr><td>16-12-2026</td>
+<td>Senge</td>
+<td>0.8: 330 kr.<br>2.0: 210 kr.<br>3.2: 210 kr.</td>
+<td>461–581 kr.</td>
+<td>-96 kr.</td></tr><tr><td>17-12-2026</td>
+<td>Værelser</td>
+<td>0.8: 770 kr.<br>1.6: 480 kr.<br>2.4: 480 kr.</td>
+<td>6336–7125 kr.</td>
+<td>-515 kr.</td></tr><tr><td>17-12-2026</td>
+<td>Senge</td>
+<td>0.8: 350 kr.<br>2.0: 220 kr.<br>3.2: 220 kr.</td>
+<td>413–515 kr.</td>
+<td>-87 kr.</td></tr><tr><td>18-12-2026</td>
+<td>Værelser</td>
+<td>0.8: 830 kr.<br>1.6: 520 kr.<br>2.4: 520 kr.</td>
+<td>9615–10770 kr.</td>
+<td>-824 kr.</td></tr><tr><td>18-12-2026</td>
+<td>Senge</td>
+<td>0.8: 420 kr.<br>2.0: 270 kr.<br>3.2: 270 kr.</td>
+<td>1236–1236 kr.</td>
+<td>+0 kr.</td></tr><tr><td>19-12-2026</td>
+<td>Værelser</td>
+<td>0.8: 850 kr.<br>1.6: 530 kr.<br>2.4: 530 kr.</td>
+<td>9600–10708 kr.</td>
+<td>-792 kr.</td></tr><tr><td>19-12-2026</td>
+<td>Senge</td>
+<td>0.8: 460 kr.<br>2.0: 290 kr.<br>3.2: 290 kr.</td>
+<td>1297–1535 kr.</td>
+<td>-37 kr.</td></tr><tr><td>20-12-2026</td>
+<td>Værelser</td>
+<td>0.8: 560 kr.<br>1.6: 380 kr.<br>2.4: 380 kr.</td>
+<td>981–1661 kr.</td>
+<td>-431 kr.</td></tr><tr><td>20-12-2026</td>
+<td>Senge</td>
+<td>0.8: 330 kr.<br>2.0: 200 kr.<br>3.2: 200 kr.</td>
+<td>387–549 kr.</td>
+<td>-129 kr.</td></tr><tr><td>21-12-2026</td>
+<td>Værelser</td>
+<td>0.8: 660 kr.<br>1.6: 410 kr.<br>2.4: 410 kr.</td>
+<td>2143–3117 kr.</td>
+<td>-636 kr.</td></tr><tr><td>21-12-2026</td>
+<td>Senge</td>
+<td>0.8: 320 kr.<br>2.0: 200 kr.<br>3.2: 200 kr.</td>
+<td>189–245 kr.</td>
+<td>-48 kr.</td></tr><tr><td>22-12-2026</td>
+<td>Værelser</td>
+<td>0.8: 760 kr.<br>1.6: 480 kr.<br>2.4: 480 kr.</td>
+<td>5011–5011 kr.</td>
+<td>+0 kr.</td></tr><tr><td>22-12-2026</td>
+<td>Senge</td>
+<td>0.8: 320 kr.<br>2.0: 200 kr.<br>3.2: 200 kr.</td>
+<td>163–186 kr.</td>
+<td>-20 kr.</td></tr><tr><td>23-12-2026</td>
+<td>Værelser</td>
+<td>0.8: 780 kr.<br>1.6: 490 kr.<br>2.4: 490 kr.</td>
+<td>6061–6804 kr.</td>
+<td>-484 kr.</td></tr><tr><td>23-12-2026</td>
+<td>Senge</td>
+<td>0.8: 330 kr.<br>2.0: 210 kr.<br>3.2: 210 kr.</td>
+<td>297–380 kr.</td>
+<td>-68 kr.</td></tr><tr><td>24-12-2026</td>
+<td>Værelser</td>
+<td>0.8: 770 kr.<br>1.6: 480 kr.<br>2.4: 480 kr.</td>
+<td>4859–6131 kr.</td>
+<td>-849 kr.</td></tr><tr><td>24-12-2026</td>
+<td>Senge</td>
+<td>0.8: 350 kr.<br>2.0: 220 kr.<br>3.2: 220 kr.</td>
+<td>199–199 kr.</td>
+<td>+0 kr.</td></tr><tr><td>25-12-2026</td>
+<td>Værelser</td>
+<td>0.8: 830 kr.<br>1.6: 520 kr.<br>2.4: 520 kr.</td>
+<td>10182–11414 kr.</td>
+<td>-882 kr.</td></tr><tr><td>25-12-2026</td>
+<td>Senge</td>
+<td>0.8: 420 kr.<br>2.0: 270 kr.<br>3.2: 270 kr.</td>
+<td>970–970 kr.</td>
+<td>+0 kr.</td></tr><tr><td>26-12-2026</td>
+<td>Værelser</td>
+<td>0.8: 850 kr.<br>1.6: 530 kr.<br>2.4: 530 kr.</td>
+<td>11006–11006 kr.</td>
+<td>+0 kr.</td></tr><tr><td>26-12-2026</td>
+<td>Senge</td>
+<td>0.8: 460 kr.<br>2.0: 290 kr.<br>3.2: 290 kr.</td>
+<td>1032–1220 kr.</td>
+<td>-26 kr.</td></tr><tr><td>27-12-2026</td>
+<td>Værelser</td>
+<td>0.8: 560 kr.<br>1.6: 380 kr.<br>2.4: 380 kr.</td>
+<td>627–1357 kr.</td>
+<td>-488 kr.</td></tr><tr><td>27-12-2026</td>
+<td>Senge</td>
+<td>0.8: 330 kr.<br>2.0: 200 kr.<br>3.2: 200 kr.</td>
+<td>256–329 kr.</td>
+<td>-61 kr.</td></tr><tr><td>28-12-2026</td>
+<td>Værelser</td>
+<td>0.8: 660 kr.<br>1.6: 410 kr.<br>2.4: 410 kr.</td>
+<td>2696–3450 kr.</td>
+<td>-488 kr.</td></tr><tr><td>28-12-2026</td>
+<td>Senge</td>
+<td>0.8: 320 kr.<br>2.0: 200 kr.<br>3.2: 200 kr.</td>
+<td>265–341 kr.</td>
+<td>-63 kr.</td></tr><tr><td>29-12-2026</td>
+<td>Værelser</td>
+<td>0.8: 760 kr.<br>1.6: 480 kr.<br>2.4: 480 kr.</td>
+<td>5509–5509 kr.</td>
+<td>+0 kr.</td></tr><tr><td>29-12-2026</td>
+<td>Senge</td>
+<td>0.8: 320 kr.<br>2.0: 200 kr.<br>3.2: 200 kr.</td>
+<td>206–297 kr.</td>
+<td>-75 kr.</td></tr><tr><td>30-12-2026</td>
+<td>Værelser</td>
+<td>0.8: 780 kr.<br>1.6: 490 kr.<br>2.4: 490 kr.</td>
+<td>7580–7580 kr.</td>
+<td>+0 kr.</td></tr><tr><td>30-12-2026</td>
+<td>Senge</td>
+<td>0.8: 330 kr.<br>2.0: 210 kr.<br>3.2: 210 kr.</td>
+<td>314–497 kr.</td>
+<td>-149 kr.</td></tr><tr><td>31-12-2026</td>
+<td>Værelser</td>
+<td>0.8: 770 kr.<br>1.6: 480 kr.<br>2.4: 480 kr.</td>
+<td>6679–6679 kr.</td>
+<td>+0 kr.</td></tr><tr><td>31-12-2026</td>
+<td>Senge</td>
+<td>0.8: 350 kr.<br>2.0: 220 kr.<br>3.2: 220 kr.</td>
+<td>417–521 kr.</td>
+<td>-88 kr.</td></tr><tr><td>01-01-2027</td>
+<td>Værelser</td>
+<td>0.8: 760 kr.<br>1.6: 480 kr.<br>2.4: 480 kr.</td>
+<td>4145–6031 kr.</td>
+<td>-1269 kr.</td></tr><tr><td>01-01-2027</td>
+<td>Senge</td>
+<td>0.8: 390 kr.<br>2.0: 240 kr.<br>3.2: 240 kr.</td>
+<td>459–459 kr.</td>
+<td>+0 kr.</td></tr><tr><td>02-01-2027</td>
+<td>Værelser</td>
+<td>0.8: 780 kr.<br>1.6: 490 kr.<br>2.4: 490 kr.</td>
+<td>4236–6129 kr.</td>
+<td>-1283 kr.</td></tr><tr><td>02-01-2027</td>
+<td>Senge</td>
+<td>0.8: 420 kr.<br>2.0: 270 kr.<br>3.2: 270 kr.</td>
+<td>678–678 kr.</td>
+<td>+0 kr.</td></tr><tr><td>03-01-2027</td>
+<td>Værelser</td>
+<td>0.8: 510 kr.<br>1.6: 380 kr.<br>2.4: 380 kr.</td>
+<td>434–884 kr.</td>
+<td>-326 kr.</td></tr><tr><td>03-01-2027</td>
+<td>Senge</td>
+<td>0.8: 300 kr.<br>2.0: 190 kr.<br>3.2: 190 kr.</td>
+<td>25–121 kr.</td>
+<td>-86 kr.</td></tr><tr><td>04-01-2027</td>
+<td>Værelser</td>
+<td>0.8: 600 kr.<br>1.6: 380 kr.<br>2.4: 380 kr.</td>
+<td>760–1369 kr.</td>
+<td>-416 kr.</td></tr><tr><td>04-01-2027</td>
+<td>Senge</td>
+<td>0.8: 290 kr.<br>2.0: 180 kr.<br>3.2: 180 kr.</td>
+<td>55–118 kr.</td>
+<td>-57 kr.</td></tr><tr><td>05-01-2027</td>
+<td>Værelser</td>
+<td>0.8: 690 kr.<br>1.6: 440 kr.<br>2.4: 440 kr.</td>
+<td>2637–3748 kr.</td>
+<td>-746 kr.</td></tr><tr><td>05-01-2027</td>
+<td>Senge</td>
+<td>0.8: 300 kr.<br>2.0: 190 kr.<br>3.2: 190 kr.</td>
+<td>30–133 kr.</td>
+<td>-95 kr.</td></tr><tr><td>06-01-2027</td>
+<td>Værelser</td>
+<td>0.8: 720 kr.<br>1.6: 450 kr.<br>2.4: 450 kr.</td>
+<td>3190–4125 kr.</td>
+<td>-626 kr.</td></tr><tr><td>06-01-2027</td>
+<td>Senge</td>
+<td>0.8: 300 kr.<br>2.0: 190 kr.<br>3.2: 190 kr.</td>
+<td>102–162 kr.</td>
+<td>-52 kr.</td></tr><tr><td>07-01-2027</td>
+<td>Værelser</td>
+<td>0.8: 700 kr.<br>1.6: 440 kr.<br>2.4: 440 kr.</td>
+<td>2834–3680 kr.</td>
+<td>-566 kr.</td></tr><tr><td>07-01-2027</td>
+<td>Senge</td>
+<td>0.8: 320 kr.<br>2.0: 200 kr.<br>3.2: 200 kr.</td>
+<td>113–154 kr.</td>
+<td>-36 kr.</td></tr><tr><td>08-01-2027</td>
+<td>Værelser</td>
+<td>0.8: 760 kr.<br>1.6: 480 kr.<br>2.4: 480 kr.</td>
+<td>4577–5813 kr.</td>
+<td>-833 kr.</td></tr><tr><td>08-01-2027</td>
+<td>Senge</td>
+<td>0.8: 390 kr.<br>2.0: 240 kr.<br>3.2: 240 kr.</td>
+<td>444–444 kr.</td>
+<td>+0 kr.</td></tr><tr><td>09-01-2027</td>
+<td>Værelser</td>
+<td>0.8: 780 kr.<br>1.6: 490 kr.<br>2.4: 490 kr.</td>
+<td>4235–6127 kr.</td>
+<td>-1282 kr.</td></tr><tr><td>09-01-2027</td>
+<td>Senge</td>
+<td>0.8: 420 kr.<br>2.0: 270 kr.<br>3.2: 270 kr.</td>
+<td>690–690 kr.</td>
+<td>+0 kr.</td></tr><tr><td>10-01-2027</td>
+<td>Værelser</td>
+<td>0.8: 510 kr.<br>1.6: 380 kr.<br>2.4: 380 kr.</td>
+<td>389–906 kr.</td>
+<td>-376 kr.</td></tr><tr><td>10-01-2027</td>
+<td>Senge</td>
+<td>0.8: 300 kr.<br>2.0: 190 kr.<br>3.2: 190 kr.</td>
+<td>78–126 kr.</td>
+<td>-45 kr.</td></tr><tr><td>11-01-2027</td>
+<td>Værelser</td>
+<td>0.8: 600 kr.<br>1.6: 380 kr.<br>2.4: 380 kr.</td>
+<td>769–1385 kr.</td>
+<td>-419 kr.</td></tr><tr><td>11-01-2027</td>
+<td>Senge</td>
+<td>0.8: 290 kr.<br>2.0: 180 kr.<br>3.2: 180 kr.</td>
+<td>63–127 kr.</td>
+<td>-59 kr.</td></tr><tr><td>12-01-2027</td>
+<td>Værelser</td>
+<td>0.8: 690 kr.<br>1.6: 440 kr.<br>2.4: 440 kr.</td>
+<td>2898–3654 kr.</td>
+<td>-505 kr.</td></tr><tr><td>12-01-2027</td>
+<td>Senge</td>
+<td>0.8: 300 kr.<br>2.0: 190 kr.<br>3.2: 190 kr.</td>
+<td>88–137 kr.</td>
+<td>-46 kr.</td></tr><tr><td>13-01-2027</td>
+<td>Værelser</td>
+<td>0.8: 720 kr.<br>1.6: 450 kr.<br>2.4: 450 kr.</td>
+<td>3523–4018 kr.</td>
+<td>-333 kr.</td></tr><tr><td>13-01-2027</td>
+<td>Senge</td>
+<td>0.8: 270 kr.<br>2.0: 190 kr.<br>3.2: 190 kr.</td>
+<td>84–182 kr.</td>
+<td>-84 kr.</td></tr><tr><td>14-01-2027</td>
+<td>Værelser</td>
+<td>0.8: 700 kr.<br>1.6: 440 kr.<br>2.4: 440 kr.</td>
+<td>3442–3442 kr.</td>
+<td>+0 kr.</td></tr><tr><td>14-01-2027</td>
+<td>Senge</td>
+<td>0.8: 320 kr.<br>2.0: 200 kr.<br>3.2: 200 kr.</td>
+<td>158–184 kr.</td>
+<td>-3 kr.</td></tr><tr><td>15-01-2027</td>
+<td>Værelser</td>
+<td>0.8: 760 kr.<br>1.6: 480 kr.<br>2.4: 480 kr.</td>
+<td>5236–5236 kr.</td>
+<td>+0 kr.</td></tr><tr><td>15-01-2027</td>
+<td>Senge</td>
+<td>0.8: 390 kr.<br>2.0: 240 kr.<br>3.2: 240 kr.</td>
+<td>439–543 kr.</td>
+<td>-14 kr.</td></tr><tr><td>16-01-2027</td>
+<td>Værelser</td>
+<td>0.8: 780 kr.<br>1.6: 490 kr.<br>2.4: 490 kr.</td>
+<td>5338–5338 kr.</td>
+<td>+0 kr.</td></tr><tr><td>16-01-2027</td>
+<td>Senge</td>
+<td>0.8: 420 kr.<br>2.0: 270 kr.<br>3.2: 270 kr.</td>
+<td>672–809 kr.</td>
+<td>-21 kr.</td></tr><tr><td>17-01-2027</td>
+<td>Værelser</td>
+<td>0.8: 510 kr.<br>1.6: 380 kr.<br>2.4: 380 kr.</td>
+<td>760–760 kr.</td>
+<td>+0 kr.</td></tr><tr><td>17-01-2027</td>
+<td>Senge</td>
+<td>0.8: 300 kr.<br>2.0: 190 kr.<br>3.2: 190 kr.</td>
+<td>125–146 kr.</td>
+<td>-3 kr.</td></tr><tr><td>18-01-2027</td>
+<td>Værelser</td>
+<td>0.8: 600 kr.<br>1.6: 380 kr.<br>2.4: 380 kr.</td>
+<td>1171–1171 kr.</td>
+<td>+0 kr.</td></tr><tr><td>18-01-2027</td>
+<td>Senge</td>
+<td>0.8: 290 kr.<br>2.0: 180 kr.<br>3.2: 180 kr.</td>
+<td>121–168 kr.</td>
+<td>-6 kr.</td></tr><tr><td>19-01-2027</td>
+<td>Værelser</td>
+<td>0.8: 690 kr.<br>1.6: 440 kr.<br>2.4: 440 kr.</td>
+<td>3462–3462 kr.</td>
+<td>+0 kr.</td></tr><tr><td>19-01-2027</td>
+<td>Senge</td>
+<td>0.8: 300 kr.<br>2.0: 190 kr.<br>3.2: 190 kr.</td>
+<td>134–157 kr.</td>
+<td>-3 kr.</td></tr><tr><td>20-01-2027</td>
+<td>Værelser</td>
+<td>0.8: 720 kr.<br>1.6: 450 kr.<br>2.4: 450 kr.</td>
+<td>3918–3918 kr.</td>
+<td>+0 kr.</td></tr><tr><td>20-01-2027</td>
+<td>Senge</td>
+<td>0.8: 270 kr.<br>2.0: 190 kr.<br>3.2: 190 kr.</td>
+<td>167–193 kr.</td>
+<td>-2 kr.</td></tr><tr><td>21-01-2027</td>
+<td>Værelser</td>
+<td>0.8: 700 kr.<br>1.6: 440 kr.<br>2.4: 440 kr.</td>
+<td>3470–3470 kr.</td>
+<td>+0 kr.</td></tr><tr><td>21-01-2027</td>
+<td>Senge</td>
+<td>0.8: 320 kr.<br>2.0: 200 kr.<br>3.2: 200 kr.</td>
+<td>159–186 kr.</td>
+<td>-3 kr.</td></tr><tr><td>22-01-2027</td>
+<td>Værelser</td>
+<td>0.8: 760 kr.<br>1.6: 480 kr.<br>2.4: 480 kr.</td>
+<td>5511–5511 kr.</td>
+<td>+0 kr.</td></tr><tr><td>22-01-2027</td>
+<td>Senge</td>
+<td>0.8: 390 kr.<br>2.0: 240 kr.<br>3.2: 240 kr.</td>
+<td>443–547 kr.</td>
+<td>-14 kr.</td></tr><tr><td>23-01-2027</td>
+<td>Værelser</td>
+<td>0.8: 780 kr.<br>1.6: 490 kr.<br>2.4: 490 kr.</td>
+<td>4825–4825 kr.</td>
+<td>+0 kr.</td></tr><tr><td>23-01-2027</td>
+<td>Senge</td>
+<td>0.8: 420 kr.<br>2.0: 270 kr.<br>3.2: 270 kr.</td>
+<td>677–815 kr.</td>
+<td>-21 kr.</td></tr><tr><td>24-01-2027</td>
+<td>Værelser</td>
+<td>0.8: 510 kr.<br>1.6: 380 kr.<br>2.4: 380 kr.</td>
+<td>587–587 kr.</td>
+<td>+0 kr.</td></tr><tr><td>24-01-2027</td>
+<td>Senge</td>
+<td>0.8: 300 kr.<br>2.0: 190 kr.<br>3.2: 190 kr.</td>
+<td>127–148 kr.</td>
+<td>-3 kr.</td></tr><tr><td>25-01-2027</td>
+<td>Værelser</td>
+<td>0.8: 600 kr.<br>1.6: 380 kr.<br>2.4: 380 kr.</td>
+<td>1172–1172 kr.</td>
+<td>+0 kr.</td></tr><tr><td>25-01-2027</td>
+<td>Senge</td>
+<td>0.8: 290 kr.<br>2.0: 180 kr.<br>3.2: 180 kr.</td>
+<td>122–169 kr.</td>
+<td>-6 kr.</td></tr><tr><td>26-01-2027</td>
+<td>Værelser</td>
+<td>0.8: 690 kr.<br>1.6: 440 kr.<br>2.4: 440 kr.</td>
+<td>1383–1383 kr.</td>
+<td>+0 kr.</td></tr><tr><td>26-01-2027</td>
+<td>Senge</td>
+<td>0.8: 300 kr.<br>2.0: 190 kr.<br>3.2: 190 kr.</td>
+<td>136–159 kr.</td>
+<td>-3 kr.</td></tr><tr><td>27-01-2027</td>
+<td>Værelser</td>
+<td>0.8: 720 kr.<br>1.6: 450 kr.<br>2.4: 450 kr.</td>
+<td>1771–1771 kr.</td>
+<td>+0 kr.</td></tr><tr><td>27-01-2027</td>
+<td>Senge</td>
+<td>0.8: 270 kr.<br>2.0: 190 kr.<br>3.2: 190 kr.</td>
+<td>169–196 kr.</td>
+<td>-2 kr.</td></tr><tr><td>28-01-2027</td>
+<td>Værelser</td>
+<td>0.8: 700 kr.<br>1.6: 440 kr.<br>2.4: 440 kr.</td>
+<td>3481–3481 kr.</td>
+<td>+0 kr.</td></tr><tr><td>28-01-2027</td>
+<td>Senge</td>
+<td>0.8: 320 kr.<br>2.0: 200 kr.<br>3.2: 200 kr.</td>
+<td>161–188 kr.</td>
+<td>-3 kr.</td></tr><tr><td>29-01-2027</td>
+<td>Værelser</td>
+<td>0.8: 760 kr.<br>1.6: 480 kr.<br>2.4: 480 kr.</td>
+<td>2091–2091 kr.</td>
+<td>+0 kr.</td></tr><tr><td>29-01-2027</td>
+<td>Senge</td>
+<td>0.8: 390 kr.<br>2.0: 240 kr.<br>3.2: 240 kr.</td>
+<td>446–550 kr.</td>
+<td>-14 kr.</td></tr><tr><td>30-01-2027</td>
+<td>Værelser</td>
+<td>0.8: 780 kr.<br>1.6: 490 kr.<br>2.4: 490 kr.</td>
+<td>2123–2123 kr.</td>
+<td>+0 kr.</td></tr><tr><td>30-01-2027</td>
+<td>Senge</td>
+<td>0.8: 420 kr.<br>2.0: 270 kr.<br>3.2: 270 kr.</td>
+<td>682–820 kr.</td>
+<td>-19 kr.</td></tr><tr><td>31-01-2027</td>
+<td>Værelser</td>
+<td>0.8: 510 kr.<br>1.6: 380 kr.<br>2.4: 380 kr.</td>
+<td>763–763 kr.</td>
+<td>+0 kr.</td></tr><tr><td>31-01-2027</td>
+<td>Senge</td>
+<td>0.8: 300 kr.<br>2.0: 190 kr.<br>3.2: 190 kr.</td>
+<td>128–149 kr.</td>
+<td>-3 kr.</td></tr><tr><td>01-02-2027</td>
+<td>Værelser</td>
+<td>0.8: 600 kr.<br>1.6: 380 kr.<br>2.4: 380 kr.</td>
+<td>2412–2412 kr.</td>
+<td>+0 kr.</td></tr><tr><td>01-02-2027</td>
+<td>Senge</td>
+<td>0.8: 290 kr.<br>2.0: 180 kr.<br>3.2: 180 kr.</td>
+<td>160–215 kr.</td>
+<td>-7 kr.</td></tr><tr><td>02-02-2027</td>
+<td>Værelser</td>
+<td>0.8: 690 kr.<br>1.6: 440 kr.<br>2.4: 440 kr.</td>
+<td>3062–3062 kr.</td>
+<td>+0 kr.</td></tr><tr><td>02-02-2027</td>
+<td>Senge</td>
+<td>0.8: 270 kr.<br>2.0: 190 kr.<br>3.2: 190 kr.</td>
+<td>179–207 kr.</td>
+<td>-4 kr.</td></tr><tr><td>03-02-2027</td>
+<td>Værelser</td>
+<td>0.8: 720 kr.<br>1.6: 450 kr.<br>2.4: 450 kr.</td>
+<td>2708–2708 kr.</td>
+<td>+0 kr.</td></tr><tr><td>03-02-2027</td>
+<td>Senge</td>
+<td>0.8: 300 kr.<br>2.0: 190 kr.<br>3.2: 190 kr.</td>
+<td>214–245 kr.</td>
+<td>-6 kr.</td></tr><tr><td>04-02-2027</td>
+<td>Værelser</td>
+<td>0.8: 700 kr.<br>1.6: 440 kr.<br>2.4: 440 kr.</td>
+<td>4174–4174 kr.</td>
+<td>+0 kr.</td></tr><tr><td>04-02-2027</td>
+<td>Senge</td>
+<td>0.8: 320 kr.<br>2.0: 200 kr.<br>3.2: 200 kr.</td>
+<td>212–242 kr.</td>
+<td>-4 kr.</td></tr><tr><td>05-02-2027</td>
+<td>Værelser</td>
+<td>0.8: 760 kr.<br>1.6: 480 kr.<br>2.4: 480 kr.</td>
+<td>7656–7656 kr.</td>
+<td>+0 kr.</td></tr><tr><td>05-02-2027</td>
+<td>Senge</td>
+<td>0.8: 390 kr.<br>2.0: 240 kr.<br>3.2: 240 kr.</td>
+<td>554–683 kr.</td>
+<td>-20 kr.</td></tr><tr><td>06-02-2027</td>
+<td>Værelser</td>
+<td>0.8: 780 kr.<br>1.6: 490 kr.<br>2.4: 490 kr.</td>
+<td>7991–7991 kr.</td>
+<td>+0 kr.</td></tr><tr><td>06-02-2027</td>
+<td>Senge</td>
+<td>0.8: 420 kr.<br>2.0: 270 kr.<br>3.2: 270 kr.</td>
+<td>853–1026 kr.</td>
+<td>-26 kr.</td></tr><tr><td>07-02-2027</td>
+<td>Værelser</td>
+<td>0.8: 510 kr.<br>1.6: 380 kr.<br>2.4: 380 kr.</td>
+<td>816–816 kr.</td>
+<td>+0 kr.</td></tr><tr><td>07-02-2027</td>
+<td>Senge</td>
+<td>0.8: 270 kr.<br>2.0: 190 kr.<br>3.2: 190 kr.</td>
+<td>170–197 kr.</td>
+<td>-2 kr.</td></tr><tr><td>08-02-2027</td>
+<td>Værelser</td>
+<td>0.8: 600 kr.<br>1.6: 380 kr.<br>2.4: 380 kr.</td>
+<td>2405–2405 kr.</td>
+<td>+0 kr.</td></tr><tr><td>08-02-2027</td>
+<td>Senge</td>
+<td>0.8: 290 kr.<br>2.0: 180 kr.<br>3.2: 180 kr.</td>
+<td>166–221 kr.</td>
+<td>-6 kr.</td></tr><tr><td>09-02-2027</td>
+<td>Værelser</td>
+<td>0.8: 690 kr.<br>1.6: 440 kr.<br>2.4: 440 kr.</td>
+<td>3069–3069 kr.</td>
+<td>+0 kr.</td></tr><tr><td>09-02-2027</td>
+<td>Senge</td>
+<td>0.8: 300 kr.<br>2.0: 190 kr.<br>3.2: 190 kr.</td>
+<td>184–213 kr.</td>
+<td>-5 kr.</td></tr><tr><td>10-02-2027</td>
+<td>Værelser</td>
+<td>0.8: 720 kr.<br>1.6: 450 kr.<br>2.4: 450 kr.</td>
+<td>2241–2241 kr.</td>
+<td>+0 kr.</td></tr><tr><td>10-02-2027</td>
+<td>Senge</td>
+<td>0.8: 300 kr.<br>2.0: 190 kr.<br>3.2: 190 kr.</td>
+<td>217–249 kr.</td>
+<td>-6 kr.</td></tr><tr><td>11-02-2027</td>
+<td>Værelser</td>
+<td>0.8: 700 kr.<br>1.6: 440 kr.<br>2.4: 440 kr.</td>
+<td>4418–4418 kr.</td>
+<td>+0 kr.</td></tr><tr><td>11-02-2027</td>
+<td>Senge</td>
+<td>0.8: 320 kr.<br>2.0: 200 kr.<br>3.2: 200 kr.</td>
+<td>216–247 kr.</td>
+<td>-4 kr.</td></tr><tr><td>12-02-2027</td>
+<td>Værelser</td>
+<td>0.8: 760 kr.<br>1.6: 480 kr.<br>2.4: 480 kr.</td>
+<td>7892–7892 kr.</td>
+<td>+0 kr.</td></tr><tr><td>12-02-2027</td>
+<td>Senge</td>
+<td>0.8: 390 kr.<br>2.0: 240 kr.<br>3.2: 240 kr.</td>
+<td>563–694 kr.</td>
+<td>-21 kr.</td></tr><tr><td>13-02-2027</td>
+<td>Værelser</td>
+<td>0.8: 780 kr.<br>1.6: 490 kr.<br>2.4: 490 kr.</td>
+<td>8265–8265 kr.</td>
+<td>+0 kr.</td></tr><tr><td>13-02-2027</td>
+<td>Senge</td>
+<td>0.8: 420 kr.<br>2.0: 270 kr.<br>3.2: 270 kr.</td>
+<td>862–1037 kr.</td>
+<td>-27 kr.</td></tr><tr><td>14-02-2027</td>
+<td>Værelser</td>
+<td>0.8: 510 kr.<br>1.6: 380 kr.<br>2.4: 380 kr.</td>
+<td>641–641 kr.</td>
+<td>+0 kr.</td></tr><tr><td>14-02-2027</td>
+<td>Senge</td>
+<td>0.8: 300 kr.<br>2.0: 190 kr.<br>3.2: 190 kr.</td>
+<td>177–204 kr.</td>
+<td>-4 kr.</td></tr><tr><td>15-02-2027</td>
+<td>Værelser</td>
+<td>0.8: 600 kr.<br>1.6: 380 kr.<br>2.4: 380 kr.</td>
+<td>2236–2236 kr.</td>
+<td>+0 kr.</td></tr><tr><td>15-02-2027</td>
+<td>Senge</td>
+<td>0.8: 290 kr.<br>2.0: 180 kr.<br>3.2: 180 kr.</td>
+<td>172–229 kr.</td>
+<td>-9 kr.</td></tr><tr><td>16-02-2027</td>
+<td>Værelser</td>
+<td>0.8: 440 kr.<br>1.6: 440 kr.<br>2.4: 440 kr.</td>
+<td>0–0 kr.</td>
+<td>+0 kr.</td></tr><tr><td>16-02-2027</td>
+<td>Senge</td>
+<td>0.8: 300 kr.<br>2.0: 190 kr.<br>3.2: 190 kr.</td>
+<td>191–221 kr.</td>
+<td>-6 kr.</td></tr><tr><td>17-02-2027</td>
+<td>Værelser</td>
+<td>0.8: 450 kr.<br>1.6: 450 kr.<br>2.4: 450 kr.</td>
+<td>0–0 kr.</td>
+<td>+0 kr.</td></tr><tr><td>17-02-2027</td>
+<td>Senge</td>
+<td>0.8: 300 kr.<br>2.0: 190 kr.<br>3.2: 190 kr.</td>
+<td>226–259 kr.</td>
+<td>-7 kr.</td></tr><tr><td>18-02-2027</td>
+<td>Værelser</td>
+<td>0.8: 440 kr.<br>1.6: 440 kr.<br>2.4: 440 kr.</td>
+<td>0–0 kr.</td>
+<td>+0 kr.</td></tr><tr><td>18-02-2027</td>
+<td>Senge</td>
+<td>0.8: 320 kr.<br>2.0: 200 kr.<br>3.2: 200 kr.</td>
+<td>229–229 kr.</td>
+<td>+0 kr.</td></tr><tr><td>19-02-2027</td>
+<td>Værelser</td>
+<td>0.8: 760 kr.<br>1.6: 480 kr.<br>2.4: 480 kr.</td>
+<td>7328–8244 kr.</td>
+<td>-587 kr.</td></tr><tr><td>19-02-2027</td>
+<td>Senge</td>
+<td>0.8: 390 kr.<br>2.0: 240 kr.<br>3.2: 240 kr.</td>
+<td>570–703 kr.</td>
+<td>-22 kr.</td></tr><tr><td>20-02-2027</td>
+<td>Værelser</td>
+<td>0.8: 780 kr.<br>1.6: 490 kr.<br>2.4: 490 kr.</td>
+<td>7407–8310 kr.</td>
+<td>-581 kr.</td></tr><tr><td>20-02-2027</td>
+<td>Senge</td>
+<td>0.8: 420 kr.<br>2.0: 270 kr.<br>3.2: 270 kr.</td>
+<td>871–1047 kr.</td>
+<td>-27 kr.</td></tr>
+</tbody></table></div></details>
+
+<p class="foot">Et negativt tal betyder, at referenceprisen klarer sig bedre i mindst ét valgt scenarie.
+Spændet er ikke et sandsynlighedsinterval, og referenceprisen er ikke en observeret kontrolgruppe.</p>
+</div>
+<div class="panel" style="margin-top:16px">
+<h2>Seneste prognosekontrol · 2026-09-25 – 2026-10-22</h2>
+<p>Kun oprindeligt gemte prognoser med afsluttet dagsresultat tæller. Hvert produkt og hver horisont
+kræver mindst 14 forskellige opholdsdatoer i vinduet. Datoer uden facit tæller ikke som nul.</p>
+<div style="overflow-x:auto"><table><thead><tr><th>Produkt</th><th>Dage før</th><th>Datoer</th><th>Gennemsnitsfejl</th><th>Vurdering</th></tr></thead><tbody>
+<tr><td>Værelser</td><td>1</td><td>3</td>
+<td>4.7</td>
+<td>For få datoer
+</td></tr><tr><td>Værelser</td><td>7</td><td>0</td>
+<td>Mangler</td>
+<td>For få datoer
+</td></tr><tr><td>Værelser</td><td>14</td><td>0</td>
+<td>Mangler</td>
+<td>For få datoer
+</td></tr><tr><td>Værelser</td><td>30</td><td>0</td>
+<td>Mangler</td>
+<td>For få datoer
+</td></tr><tr><td>Senge</td><td>1</td><td>3</td>
+<td>1.8</td>
+<td>For få datoer
+</td></tr><tr><td>Senge</td><td>7</td><td>0</td>
+<td>Mangler</td>
+<td>For få datoer
+</td></tr><tr><td>Senge</td><td>14</td><td>0</td>
+<td>Mangler</td>
+<td>For få datoer
+</td></tr><tr><td>Senge</td><td>30</td><td>0</td>
+<td>Mangler</td>
+<td>For få datoer
+</td></tr>
+</tbody></table></div>
+<p class="foot">Praktiske kontrolregler: systematisk fejl over 20 % (mindst én enhed), under 60 %
+dækning for et 80 %-interval eller større fejl end den simple reference. Referencekontrollen bruger
+samme datoer og kræver både over 20 % og over 0,5 enheds forværring. Dette er ikke en statistisk test
+af et markedsskift eller en priseffekt. Prisændringer, grupper og kapacitet kan påvirke fejlene.
+Vinduet kan omfatte flere modelversioner. Kontrollen ændrer ikke selv modellen eller elasticiteten.</p>
+</div>
+<div class="panel" style="margin-top:16px">
+<h2>Datadækning · seneste færdige beregning #52</h2>
+<p>Hele kørslen: 120 datoer. Aktuelt indlæst værelsesomsætning: 0;
+sengeomsætning: 0. Begge felter er udfyldt på 0 datoer.
+120 omsætningsprognoser i beregningen mangler fuldt datagrundlag.</p>
+<p>Nul tæller som et oplyst tal; tomt er ukendt. Dækningen viser de senest indlæste data,
+og kan derfor være ændret siden prisberegningen.</p>
+<p>Endelig bogført omsætning foreligger først for afsluttede datoer.
+Manglende bogførte tal på fremtidige opholdsdatoer kan ikke udfyldes med en historisk rapport.
+Reservationsværdi frem i tiden er et særskilt prognosegrundlag.</p>
+<table><thead><tr><th>Forslagslog i denne kørsel</th><th>Oprindelig pris valgt</th><th>Nabopris valgt</th><th>Bremset/låst</th></tr></thead>
+<tbody>
+<tr><td>Værelser</td><td>8</td><td>10</td><td>11</td></tr>
+<tr><td>Senge</td><td>2</td><td>0</td><td>0</td></tr></tbody></table>
+<p class="foot">Kun nye logposter med to forskellige priser tælles. Forslag er ikke dokumentation for
+anvendelse, og samme opholdsdato er ikke et nyt uafhængigt forsøg ved hver beregning.</p>
+</div>
+<div class="panel" style="margin-top:16px">
+<h2>Test prognoserne med én daglig rapport</h2>
+<p>Upload Hotelmanager med part 1 og part 2 (Room/Bed) for en afsluttet dato.
+Brug eksklusive moms, pakker, kredit og ude af drift. Bekræft endeligt salg af værelser og senge.</p>
+<p><a href="/resultater">Importér dagsresultat</a> · <a href="/resultater/afvigelser?source=live">Se prognose mod faktisk salg</a></p>
+<p>De gemte prognoser fra 30, 14, 7 og 1 dag før sammenlignes med det faktiske salg.
+Produktudtræk, morgenmad og bogføringsafstemning er valgfrie detaljer og spærrer ikke denne test.</p>
+<p>Hotelmanagers samlede logiomsætning kan gemmes separat som et afrundet tal til økonomisk opfølgning.
+Det er ikke fordelt på rumtyper og er ikke i sig selv dokumentation for effekten af modellens priser.
+Priseffekt kræver faktisk anvendte priser og et sammenligningsgrundlag.</p>
+</div>
+<div class="panel" style="margin-top:16px">
+<h2>Faktiske økonomiske resultater</h2>
+<form class="bar" method="get"><label>Fra <input type="date" name="start" value="2026-09-23"></label>
+<label>Til <input type="date" name="end" value="2027-02-20"></label><button type="submit">Vis periode</button></form>
+<p>5 afsluttede datoer; 3 med logiomsætning til opfølgning,
+0 med tilstrækkelige oplysninger til dækningsbidrag.</p>
+<div style="overflow-x:auto"><table><thead><tr><th>Dato</th><th>Logiomsætning</th><th>RevPAB faktisk</th><th>Dækningsbidrag</th><th>Bidrag pr. tilgængelig seng</th><th>Kilde</th></tr></thead><tbody>
+<tr><td>15-10-2026</td>
+<td>26151.86 kr.</td><td>Mangler</td><td>Mangler</td><td>Mangler</td>
+<td>Bekræftet Hotelmanager + produktomsætning<br><a href="/resultater/rapporter/1397">Kilde og dagsresultat</a>
+<br><small>Ufordelt afrunding inkluderet: 0.01 kr.</small></td></tr><tr><td>16-10-2026</td>
+<td>Mangler</td><td>Mangler</td><td>Mangler</td><td>Mangler</td>
+<td>Bekræftet Hotelmanager · kun salgstal<br><a href="/resultater/rapporter/1395">Kilde og dagsresultat</a>
+</td></tr><tr><td>17-10-2026</td>
+<td>28885.00 kr.</td><td>Mangler</td><td>Mangler</td><td>Mangler</td>
+<td><b>Hotelmanager · afrundet total</b><br>Bekræftet Hotelmanager · salgstal og afrundet logi<br><a href="/resultater/rapporter/1674">Kilde og dagsresultat</a>
+</td></tr><tr><td>19-10-2026</td>
+<td>Mangler</td><td>Mangler</td><td>Mangler</td><td>Mangler</td>
+<td>Bekræftet Hotelmanager · kun salgstal<br><a href="/resultater/rapporter/1949">Kilde og dagsresultat</a>
+</td></tr><tr><td>22-10-2026</td>
+<td>29374.00 kr.</td><td>Mangler</td><td>Mangler</td><td>Mangler</td>
+<td><b>Hotelmanager · afrundet total</b><br>Bekræftet Hotelmanager · salgstal og afrundet logi<br><a href="/resultater/rapporter/2193">Kilde og dagsresultat</a>
+</td></tr></tbody></table></div>
+<figure class="formula"><div data-latex="\operatorname{RevPAB}=\frac{\text{Logiomsætning}}{\text{Tilgængelige senge}}" data-display="true">RevPAB = logiomsætning divideret med tilgængelige senge.</div><figcaption>Faktisk logiomsætning eksklusive moms og morgenmad.</figcaption></figure>
+<p>RevPAB kræver faktisk tilgængelige senge. Dækningsbidrag kræver detaljerede omsætningstal,
+provision og variable omkostninger. Ukendte beløb beregnes ikke med standardsatser.
+Faktisk indtjening er ikke i sig selv dokumentation for en forbedring fra modellen.</p>
+<p><a href="/resultater">Registrér eller importér faktiske resultater</a> ·
+<a href="/resultater/export.csv?start=2026-09-23&amp;end=2027-02-20">Hent resultatlog</a></p>
+</div>
+
+</main>
+<footer class="site-footer"><span>Danhostel Aarhus City</span><span>Prismotor · Prisanalyse og resultater</span></footer>
+<dialog id="notes-popup" class="notes-popup" aria-labelledby="notes-popup-title">
+  <div class="notes-popup-header">
+    <h2 id="notes-popup-title">Huskeliste</h2>
+    <button type="button" class="small" data-close-notes aria-label="Luk huskeliste">Luk ×</button>
+  </div>
+  <div class="notes-popup-body" aria-live="polite"></div>
+</dialog>
+</body>
+</html>

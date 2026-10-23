@@ -37,6 +37,13 @@ hvis `python3` på din maskine peger på noget nyere:
 2. **Priser** → tryk **Kør beregning**
 3. Når det virker: skift eksempelfilerne ud med dine egne to fra Picasso
 
+**Fast adresse på det lokale netværk:** Brug
+[http://MacBook-Pro.local:8000/](http://MacBook-Pro.local:8000/) som bogmærke
+på denne Mac og andre enheder på samme netværk. Adressen bruger Mac’ens navn
+og følger derfor med, når dens lokale IP-adresse ændres. Den gælder, så længe
+Mac’ens lokale værtsnavn er `MacBook-Pro`. Mac’en skal være tændt og vågen,
+og Prismotor skal køre. Adressen giver ikke adgang udefra.
+
 ---
 
 ## De to filer du uploader
@@ -255,12 +262,38 @@ sammenholder dem med den oplyste anvendte pris. Gamle forsøgsoplysninger
 rekonstrueres ikke. Dette er et observationsgrundlag; det erstatter ikke en
 fastlagt forsøgsplan eller måling af faktisk priseksponering og salgsperioder.
 
+### Enkel daglig prognosevalidering
+
+Standardflowet kræver kun Hotelmanager (part 1 og part 2 med Room/Bed),
+eksklusive moms, pakker, kredit og ude af drift, for en afsluttet opholdsdato.
+Bekræft endeligt salg af værelser og senge. Tallene bruges i den eksisterende
+prognosevalidering mod snapshots gemt 30, 14, 7 og 1 dag før opholdsdatoen.
+Produkt- og bogføringsrapporter er valgfrie og spærrer ikke salgstesten.
+
+Samlet logiomsætning fra Hotelmanager kan gemmes særskilt som en afrundet total
+til økonomisk opfølgning. Den fordeles ikke på rumtyper og bruges ikke som
+valideret detaljeret omsætning, dækningsbidrag eller bevis for priseffekt.
+Kilde, rapportdato og oprindelige PDF'er bevares. Eksisterende detaljerede
+økonomital overskrives ikke af den enkle import.
+
+Den tidligere økonomiafstemning er bevaret under valgfri detaljeafstemning:
+
 ### Daglige resultater fra to Picasso-PDF’er
 
 Under **Resultater → Importér afsluttet dagsresultat** uploades Hotelmanager
 (part 1 + part 2 med Room/Bed) og produktomsætning pr. rumtype for samme dato.
 Begge skal være udskrevet efter opholdsdatoen, med de filtre der står på siden.
 Accounts er valgfri til yderligere afstemning.
+
+Hotelmanager eksklusive moms, pakker, kredit og ude af drift er det faste
+logigrundlag. Et match med Hotelmanager inklusive pakker kan forklare
+pakkeindhold, men ændrer ikke importens grundlag eller kravet om opholdsdato.
+Bogført logi afstemmes med en særskilt bro: bogført logi minus Hotelmanager,
+logi uden produktkobling og resterende forskel. Et beløbsmatch er ikke bevis
+for korrekt opholdsdato. Manuelle salg bevares i bogføringen og fordeles ikke
+automatisk på rumtyper eller indregnes som ekstra modelomsætning. Dokumentér
+folio, bilag, beløb eksklusive moms, opholdsdato og eventuel reservation;
+en deaktiveret Open Res beviser ikke alene manglende reservationstilknytning.
 
 Importen arkiverer originalerne efter SHA-256 og opretter et rapportpar til
 kontrol, ikke et afsluttet resultat. Kontrolsiden viser Today / Room Inhouse,
@@ -272,7 +305,11 @@ Ukendte typer, ukendte beløb og væsentlige afvigelser spærrer økonomibekræf
 Trykte rumtypetotaler bruges til opdelingen. Højst 2 øres afrundingsforskel
 mod produktlinjer/hovedtotal kan accepteres og vises; en ufordelt forskel lægges
 kun til samlet omsætning, aldrig til en rumtype. Hotelmanagers hele-kroner-tal
-skal stemme inden for 50 øre, også for gennemsnitspris pr. salgsenhed.
+skal stemme inden for 50 øre for totalen. ADR-afvigelser vises som
+kontroloplysninger, fordi Room Inhouse ikke er dokumenteret som ADR-nævner.
+Kontrolsiden tillader dokumenterede morgenmadsfradrag i pakkelinjer og
+klassifikation af linjer uden opholdsantal som logi. Hver rettelse kræver
+kilde og forklaring og gemmes i et nyt rapportpar; originalerne bevares.
 
 Endelige salgstal og økonomital bekræftes særskilt. Produktudtrækkets
 `Arrival date`-fodtekst kræver kontrol af opholdsdato og morgenmad; et match for

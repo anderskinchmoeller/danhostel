@@ -17,18 +17,17 @@ r med nettopris n(r) og efterspørgselsfaktor m(r):
     omsætning(r) = n(r) x E[min(D x m(r), C)]
     bid price    = n(r) x P(D x m(r) >= C)      (værdien af den sidste enhed)
 
-## Den ene antagelse, og hvorfor den står ét sted
+## Prisrespons og usikkerhed
 
 m(r) er hvor meget efterspørgslen flytter sig med prisen:
 
     m(r) = (pris(r) / pris(reference)) ^ (-elasticitet)
 
-Elasticiteten er ikke målt. Den er det eneste ukendte tal tilbage i
-prisbeslutningen, og det er med vilje: ældre motorer havde flere triggervægte,
-målbelægninger og trinafstande, som alle var gæt. Her er der ét, det står i
-config, og det er præcis det tal `pricing.v4.exploration` begynder at måle fra
-første dag. Indtil det er målt, er standardværdierne branchelitteratur og ikke
-jeres gæster.
+Elasticiteten er ikke målt på egne gæster. 1,6 og 2,0 er arbejdsantagelser,
+ikke dokumenterede brancheestimater. Scenarieoptimeringen i engine.py prøver
+flere antagelser og mindsker største modeltab. Den estimerer ikke elasticitet,
+og scenariegrænser er ikke statistiske konfidensgrænser. Forecastfejl,
+prisendogenitet og ukendt kanaltilgængelighed er fortsat usikkerhedskilder.
 
 Bid price samler tre beslutninger i samme marginale regnestykke:
 
@@ -53,20 +52,14 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import date
-from typing import Sequence
+import math
+from typing import Callable, Sequence
 
 from .demand import DemandModel
 
 DEFAULT_ELASTICITY_ROOMS = 1.6
 DEFAULT_ELASTICITY_BEDS = 2.0
-"""Egenpriselasticitet, ikke målt på egne gæster.
-
-Et enkelt hotels egenpriselasticitet ligger typisk over 1 — gæsten kan vælge
-nabohuset — og sengesalget er mere prisfølsomt end værelsessalget, fordi
-backpackere sammenligner på pris og familier på produkt. Tallene her er
-litteraturniveau og skal erstattes af målinger fra eksplorationen. Sættes de
-til 0, bliver den højeste pris altid den bedste, og modellen mister sin bremse.
-"""
+"""Arbejdsantagelser for egenpriselasticitet, ikke målte estimater."""
 
 
 @dataclass(frozen=True)
@@ -77,6 +70,10 @@ class V4Config:
     level_path: str = "data/demand_level.json"
     elasticity_rooms: float = DEFAULT_ELASTICITY_ROOMS
     elasticity_beds: float = DEFAULT_ELASTICITY_BEDS
+    # Explicit stress assumptions, never fitted estimates or confidence limits.
+    uncertainty_mode: str = "diagnostics"  # diagnostics | minimax_regret
+    elasticity_rooms_scenarios: tuple = (0.8, 1.6, 2.4)
+    elasticity_beds_scenarios: tuple = (0.8, 2.0, 3.2)
     level_alpha: float = 0.07
     level_min: float = 0.6
     level_max: float = 1.6
@@ -110,10 +107,21 @@ class V4Config:
     flex_min_gain: float = 25.0
 
     def __post_init__(self):
-        if min(self.elasticity_rooms, self.elasticity_beds) < 0:
-            raise ValueError("Elasticitet kan ikke være negativ")
+        if self.uncertainty_mode not in ("diagnostics", "minimax_regret"):
+            raise ValueError("Ukendt beslutningsregel for prisusikkerhed")
+        values = (self.elasticity_rooms, self.elasticity_beds,
+                  *self.elasticity_rooms_scenarios, *self.elasticity_beds_scenarios)
+        if any(not math.isfinite(v) or v < 0 for v in values):
+            raise ValueError("Elasticitet skal være endelig og ikke-negativ")
+        if not self.elasticity_rooms_scenarios or not self.elasticity_beds_scenarios:
+            raise ValueError("Prisfølsomhed kræver mindst ét stress-scenarie pr. produkt")
         if not 0 < self.level_min <= 1 <= self.level_max:
             raise ValueError("Niveaugrænserne skal omslutte 1,0")
+
+    def elasticities(self, *, beds=False):
+        nominal = self.elasticity_beds if beds else self.elasticity_rooms
+        scenarios = self.elasticity_beds_scenarios if beds else self.elasticity_rooms_scenarios
+        return tuple(sorted(set((*scenarios, nominal))))
 
 
 def demand_multiplier(price: float, reference_price: float, elasticity: float) -> float:
@@ -175,6 +183,7 @@ class RungChoice:
     multiplier: float = 1.0
     table: list = field(default_factory=list)   # (trin, pris, salg, omsætning)
     reasons: list = field(default_factory=list)
+    uncertainty: dict = field(default_factory=dict)
 
     def as_dict(self) -> dict:
         return {
@@ -187,6 +196,7 @@ class RungChoice:
             "elasticity": self.elasticity, "multiplier": round(self.multiplier, 3),
             "table": [(r, p, round(s, 2), round(v, 1)) for r, p, s, v in self.table],
             "reasons": list(self.reasons),
+            "uncertainty": self.uncertainty,
         }
 
 
@@ -194,7 +204,12 @@ def choose_rung(*, model: DemandModel, rung_prices: Sequence[float],
                 reference_rung: int, lead: int, day: date,
                 capacity_remaining: float, commission: float,
                 variable_cost: float, elasticity: float,
-                level: float = 1.0) -> RungChoice:
+                level: float = 1.0, price_factor: float = 1.0,
+                minimum_rung: int = 0,
+                contribution: Callable[[float], float] | None = None,
+                fixed_capacity: float | None = None,
+                flex_price_factor: float = 1.0,
+                selected_rung: int | None = None) -> RungChoice:
     """Vælg det trin der maksimerer forventet omsætning over fordelingen.
 
     Ingen målbelægning indgår. Trinnet falder ud af to ting: hvor meget
@@ -202,26 +217,44 @@ def choose_rung(*, model: DemandModel, rung_prices: Sequence[float],
     stiger.
     """
     reference_price = rung_prices[reference_rung]
+    net_at = contribution or (lambda p: p * (1 - commission) - variable_cost)
+
+    def value(price, sales, multiplier):
+        net = net_at(price * price_factor)
+        if fixed_capacity is None:
+            return net * sales, net
+        fixed_sales = expected_sales(model, lead, day, min(capacity_remaining, fixed_capacity),
+                                     level=level, multiplier=multiplier)
+        flex_net = net_at(price * flex_price_factor)
+        revenue = net * fixed_sales + flex_net * max(0, sales - fixed_sales)
+        return revenue, flex_net if capacity_remaining > fixed_capacity else net
+
     table, best = [], None
     for index, price in enumerate(rung_prices):
-        net = price * (1 - commission) - variable_cost
         multiplier = demand_multiplier(price, reference_price, elasticity)
         sales = expected_sales(model, lead, day, capacity_remaining,
                                level=level, multiplier=multiplier)
-        revenue = net * sales
+        revenue, _ = value(price, sales, multiplier)
         table.append((index, price, sales, revenue))
-        if best is None or revenue > best[3] + 1e-9:
+        if index >= minimum_rung and (best is None or revenue > best[3] + 1e-9):
             best = (index, price, sales, revenue)
 
+    if selected_rung is not None:
+        if not minimum_rung <= selected_rung < len(table):
+            raise ValueError("Valgt trin ligger uden for de tilladte trin")
+        best = table[selected_rung]
     index, price, sales, revenue = best
-    net = price * (1 - commission) - variable_cost
     multiplier = demand_multiplier(price, reference_price, elasticity)
-    bp = bid_price(model, lead, day, capacity_remaining, net,
+    _, marginal_net = value(price, sales, multiplier)
+    net = revenue / sales if sales > 0 else net_at(price * price_factor)
+    bp = bid_price(model, lead, day, capacity_remaining, marginal_net,
                    level=level, multiplier=multiplier)
     p_sellout = (model.survival(max(1.0, capacity_remaining) / multiplier, lead, day, level)
                  if capacity_remaining > 0 else 1.0)
 
     reasons = []
+    if minimum_rung and max(table, key=lambda row: row[3])[0] < minimum_rung:
+        reasons.append("Rabatgrænse: elasticiteten er ikke målt endnu")
     if index == len(rung_prices) - 1:
         reasons.append("Øverste trin: efterspørgslen bærer mere end stigen rækker til")
     if index == 0:

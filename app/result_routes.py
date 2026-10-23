@@ -36,8 +36,12 @@ def router(settings, templates, current_user):
             run = session.scalar(select(db.Run).where(db.Run.status == "done").order_by(db.Run.id.desc()))
             coverage = economics.coverage(session, run)
             results = economics.final_results(session, first, last, today)
+            from . import forecast_monitor
+            checkpoint_rows, _, _ = forecasts.live_rows(session, today)
+            monitor = forecast_monitor.recent(checkpoint_rows, today)
             return templates.TemplateResponse(request, "economics.html", {
                 "settings": settings, "user": user, "coverage": coverage, "rows": results, "run": run,
+                "monitor": monitor,
                 "start": first.isoformat(), "end": last.isoformat(),
                 "revenue_dates": sum(r["revenue"] is not None for r in results),
                 "contribution_dates": sum(r["contribution"] is not None for r in results),
@@ -157,6 +161,9 @@ def router(settings, templates, current_user):
                     "accounts_report_id": "Rapportgrundlag til bogføringsafstemning",
                     "accounts_reconciliation": "Bogføringsafstemning · ikke ekstra omsætning",
                     "accounts_unallocated": "Ufordelte bogføringsposter · ikke indregnet i rumtyper",
+                    "hotelmanager_lodging_total": "Hotelmanager · samlet logi, afrundet",
+                    "hotelmanager_total_report_id": "Kilde til samlet logi",
+                    "hotelmanager_total_rounded": "Samlet logi er afrundet til hele kroner",
                 },
                 "counts": validation.COUNTS, "money": validation.MONEY,
                 "time_local": lambda t: t.replace(tzinfo=ZoneInfo("UTC")).astimezone(
@@ -208,6 +215,27 @@ def router(settings, templates, current_user):
                     tzinfo=ZoneInfo("UTC")).astimezone(ZoneInfo(settings.timezone)).strftime("%d-%m-%Y %H:%M"),
             })
 
+    @routes.post("/resultater/rapporter/{report_id}/fordeling")
+    async def report_allocation(request: Request, report_id: int, user: str = Depends(current_user)):
+        form=await request.form()
+        with db.get_session() as session:
+            record=report_record(session,report_id)
+            try:
+                payload=json.loads(record.payload)
+                corrections=[]
+                for i,row in enumerate((payload.get('products') or {}).get('rows',[])):
+                    raw=str(form.get(f'breakfast_{i}','')).strip()
+                    lodging=form.get(f'lodging_{i}')=='true'
+                    if raw or lodging:
+                        corrections.append(dict(index=i,breakfast=raw.replace(',','.') or '0',
+                            lodging_confirmed=lodging,note=str(form.get(f'evidence_{i}',''))))
+                revised=picasso_results.correct_products(session,record,corrections,user)
+                session.commit()
+                return RedirectResponse(f'/resultater/rapporter/{revised.id}',status_code=303)
+            except (ValueError, ArithmeticError) as exc:
+                session.rollback()
+                return RedirectResponse(f'/resultater/rapporter/{report_id}?error='+quote(str(exc)),status_code=303)
+
     @routes.post("/resultater/rapporter/{report_id}/bekraeft")
     def report_confirm(report_id: int, final_counts: bool = Form(False), accept_revenue: bool = Form(False),
                        date_confirmed: bool = Form(False), note: str = Form(""),
@@ -225,6 +253,21 @@ def router(settings, templates, current_user):
             except ValueError as exc:
                 session.rollback()
                 return RedirectResponse(f"/resultater/rapporter/{report_id}?error="+quote(str(exc)), status_code=303)
+
+    @routes.post("/resultater/rapporter/{report_id}/enkelt")
+    def report_simple(report_id: int, final_counts: bool = Form(False), hotel_total: bool = Form(False),
+                      note: str = Form(''), user: str = Depends(current_user)):
+        with db.get_session() as session:
+            record=report_record(session,report_id)
+            try:
+                added=picasso_results.confirm(session,record,actor=user,final_counts=final_counts,
+                    accept_revenue=False,date_confirmed=False,accept_hotel_total=hotel_total,note=note)
+                session.commit()
+                message='Salgstal gemt til prognosevalidering' if added else 'Resultatet er allerede gemt'
+                return RedirectResponse(f'/resultater/rapporter/{report_id}?message='+quote(message),status_code=303)
+            except ValueError as exc:
+                session.rollback()
+                return RedirectResponse(f'/resultater/rapporter/{report_id}?error='+quote(str(exc)),status_code=303)
 
     @routes.post("/resultater/registrer")
     async def record(request: Request, kind: str = Form(...), user: str = Depends(current_user)):
@@ -280,6 +323,7 @@ def router(settings, templates, current_user):
                       *[validation.LABELS[k] for k in validation.COUNTS + validation.MONEY],
                       "omsaetning_afrunding_ufordelt", "logi_i_alt", "morgenmad_fratrukket", "rapportpar_id", "logi_pr_rumtype_json",
                       "bogfoering_rapport_id", "bogfoering_ufordelte_poster_json", "bogfoering_afstemning_json",
+                      "hotelmanager_logi_afrundet", "hotelmanager_logi_rapport_id",
                       "daekningsbidrag", "daekningsbidrag_pr_tilgaengelig_seng", "events", "note"]
             buffer = io.StringIO()
             writer = csv.DictWriter(buffer, fieldnames=fields, delimiter=";")
@@ -308,6 +352,8 @@ def router(settings, templates, current_user):
                     "pdf_reservationsbeloeb_fordelt": pdf_data.get("reservation_amount_allocated"),
                     "omsaetning_afrunding_ufordelt": outcome.get("revenue_adjustment"),
                     "logi_i_alt": validation.actual_revenue(outcome),
+                    "hotelmanager_logi_afrundet": outcome.get('hotelmanager_lodging_total'),
+                    "hotelmanager_logi_rapport_id": outcome.get('hotelmanager_total_report_id'),
                     "morgenmad_fratrukket": outcome.get("breakfast_excluded"),
                     "rapportpar_id": outcome.get("result_report_id"),
                     "logi_pr_rumtype_json": json.dumps(outcome["amounts_by_type"], ensure_ascii=False) if "amounts_by_type" in outcome else None,

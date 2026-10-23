@@ -273,8 +273,11 @@ def test_economics_page_shows_missing_evidence_and_manual_limits(client):
     response=client.get('/resultater/oekonomi')
     assert response.status_code==200
     assert 'Økonomisk effekt er ikke målt' in response.text
-    assert 'Upload de to PDF’er' in response.text
-    assert 'Arrival date' in response.text
-    assert 'Accounts / bogføringsrapport er valgfri' in response.text
+    assert 'Hvor meget afhænger priserne af antagelserne?' in response.text
+    assert 'Seneste prognosekontrol' in response.text
+    assert 'konfidensgrænser' in response.text
+    assert 'Test prognoserne med én daglig rapport' in response.text
+    assert 'spærrer ikke denne test' in response.text
+    assert 'afrundet tal til økonomisk opfølgning' in response.text
     assert 'Ingen afsluttede resultater' in response.text
     assert client.get('/resultater/oekonomi?start=2026-10-16&end=2026-10-01').status_code==422

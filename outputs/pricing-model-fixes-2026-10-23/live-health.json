@@ -1,0 +1,20 @@
+{
+  "status": "ok",
+  "pricing_version": 4,
+  "auto_publish": false,
+  "contribution_basis_confirmed": true,
+  "demand_training": {
+    "rum": {
+      "from": "2024-01-01",
+      "through": "2025-12-31"
+    },
+    "senge": {
+      "from": "2025-03-08",
+      "through": "2025-12-31"
+    }
+  },
+  "demand_level": {
+    "rum": 1.119,
+    "senge": 1.0
+  }
+}

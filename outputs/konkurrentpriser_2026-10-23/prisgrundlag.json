@@ -1,0 +1,1818 @@
+{
+  "observed_on": "2026-10-23",
+  "period": [
+    "2026-10-23",
+    "2026-11-23"
+  ],
+  "currency": "DKK",
+  "basis": "Værelse: median af laveste bookbare offentlige private værelse til to voksne i én nat, uden morgenmad. Cabinn, Wakeup, Roberta’s og Aarhus Hostel og Hotel. Milling udeladt. Obligatorisk sengelinned hos Aarhus Hostel tillagt med 70 kr. pr. person, hvor det ikke er inkluderet. Seng: laveste bookbare pris i blandet sovesal hos Roberta’s til én voksen ved to nætter, total divideret med to. Begge kolonner afrundet til hele kroner. Tomt felt betyder intet bookbart tilbud på de aftalte betingelser.",
+  "missing": {
+    "Cabinn Aarhus": [],
+    "Wakeup Aarhus": [
+      "2026-11-07"
+    ],
+    "Roberta's Society": [],
+    "Aarhus Hostel og Hotel": [
+      "2026-10-23",
+      "2026-11-06",
+      "2026-11-07"
+    ],
+    "Roberta sengepris, to nætter": [
+      "2026-10-23",
+      "2026-10-24",
+      "2026-10-30",
+      "2026-10-31",
+      "2026-11-06",
+      "2026-11-07",
+      "2026-11-13",
+      "2026-11-14",
+      "2026-11-19",
+      "2026-11-20",
+      "2026-11-21",
+      "2026-11-22",
+      "2026-11-23"
+    ]
+  },
+  "records": [
+    {
+      "date": "2026-10-23",
+      "cabinn": {
+        "price": 965,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-10-23&departure=2026-10-24&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verified",
+        "date": "2026-10-23",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "wakeup": {
+        "price": 800,
+        "room": "STD",
+        "rate": "ECOBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-10-23&departure=2026-10-24&rooms=1&adults=2&children=0",
+        "status": "verified",
+        "date": "2026-10-23",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "roberta": {
+        "price": 788.5,
+        "total": 788.5,
+        "room": "Double Room Private Bathroom",
+        "rate": 10,
+        "nights": 1,
+        "adults": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-23&nrNights=1&nrAdults=2&amount=1",
+        "status": "verified",
+        "date": "2026-10-23",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "hostel": {
+        "price": null,
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-10-23&numnight=1&numadult=2&numchild=0",
+        "status": "unavailable",
+        "date": "2026-10-23",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "bed": {
+        "price": null,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-23&nrNights=2&nrAdults=1&amount=1",
+        "status": "unavailable",
+        "date": "2026-10-23",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      }
+    },
+    {
+      "date": "2026-10-24",
+      "cabinn": {
+        "price": 917,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-10-24&departure=2026-10-25&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verified",
+        "date": "2026-10-24",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "wakeup": {
+        "price": 800,
+        "room": "STD",
+        "rate": "ECOBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-10-24&departure=2026-10-25&rooms=1&adults=2&children=0",
+        "status": "verified",
+        "date": "2026-10-24",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "roberta": {
+        "price": 683.05,
+        "total": 683.05,
+        "room": "Twin Room Shared Bathroom",
+        "rate": 10,
+        "nights": 1,
+        "adults": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-24&nrNights=1&nrAdults=2&amount=1",
+        "status": "verified",
+        "date": "2026-10-24",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "hostel": {
+        "price": 550,
+        "base": 550,
+        "linen": 0,
+        "room": "Hotelværelse, to enkeltsenge",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-10-24&numnight=1&numadult=2&numchild=0",
+        "status": "verified",
+        "date": "2026-10-24",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "bed": {
+        "price": null,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-24&nrNights=2&nrAdults=1&amount=1",
+        "status": "unavailable",
+        "date": "2026-10-24",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      }
+    },
+    {
+      "date": "2026-10-25",
+      "cabinn": {
+        "price": 715,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-10-25&departure=2026-10-26&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verified",
+        "date": "2026-10-25",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "wakeup": {
+        "price": 650,
+        "room": "STD",
+        "rate": "ECOBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-10-25&departure=2026-10-26&rooms=1&adults=2&children=0",
+        "status": "verified",
+        "date": "2026-10-25",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "roberta": {
+        "price": 476.9,
+        "total": 476.9,
+        "room": "Twin Room Shared Bathroom",
+        "rate": 10,
+        "nights": 1,
+        "adults": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-25&nrNights=1&nrAdults=2&amount=1",
+        "status": "verified",
+        "date": "2026-10-25",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "hostel": {
+        "price": 550,
+        "base": 550,
+        "linen": 0,
+        "room": "Hotelværelse, to enkeltsenge",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-10-25&numnight=1&numadult=2&numchild=0",
+        "status": "verified",
+        "date": "2026-10-25",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "bed": {
+        "price": 151.815,
+        "total": 303.63,
+        "room": "Queen Bed in Mixed Dorm (32-Bed)",
+        "rate": 142,
+        "nights": 2,
+        "adults": 1,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-25&nrNights=2&nrAdults=1&amount=1",
+        "status": "verified",
+        "date": "2026-10-25",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      }
+    },
+    {
+      "date": "2026-10-26",
+      "cabinn": {
+        "price": 917,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-10-26&departure=2026-10-27&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verified",
+        "date": "2026-10-26",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "wakeup": {
+        "price": 750,
+        "room": "STD",
+        "rate": "ECOBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-10-26&departure=2026-10-27&rooms=1&adults=2&children=0",
+        "status": "verified",
+        "date": "2026-10-26",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "roberta": {
+        "price": 502.55,
+        "total": 502.55,
+        "room": "Twin Room Shared Bathroom",
+        "rate": 10,
+        "nights": 1,
+        "adults": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-26&nrNights=1&nrAdults=2&amount=1",
+        "status": "verified",
+        "date": "2026-10-26",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "hostel": {
+        "price": 550,
+        "base": 550,
+        "linen": 0,
+        "room": "Hotelværelse, dobbeltseng",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-10-26&numnight=1&numadult=2&numchild=0",
+        "status": "verified",
+        "date": "2026-10-26",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "bed": {
+        "price": 153.43,
+        "total": 306.86,
+        "room": "Single Bed in Mixed Dorm (10-Bed)",
+        "rate": 142,
+        "nights": 2,
+        "adults": 1,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-26&nrNights=2&nrAdults=1&amount=1",
+        "status": "verified",
+        "date": "2026-10-26",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      }
+    },
+    {
+      "date": "2026-10-27",
+      "cabinn": {
+        "price": 917,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-10-27&departure=2026-10-28&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verified",
+        "date": "2026-10-27",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "wakeup": {
+        "price": 950,
+        "room": "STD",
+        "rate": "ECOBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-10-27&departure=2026-10-28&rooms=1&adults=2&children=0",
+        "status": "verified",
+        "date": "2026-10-27",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "roberta": {
+        "price": 470.25,
+        "total": 470.25,
+        "room": "Twin Room Shared Bathroom",
+        "rate": 10,
+        "nights": 1,
+        "adults": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-27&nrNights=1&nrAdults=2&amount=1",
+        "status": "verified",
+        "date": "2026-10-27",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "hostel": {
+        "price": 550,
+        "base": 550,
+        "linen": 0,
+        "room": "Hotelværelse, dobbeltseng",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-10-27&numnight=1&numadult=2&numchild=0",
+        "status": "verified",
+        "date": "2026-10-27",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "bed": {
+        "price": 153.43,
+        "total": 306.86,
+        "room": "Single Bed in Mixed Dorm (10-Bed)",
+        "rate": 142,
+        "nights": 2,
+        "adults": 1,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-27&nrNights=2&nrAdults=1&amount=1",
+        "status": "verified",
+        "date": "2026-10-27",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      }
+    },
+    {
+      "date": "2026-10-28",
+      "cabinn": {
+        "price": 917,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-10-28&departure=2026-10-29&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verified",
+        "date": "2026-10-28",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "wakeup": {
+        "price": 950,
+        "room": "STD",
+        "rate": "ECOBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-10-28&departure=2026-10-29&rooms=1&adults=2&children=0",
+        "status": "verified",
+        "date": "2026-10-28",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "roberta": {
+        "price": 547.2,
+        "total": 547.2,
+        "room": "Twin Room Shared Bathroom",
+        "rate": 10,
+        "nights": 1,
+        "adults": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-28&nrNights=1&nrAdults=2&amount=1",
+        "status": "verified",
+        "date": "2026-10-28",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "hostel": {
+        "price": 550,
+        "base": 550,
+        "linen": 0,
+        "room": "Hotelværelse, dobbeltseng",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-10-28&numnight=1&numadult=2&numchild=0",
+        "status": "verified",
+        "date": "2026-10-28",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "bed": {
+        "price": 155.445,
+        "total": 310.89,
+        "room": "Single Bed in Mixed Dorm (10-Bed)",
+        "rate": 142,
+        "nights": 2,
+        "adults": 1,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-28&nrNights=2&nrAdults=1&amount=1",
+        "status": "verified",
+        "date": "2026-10-28",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      }
+    },
+    {
+      "date": "2026-10-29",
+      "cabinn": {
+        "price": 917,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-10-29&departure=2026-10-30&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verified",
+        "date": "2026-10-29",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "wakeup": {
+        "price": 850,
+        "room": "STD",
+        "rate": "ECOBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-10-29&departure=2026-10-30&rooms=1&adults=2&children=0",
+        "status": "verified",
+        "date": "2026-10-29",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "roberta": {
+        "price": 517.75,
+        "total": 517.75,
+        "room": "Twin Room Shared Bathroom",
+        "rate": 10,
+        "nights": 1,
+        "adults": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-29&nrNights=1&nrAdults=2&amount=1",
+        "status": "verified",
+        "date": "2026-10-29",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "hostel": {
+        "price": 550,
+        "base": 550,
+        "linen": 0,
+        "room": "Hotelværelse, to enkeltsenge",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-10-29&numnight=1&numadult=2&numchild=0",
+        "status": "verified",
+        "date": "2026-10-29",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "bed": {
+        "price": 157.46,
+        "total": 314.92,
+        "room": "Single Bed in Mixed Dorm (10-Bed)",
+        "rate": 142,
+        "nights": 2,
+        "adults": 1,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-29&nrNights=2&nrAdults=1&amount=1",
+        "status": "verified",
+        "date": "2026-10-29",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      }
+    },
+    {
+      "date": "2026-10-30",
+      "cabinn": {
+        "price": 984,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-10-30&departure=2026-10-31&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verified",
+        "date": "2026-10-30",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "wakeup": {
+        "price": 800,
+        "room": "STD",
+        "rate": "ECOBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-10-30&departure=2026-10-31&rooms=1&adults=2&children=0",
+        "status": "verified",
+        "date": "2026-10-30",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "roberta": {
+        "price": 499.5,
+        "total": 499.5,
+        "room": "Twin Room Shared Bathroom",
+        "rate": 18,
+        "nights": 1,
+        "adults": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-30&nrNights=1&nrAdults=2&amount=1",
+        "status": "verified",
+        "date": "2026-10-30",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "hostel": {
+        "price": 550,
+        "base": 550,
+        "linen": 0,
+        "room": "Hotelværelse, to enkeltsenge",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-10-30&numnight=1&numadult=2&numchild=0",
+        "status": "verified",
+        "date": "2026-10-30",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "bed": {
+        "price": null,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-30&nrNights=2&nrAdults=1&amount=1",
+        "status": "unavailable",
+        "date": "2026-10-30",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      }
+    },
+    {
+      "date": "2026-10-31",
+      "cabinn": {
+        "price": 984,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-10-31&departure=2026-11-01&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verified",
+        "date": "2026-10-31",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "wakeup": {
+        "price": 900,
+        "room": "SKY",
+        "rate": "ECOBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-10-31&departure=2026-11-01&rooms=1&adults=2&children=0",
+        "status": "verified",
+        "date": "2026-10-31",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "roberta": {
+        "price": 642.6,
+        "total": 642.6,
+        "room": "Twin Room Shared Bathroom",
+        "rate": 18,
+        "nights": 1,
+        "adults": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-31&nrNights=1&nrAdults=2&amount=1",
+        "status": "verified",
+        "date": "2026-10-31",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "hostel": {
+        "price": 550,
+        "base": 550,
+        "linen": 0,
+        "room": "Hotelværelse, to enkeltsenge",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-10-31&numnight=1&numadult=2&numchild=0",
+        "status": "verified",
+        "date": "2026-10-31",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "bed": {
+        "price": null,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-10-31&nrNights=2&nrAdults=1&amount=1",
+        "status": "unavailable",
+        "date": "2026-10-31",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      }
+    },
+    {
+      "date": "2026-11-01",
+      "cabinn": {
+        "price": 715,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-11-01&departure=2026-11-02&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verified",
+        "date": "2026-11-01",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "wakeup": {
+        "price": 610,
+        "room": "STD",
+        "rate": "ECOBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-11-01&departure=2026-11-02&rooms=1&adults=2&children=0",
+        "status": "verified",
+        "date": "2026-11-01",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "roberta": {
+        "price": 580.5,
+        "total": 580.5,
+        "room": "Private 4-Bed Room",
+        "rate": 18,
+        "nights": 1,
+        "adults": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-01&nrNights=1&nrAdults=2&amount=1",
+        "status": "verified",
+        "date": "2026-11-01",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "hostel": {
+        "price": 550,
+        "base": 550,
+        "linen": 0,
+        "room": "Hotelværelse, to enkeltsenge",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-11-01&numnight=1&numadult=2&numchild=0",
+        "status": "verified",
+        "date": "2026-11-01",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "bed": {
+        "price": 149.39,
+        "total": 298.78,
+        "room": "Single Bed in Mixed Dorm (10-Bed)",
+        "rate": 142,
+        "nights": 2,
+        "adults": 1,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-01&nrNights=2&nrAdults=1&amount=1",
+        "status": "verified",
+        "date": "2026-11-01",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      }
+    },
+    {
+      "date": "2026-11-02",
+      "cabinn": {
+        "price": 815,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-11-02&departure=2026-11-03&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verified",
+        "date": "2026-11-02",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "wakeup": {
+        "price": 753,
+        "room": "STD",
+        "rate": "ECOBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-11-02&departure=2026-11-03&rooms=1&adults=2&children=0",
+        "status": "verified",
+        "date": "2026-11-02",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "roberta": {
+        "price": 625.5,
+        "total": 625.5,
+        "room": "Double Room Private Bathroom",
+        "rate": 18,
+        "nights": 1,
+        "adults": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-02&nrNights=1&nrAdults=2&amount=1",
+        "status": "verified",
+        "date": "2026-11-02",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "hostel": {
+        "price": 560,
+        "base": 420,
+        "linen": 140,
+        "room": "Køjeseng, fælles bad",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-11-02&numnight=1&numadult=2&numchild=0",
+        "status": "verified",
+        "date": "2026-11-02",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "bed": {
+        "price": 153.43,
+        "total": 306.86,
+        "room": "Queen Bed in Mixed Dorm (32-Bed)",
+        "rate": 142,
+        "nights": 2,
+        "adults": 1,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-02&nrNights=2&nrAdults=1&amount=1",
+        "status": "verified",
+        "date": "2026-11-02",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      }
+    },
+    {
+      "date": "2026-11-03",
+      "cabinn": {
+        "price": 815,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-11-03&departure=2026-11-04&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verified",
+        "date": "2026-11-03",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "wakeup": {
+        "price": 951,
+        "room": "STD",
+        "rate": "FLEXBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-11-03&departure=2026-11-04&rooms=1&adults=2&children=0",
+        "status": "verified",
+        "date": "2026-11-03",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "roberta": {
+        "price": 630,
+        "total": 630,
+        "room": "Private 4-Bed Room",
+        "rate": 18,
+        "nights": 1,
+        "adults": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-03&nrNights=1&nrAdults=2&amount=1",
+        "status": "verified",
+        "date": "2026-11-03",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "hostel": {
+        "price": 560,
+        "base": 420,
+        "linen": 140,
+        "room": "Køjeseng, fælles bad",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-11-03&numnight=1&numadult=2&numchild=0",
+        "status": "verified",
+        "date": "2026-11-03",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "bed": {
+        "price": 153.43,
+        "total": 306.86,
+        "room": "Queen Bed in Mixed Dorm (32-Bed)",
+        "rate": 142,
+        "nights": 2,
+        "adults": 1,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-03&nrNights=2&nrAdults=1&amount=1",
+        "status": "verified",
+        "date": "2026-11-03",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      }
+    },
+    {
+      "date": "2026-11-04",
+      "cabinn": {
+        "price": 815,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-11-04&departure=2026-11-05&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verified",
+        "date": "2026-11-04",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "wakeup": {
+        "price": 979,
+        "room": "STD",
+        "rate": "FLEXBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-11-04&departure=2026-11-05&rooms=1&adults=2&children=0",
+        "status": "verified",
+        "date": "2026-11-04",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "roberta": {
+        "price": 567,
+        "total": 567,
+        "room": "Twin Room Shared Bathroom",
+        "rate": 18,
+        "nights": 1,
+        "adults": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-04&nrNights=1&nrAdults=2&amount=1",
+        "status": "verified",
+        "date": "2026-11-04",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "hostel": {
+        "price": 550,
+        "base": 550,
+        "linen": 0,
+        "room": "Hotelværelse, dobbeltseng",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-11-04&numnight=1&numadult=2&numchild=0",
+        "status": "verified",
+        "date": "2026-11-04",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "bed": {
+        "price": 155.445,
+        "total": 310.89,
+        "room": "Queen Bed in Mixed Dorm (32-Bed)",
+        "rate": 142,
+        "nights": 2,
+        "adults": 1,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-04&nrNights=2&nrAdults=1&amount=1",
+        "status": "verified",
+        "date": "2026-11-04",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      }
+    },
+    {
+      "date": "2026-11-05",
+      "cabinn": {
+        "price": 715,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-11-05&departure=2026-11-06&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verified",
+        "date": "2026-11-05",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "wakeup": {
+        "price": 949,
+        "room": "STD",
+        "rate": "FLEXBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-11-05&departure=2026-11-06&rooms=1&adults=2&children=0",
+        "status": "verified",
+        "date": "2026-11-05",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "roberta": {
+        "price": 538.2,
+        "total": 538.2,
+        "room": "Twin Room Shared Bathroom",
+        "rate": 18,
+        "nights": 1,
+        "adults": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-05&nrNights=1&nrAdults=2&amount=1",
+        "status": "verified",
+        "date": "2026-11-05",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "hostel": {
+        "price": 550,
+        "base": 550,
+        "linen": 0,
+        "room": "Hotelværelse, to enkeltsenge",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-11-05&numnight=1&numadult=2&numchild=0",
+        "status": "verified",
+        "date": "2026-11-05",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "bed": {
+        "price": 157.46,
+        "total": 314.92,
+        "room": "Queen Bed in Mixed Dorm (32-Bed)",
+        "rate": 142,
+        "nights": 2,
+        "adults": 1,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-05&nrNights=2&nrAdults=1&amount=1",
+        "status": "verified",
+        "date": "2026-11-05",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      }
+    },
+    {
+      "date": "2026-11-06",
+      "cabinn": {
+        "price": 965,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-11-06&departure=2026-11-07&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verified",
+        "date": "2026-11-06",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "wakeup": {
+        "price": 1046,
+        "room": "SKY",
+        "rate": "FLEXBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-11-06&departure=2026-11-07&rooms=1&adults=2&children=0",
+        "status": "verified",
+        "date": "2026-11-06",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "roberta": {
+        "price": 694.8,
+        "total": 694.8,
+        "room": "Twin Room Shared Bathroom",
+        "rate": 18,
+        "nights": 1,
+        "adults": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-06&nrNights=1&nrAdults=2&amount=1",
+        "status": "verified",
+        "date": "2026-11-06",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "hostel": {
+        "price": null,
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-11-06&numnight=1&numadult=2&numchild=0",
+        "status": "unavailable",
+        "date": "2026-11-06",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "bed": {
+        "price": null,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-06&nrNights=2&nrAdults=1&amount=1",
+        "status": "unavailable",
+        "date": "2026-11-06",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      }
+    },
+    {
+      "date": "2026-11-07",
+      "cabinn": {
+        "price": 965,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-11-07&departure=2026-11-08&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verified",
+        "date": "2026-11-07",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "wakeup": {
+        "price": null,
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-11-07&departure=2026-11-08&rooms=1&adults=2&children=0",
+        "status": "unavailable",
+        "date": "2026-11-07",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "roberta": {
+        "price": 898.2,
+        "total": 898.2,
+        "room": "Twin Room Shared Bathroom",
+        "rate": 18,
+        "nights": 1,
+        "adults": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-07&nrNights=1&nrAdults=2&amount=1",
+        "status": "verified",
+        "date": "2026-11-07",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "hostel": {
+        "price": null,
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-11-07&numnight=1&numadult=2&numchild=0",
+        "status": "unavailable",
+        "date": "2026-11-07",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "bed": {
+        "price": null,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-07&nrNights=2&nrAdults=1&amount=1",
+        "status": "unavailable",
+        "date": "2026-11-07",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      }
+    },
+    {
+      "date": "2026-11-08",
+      "cabinn": {
+        "price": 715,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-11-08&departure=2026-11-09&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verified",
+        "date": "2026-11-08",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "wakeup": {
+        "price": 643,
+        "room": "STD",
+        "rate": "ECOBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-11-08&departure=2026-11-09&rooms=1&adults=2&children=0",
+        "status": "verified",
+        "date": "2026-11-08",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "roberta": {
+        "price": 456.3,
+        "total": 456.3,
+        "room": "Twin Room Shared Bathroom",
+        "rate": 18,
+        "nights": 1,
+        "adults": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-08&nrNights=1&nrAdults=2&amount=1",
+        "status": "verified",
+        "date": "2026-11-08",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "hostel": {
+        "price": 550,
+        "base": 550,
+        "linen": 0,
+        "room": "Hotelværelse, to enkeltsenge",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-11-08&numnight=1&numadult=2&numchild=0",
+        "status": "verified",
+        "date": "2026-11-08",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "bed": {
+        "price": 149.39,
+        "total": 298.78,
+        "room": "Single Bed in Mixed Dorm (10-Bed)",
+        "rate": 142,
+        "nights": 2,
+        "adults": 1,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-08&nrNights=2&nrAdults=1&amount=1",
+        "status": "verified",
+        "date": "2026-11-08",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      }
+    },
+    {
+      "date": "2026-11-09",
+      "cabinn": {
+        "price": 815,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-11-09&departure=2026-11-10&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verified",
+        "date": "2026-11-09",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "wakeup": {
+        "price": 697,
+        "room": "STD",
+        "rate": "ECOBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-11-09&departure=2026-11-10&rooms=1&adults=2&children=0",
+        "status": "verified",
+        "date": "2026-11-09",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "roberta": {
+        "price": 480.6,
+        "total": 480.6,
+        "room": "Twin Room Shared Bathroom",
+        "rate": 18,
+        "nights": 1,
+        "adults": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-09&nrNights=1&nrAdults=2&amount=1",
+        "status": "verified",
+        "date": "2026-11-09",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "hostel": {
+        "price": 550,
+        "base": 550,
+        "linen": 0,
+        "room": "Hotelværelse, to enkeltsenge",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-11-09&numnight=1&numadult=2&numchild=0",
+        "status": "verified",
+        "date": "2026-11-09",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "bed": {
+        "price": 153.43,
+        "total": 306.86,
+        "room": "Queen Bed in Mixed Dorm (32-Bed)",
+        "rate": 142,
+        "nights": 2,
+        "adults": 1,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-09&nrNights=2&nrAdults=1&amount=1",
+        "status": "verified",
+        "date": "2026-11-09",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      }
+    },
+    {
+      "date": "2026-11-10",
+      "cabinn": {
+        "price": 815,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-11-10&departure=2026-11-11&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verified",
+        "date": "2026-11-10",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "wakeup": {
+        "price": 761,
+        "room": "STD",
+        "rate": "FLEXBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-11-10&departure=2026-11-11&rooms=1&adults=2&children=0",
+        "status": "verified",
+        "date": "2026-11-10",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "roberta": {
+        "price": 496.8,
+        "total": 496.8,
+        "room": "Twin Room Shared Bathroom",
+        "rate": 18,
+        "nights": 1,
+        "adults": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-10&nrNights=1&nrAdults=2&amount=1",
+        "status": "verified",
+        "date": "2026-11-10",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "hostel": {
+        "price": 550,
+        "base": 550,
+        "linen": 0,
+        "room": "Hotelværelse, to enkeltsenge",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-11-10&numnight=1&numadult=2&numchild=0",
+        "status": "verified",
+        "date": "2026-11-10",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "bed": {
+        "price": 153.43,
+        "total": 306.86,
+        "room": "Queen Bed in Mixed Dorm (32-Bed)",
+        "rate": 142,
+        "nights": 2,
+        "adults": 1,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-10&nrNights=2&nrAdults=1&amount=1",
+        "status": "verified",
+        "date": "2026-11-10",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      }
+    },
+    {
+      "date": "2026-11-11",
+      "cabinn": {
+        "price": 815,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-11-11&departure=2026-11-12&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verified",
+        "date": "2026-11-11",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "wakeup": {
+        "price": 898,
+        "room": "STD",
+        "rate": "ECOBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-11-11&departure=2026-11-12&rooms=1&adults=2&children=0",
+        "status": "verified",
+        "date": "2026-11-11",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "roberta": {
+        "price": 567.9,
+        "total": 567.9,
+        "room": "Twin Room Shared Bathroom",
+        "rate": 18,
+        "nights": 1,
+        "adults": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-11&nrNights=1&nrAdults=2&amount=1",
+        "status": "verified",
+        "date": "2026-11-11",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "hostel": {
+        "price": 550,
+        "base": 550,
+        "linen": 0,
+        "room": "Hotelværelse, to enkeltsenge",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-11-11&numnight=1&numadult=2&numchild=0",
+        "status": "verified",
+        "date": "2026-11-11",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "bed": {
+        "price": 155.445,
+        "total": 310.89,
+        "room": "Queen Bed in Mixed Dorm (32-Bed)",
+        "rate": 142,
+        "nights": 2,
+        "adults": 1,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-11&nrNights=2&nrAdults=1&amount=1",
+        "status": "verified",
+        "date": "2026-11-11",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      }
+    },
+    {
+      "date": "2026-11-12",
+      "cabinn": {
+        "price": 741,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-11-12&departure=2026-11-13&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verified",
+        "date": "2026-11-12",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "wakeup": {
+        "price": 809,
+        "room": "STD",
+        "rate": "FLEXBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-11-12&departure=2026-11-13&rooms=1&adults=2&children=0",
+        "status": "verified",
+        "date": "2026-11-12",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "roberta": {
+        "price": 630,
+        "total": 630,
+        "room": "Private 4-Bed Room",
+        "rate": 18,
+        "nights": 1,
+        "adults": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-12&nrNights=1&nrAdults=2&amount=1",
+        "status": "verified",
+        "date": "2026-11-12",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "hostel": {
+        "price": 550,
+        "base": 550,
+        "linen": 0,
+        "room": "Hotelværelse, to enkeltsenge",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-11-12&numnight=1&numadult=2&numchild=0",
+        "status": "verified",
+        "date": "2026-11-12",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "bed": {
+        "price": 155.445,
+        "total": 310.89,
+        "room": "Single Bed in Mixed Dorm (10-Bed)",
+        "rate": 142,
+        "nights": 2,
+        "adults": 1,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-12&nrNights=2&nrAdults=1&amount=1",
+        "status": "verified",
+        "date": "2026-11-12",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      }
+    },
+    {
+      "date": "2026-11-13",
+      "cabinn": {
+        "price": 984,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-11-13&departure=2026-11-14&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verified",
+        "date": "2026-11-13",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "wakeup": {
+        "price": 1289,
+        "room": "STD",
+        "rate": "ECOBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-11-13&departure=2026-11-14&rooms=1&adults=2&children=0",
+        "status": "verified",
+        "date": "2026-11-13",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "roberta": {
+        "price": 865.8,
+        "total": 865.8,
+        "room": "Twin Room Shared Bathroom",
+        "rate": 18,
+        "nights": 1,
+        "adults": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-13&nrNights=1&nrAdults=2&amount=1",
+        "status": "verified",
+        "date": "2026-11-13",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "hostel": {
+        "price": 550,
+        "base": 550,
+        "linen": 0,
+        "room": "Hotelværelse, to enkeltsenge",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-11-13&numnight=1&numadult=2&numchild=0",
+        "status": "verified",
+        "date": "2026-11-13",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "bed": {
+        "price": null,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-13&nrNights=2&nrAdults=1&amount=1",
+        "status": "unavailable",
+        "date": "2026-11-13",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      }
+    },
+    {
+      "date": "2026-11-14",
+      "cabinn": {
+        "price": 984,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-11-14&departure=2026-11-15&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verified",
+        "date": "2026-11-14",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "wakeup": {
+        "price": 1356,
+        "room": "SKY",
+        "rate": "FLEXBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-11-14&departure=2026-11-15&rooms=1&adults=2&children=0",
+        "status": "verified",
+        "date": "2026-11-14",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "roberta": {
+        "price": 765.9,
+        "total": 765.9,
+        "room": "Twin Room Shared Bathroom",
+        "rate": 18,
+        "nights": 1,
+        "adults": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-14&nrNights=1&nrAdults=2&amount=1",
+        "status": "verified",
+        "date": "2026-11-14",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "hostel": {
+        "price": 550,
+        "base": 550,
+        "linen": 0,
+        "room": "Hotelværelse, to enkeltsenge",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-11-14&numnight=1&numadult=2&numchild=0",
+        "status": "verified",
+        "date": "2026-11-14",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "bed": {
+        "price": null,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-14&nrNights=2&nrAdults=1&amount=1",
+        "status": "unavailable",
+        "date": "2026-11-14",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      }
+    },
+    {
+      "date": "2026-11-15",
+      "cabinn": {
+        "price": 715,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-11-15&departure=2026-11-16&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verified",
+        "date": "2026-11-15",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "wakeup": {
+        "price": 648,
+        "room": "STD",
+        "rate": "ECOBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-11-15&departure=2026-11-16&rooms=1&adults=2&children=0",
+        "status": "verified",
+        "date": "2026-11-15",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "roberta": {
+        "price": 485.1,
+        "total": 485.1,
+        "room": "Twin Room Shared Bathroom",
+        "rate": 18,
+        "nights": 1,
+        "adults": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-15&nrNights=1&nrAdults=2&amount=1",
+        "status": "verified",
+        "date": "2026-11-15",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "hostel": {
+        "price": 550,
+        "base": 550,
+        "linen": 0,
+        "room": "Hotelværelse, to enkeltsenge",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-11-15&numnight=1&numadult=2&numchild=0",
+        "status": "verified",
+        "date": "2026-11-15",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "bed": {
+        "price": 149.39,
+        "total": 298.78,
+        "room": "Single Bed in Mixed Dorm (10-Bed)",
+        "rate": 142,
+        "nights": 2,
+        "adults": 1,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-15&nrNights=2&nrAdults=1&amount=1",
+        "status": "verified",
+        "date": "2026-11-15",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      }
+    },
+    {
+      "date": "2026-11-16",
+      "cabinn": {
+        "price": 815,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-11-16&departure=2026-11-17&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verified",
+        "date": "2026-11-16",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "wakeup": {
+        "price": 806,
+        "room": "STD",
+        "rate": "ECOBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-11-16&departure=2026-11-17&rooms=1&adults=2&children=0",
+        "status": "verified",
+        "date": "2026-11-16",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "roberta": {
+        "price": 517.5,
+        "total": 517.5,
+        "room": "Twin Room Shared Bathroom",
+        "rate": 18,
+        "nights": 1,
+        "adults": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-16&nrNights=1&nrAdults=2&amount=1",
+        "status": "verified",
+        "date": "2026-11-16",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "hostel": {
+        "price": 550,
+        "base": 550,
+        "linen": 0,
+        "room": "Hotelværelse, to enkeltsenge",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-11-16&numnight=1&numadult=2&numchild=0",
+        "status": "verified",
+        "date": "2026-11-16",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "bed": {
+        "price": 153.43,
+        "total": 306.86,
+        "room": "Queen Bed in Mixed Dorm (32-Bed)",
+        "rate": 142,
+        "nights": 2,
+        "adults": 1,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-16&nrNights=2&nrAdults=1&amount=1",
+        "status": "verified",
+        "date": "2026-11-16",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      }
+    },
+    {
+      "date": "2026-11-17",
+      "cabinn": {
+        "price": 815,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-11-17&departure=2026-11-18&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verified",
+        "date": "2026-11-17",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "wakeup": {
+        "price": 854,
+        "room": "STD",
+        "rate": "ECOBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-11-17&departure=2026-11-18&rooms=1&adults=2&children=0",
+        "status": "verified",
+        "date": "2026-11-17",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "roberta": {
+        "price": 558.9,
+        "total": 558.9,
+        "room": "Twin Room Shared Bathroom",
+        "rate": 18,
+        "nights": 1,
+        "adults": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-17&nrNights=1&nrAdults=2&amount=1",
+        "status": "verified",
+        "date": "2026-11-17",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "hostel": {
+        "price": 550,
+        "base": 550,
+        "linen": 0,
+        "room": "Hotelværelse, dobbeltseng",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-11-17&numnight=1&numadult=2&numchild=0",
+        "status": "verified",
+        "date": "2026-11-17",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "bed": {
+        "price": 153.43,
+        "total": 306.86,
+        "room": "Queen Bed in Mixed Dorm (32-Bed)",
+        "rate": 142,
+        "nights": 2,
+        "adults": 1,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-17&nrNights=2&nrAdults=1&amount=1",
+        "status": "verified",
+        "date": "2026-11-17",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      }
+    },
+    {
+      "date": "2026-11-18",
+      "cabinn": {
+        "price": 815,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-11-18&departure=2026-11-19&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verified",
+        "date": "2026-11-18",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "wakeup": {
+        "price": 994,
+        "room": "STD",
+        "rate": "ECOBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-11-18&departure=2026-11-19&rooms=1&adults=2&children=0",
+        "status": "verified",
+        "date": "2026-11-18",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "roberta": {
+        "price": 563.4,
+        "total": 563.4,
+        "room": "Twin Room Shared Bathroom",
+        "rate": 18,
+        "nights": 1,
+        "adults": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-18&nrNights=1&nrAdults=2&amount=1",
+        "status": "verified",
+        "date": "2026-11-18",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "hostel": {
+        "price": 550,
+        "base": 550,
+        "linen": 0,
+        "room": "Hotelværelse, dobbeltseng",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-11-18&numnight=1&numadult=2&numchild=0",
+        "status": "verified",
+        "date": "2026-11-18",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "bed": {
+        "price": 155.445,
+        "total": 310.89,
+        "room": "Queen Bed in Mixed Dorm (32-Bed)",
+        "rate": 142,
+        "nights": 2,
+        "adults": 1,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-18&nrNights=2&nrAdults=1&amount=1",
+        "status": "verified",
+        "date": "2026-11-18",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      }
+    },
+    {
+      "date": "2026-11-19",
+      "cabinn": {
+        "price": 741,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-11-19&departure=2026-11-20&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verified",
+        "date": "2026-11-19",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "wakeup": {
+        "price": 755,
+        "room": "STD",
+        "rate": "FLEXBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-11-19&departure=2026-11-20&rooms=1&adults=2&children=0",
+        "status": "verified",
+        "date": "2026-11-19",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "roberta": {
+        "price": 572.4,
+        "total": 572.4,
+        "room": "Twin Room Shared Bathroom",
+        "rate": 18,
+        "nights": 1,
+        "adults": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-19&nrNights=1&nrAdults=2&amount=1",
+        "status": "verified",
+        "date": "2026-11-19",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "hostel": {
+        "price": 550,
+        "base": 550,
+        "linen": 0,
+        "room": "Hotelværelse, dobbeltseng",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-11-19&numnight=1&numadult=2&numchild=0",
+        "status": "verified",
+        "date": "2026-11-19",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "bed": {
+        "price": null,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-19&nrNights=2&nrAdults=1&amount=1",
+        "status": "unavailable",
+        "date": "2026-11-19",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      }
+    },
+    {
+      "date": "2026-11-20",
+      "cabinn": {
+        "price": 984,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-11-20&departure=2026-11-21&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verified",
+        "date": "2026-11-20",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "wakeup": {
+        "price": 1581,
+        "room": "SKY",
+        "rate": "FLEXBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-11-20&departure=2026-11-21&rooms=1&adults=2&children=0",
+        "status": "verified",
+        "date": "2026-11-20",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "roberta": {
+        "price": 1071,
+        "total": 1071,
+        "room": "Twin Room Shared Bathroom",
+        "rate": 18,
+        "nights": 1,
+        "adults": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-20&nrNights=1&nrAdults=2&amount=1",
+        "status": "verified",
+        "date": "2026-11-20",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "hostel": {
+        "price": 550,
+        "base": 550,
+        "linen": 0,
+        "room": "Hotelværelse, to enkeltsenge",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-11-20&numnight=1&numadult=2&numchild=0",
+        "status": "verified",
+        "date": "2026-11-20",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "bed": {
+        "price": null,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-20&nrNights=2&nrAdults=1&amount=1",
+        "status": "unavailable",
+        "date": "2026-11-20",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      }
+    },
+    {
+      "date": "2026-11-21",
+      "cabinn": {
+        "price": 984,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-11-21&departure=2026-11-22&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verified",
+        "date": "2026-11-21",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "wakeup": {
+        "price": 868,
+        "room": "STD",
+        "rate": "FLEXBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-11-21&departure=2026-11-22&rooms=1&adults=2&children=0",
+        "status": "verified",
+        "date": "2026-11-21",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "roberta": {
+        "price": 684.9,
+        "total": 684.9,
+        "room": "Twin Room Shared Bathroom",
+        "rate": 18,
+        "nights": 1,
+        "adults": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-21&nrNights=1&nrAdults=2&amount=1",
+        "status": "verified",
+        "date": "2026-11-21",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "hostel": {
+        "price": 560,
+        "base": 420,
+        "linen": 140,
+        "room": "Køjeseng, fælles bad",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-11-21&numnight=1&numadult=2&numchild=0",
+        "status": "verified",
+        "date": "2026-11-21",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "bed": {
+        "price": null,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-21&nrNights=2&nrAdults=1&amount=1",
+        "status": "unavailable",
+        "date": "2026-11-21",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      }
+    },
+    {
+      "date": "2026-11-22",
+      "cabinn": {
+        "price": 715,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-11-22&departure=2026-11-23&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verified",
+        "date": "2026-11-22",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "wakeup": {
+        "price": 568,
+        "room": "STD",
+        "rate": "ECOBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-11-22&departure=2026-11-23&rooms=1&adults=2&children=0",
+        "status": "verified",
+        "date": "2026-11-22",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "roberta": {
+        "price": 494.1,
+        "total": 494.1,
+        "room": "Twin Room Shared Bathroom",
+        "rate": 18,
+        "nights": 1,
+        "adults": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-22&nrNights=1&nrAdults=2&amount=1",
+        "status": "verified",
+        "date": "2026-11-22",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "hostel": {
+        "price": 550,
+        "base": 550,
+        "linen": 0,
+        "room": "Hotelværelse, to enkeltsenge",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-11-22&numnight=1&numadult=2&numchild=0",
+        "status": "verified",
+        "date": "2026-11-22",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "bed": {
+        "price": null,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-22&nrNights=2&nrAdults=1&amount=1",
+        "status": "unavailable",
+        "date": "2026-11-22",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      }
+    },
+    {
+      "date": "2026-11-23",
+      "cabinn": {
+        "price": 815,
+        "url": "https://bookings.cabinn.com/rates-room1?city=35&hotel=62857&arrival=2026-11-23&departure=2026-11-24&rooms=1&adults%5B1%5D=2&children%5B1%5D=0&codeType=default&code=",
+        "status": "verified",
+        "date": "2026-11-23",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "wakeup": {
+        "price": 669,
+        "room": "STD",
+        "rate": "ECOBAR",
+        "url": "https://www.wakeupcopenhagen.dk/?hotel=WAA&arrival=2026-11-23&departure=2026-11-24&rooms=1&adults=2&children=0",
+        "status": "verified",
+        "date": "2026-11-23",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "roberta": {
+        "price": 520.2,
+        "total": 520.2,
+        "room": "Twin Room Shared Bathroom",
+        "rate": 18,
+        "nights": 1,
+        "adults": 2,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-23&nrNights=1&nrAdults=2&amount=1",
+        "status": "verified",
+        "date": "2026-11-23",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "hostel": {
+        "price": 550,
+        "base": 550,
+        "linen": 0,
+        "room": "Hotelværelse, to enkeltsenge",
+        "url": "https://beds24.com/booking2.php?propid=78470&checkin=2026-11-23&numnight=1&numadult=2&numchild=0",
+        "status": "verified",
+        "date": "2026-11-23",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      },
+      "bed": {
+        "price": null,
+        "url": "https://hypercommerce.guestcentric.net/?gc=5f1c0de2fac0153fe31d8017310add55&startDay=2026-11-23&nrNights=2&nrAdults=1&amount=1",
+        "status": "unavailable",
+        "date": "2026-11-23",
+        "observed_on": "2026-10-23",
+        "currency": "DKK"
+      }
+    }
+  ]
+}

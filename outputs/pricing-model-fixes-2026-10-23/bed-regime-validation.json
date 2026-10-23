@@ -1,0 +1,212 @@
+{
+  "created_at": "2026-10-23T09:55:12.484464Z",
+  "training_from": "2025-03-08",
+  "training_through": "2025-09-30",
+  "test_from": "2025-10-01",
+  "test_through": "2025-12-31",
+  "levels": [
+    1.0,
+    1.0
+  ],
+  "purpose": "Development comparison; used for selection, not an independent acceptance test",
+  "caveats": [
+    "Ingen træningsobservationer fra testperioden.",
+    "Rekonstrueret historik; blokeringer, flex og ændringshistorik er ukendte.",
+    "Måler salg ved historiske priser, ikke priseffekt eller omsætningsgevinst.",
+    "Nyere fremadrettede resultater skal fortsat indsamles."
+  ],
+  "metrics": [
+    {
+      "product": "senge",
+      "lead": 1,
+      "segment": "all",
+      "n": 92,
+      "n_baseline": 0,
+      "mae": 2.4361677333695653,
+      "bias": 2.2774562501086955,
+      "baseline_mae": null,
+      "paired_model_mae": null,
+      "advantage": null,
+      "advantage_ci": null,
+      "coverage": {
+        "50": 0.5652173913043478,
+        "80": 0.9891304347826086,
+        "90": 0.9891304347826086
+      },
+      "interval_width": {
+        "50": 4.619191802114081,
+        "80": 8.639768101660113,
+        "90": 12.733852870326478
+      },
+      "candidate": "all_history"
+    },
+    {
+      "product": "senge",
+      "lead": 7,
+      "segment": "all",
+      "n": 92,
+      "n_baseline": 0,
+      "mae": 6.201980334130434,
+      "bias": 6.033696683695653,
+      "baseline_mae": null,
+      "paired_model_mae": null,
+      "advantage": null,
+      "advantage_ci": null,
+      "coverage": {
+        "50": 0.5978260869565217,
+        "80": 0.8804347826086957,
+        "90": 0.9347826086956522
+      },
+      "interval_width": {
+        "50": 12.563816445705944,
+        "80": 20.158077773369243,
+        "90": 26.328898852961583
+      },
+      "candidate": "all_history"
+    },
+    {
+      "product": "senge",
+      "lead": 14,
+      "segment": "all",
+      "n": 92,
+      "n_baseline": 0,
+      "mae": 7.9910388293478265,
+      "bias": 7.874553888913043,
+      "baseline_mae": null,
+      "paired_model_mae": null,
+      "advantage": null,
+      "advantage_ci": null,
+      "coverage": {
+        "50": 0.5217391304347826,
+        "80": 0.8586956521739131,
+        "90": 0.9239130434782609
+      },
+      "interval_width": {
+        "50": 15.140467161431907,
+        "80": 23.88352443123204,
+        "90": 30.91876317503513
+      },
+      "candidate": "all_history"
+    },
+    {
+      "product": "senge",
+      "lead": 30,
+      "segment": "all",
+      "n": 92,
+      "n_baseline": 0,
+      "mae": 9.198651129782608,
+      "bias": 9.115907435434782,
+      "baseline_mae": null,
+      "paired_model_mae": null,
+      "advantage": null,
+      "advantage_ci": null,
+      "coverage": {
+        "50": 0.43478260869565216,
+        "80": 0.8804347826086957,
+        "90": 0.9891304347826086
+      },
+      "interval_width": {
+        "50": 17.24862777969074,
+        "80": 26.428425670056626,
+        "90": 36.83505485732952
+      },
+      "candidate": "all_history"
+    },
+    {
+      "product": "senge",
+      "lead": 1,
+      "segment": "all",
+      "n": 92,
+      "n_baseline": 0,
+      "mae": 1.1550283922826088,
+      "bias": 0.12340359684782608,
+      "baseline_mae": null,
+      "paired_model_mae": null,
+      "advantage": null,
+      "advantage_ci": null,
+      "coverage": {
+        "50": 0.2826086956521739,
+        "80": 0.7391304347826086,
+        "90": 0.9891304347826086
+      },
+      "interval_width": {
+        "50": 1.2908075544345814,
+        "80": 2.2098675301329185,
+        "90": 7.87658322668565
+      },
+      "candidate": "recent_beds"
+    },
+    {
+      "product": "senge",
+      "lead": 7,
+      "segment": "all",
+      "n": 92,
+      "n_baseline": 0,
+      "mae": 2.4706490508695653,
+      "bias": 0.05207745086956514,
+      "baseline_mae": null,
+      "paired_model_mae": null,
+      "advantage": null,
+      "advantage_ci": null,
+      "coverage": {
+        "50": 0.6521739130434783,
+        "80": 0.8152173913043478,
+        "90": 0.967391304347826
+      },
+      "interval_width": {
+        "50": 5.087335960064203,
+        "80": 8.941129439504666,
+        "90": 11.752871999044013
+      },
+      "candidate": "recent_beds"
+    },
+    {
+      "product": "senge",
+      "lead": 14,
+      "segment": "all",
+      "n": 92,
+      "n_baseline": 0,
+      "mae": 2.674450530978261,
+      "bias": 0.10296485249999969,
+      "baseline_mae": null,
+      "paired_model_mae": null,
+      "advantage": null,
+      "advantage_ci": null,
+      "coverage": {
+        "50": 0.5760869565217391,
+        "80": 0.8369565217391305,
+        "90": 0.9130434782608695
+      },
+      "interval_width": {
+        "50": 5.244227663313745,
+        "80": 9.609868988992707,
+        "90": 12.774854833392622
+      },
+      "candidate": "recent_beds"
+    },
+    {
+      "product": "senge",
+      "lead": 30,
+      "segment": "all",
+      "n": 92,
+      "n_baseline": 0,
+      "mae": 2.6928364302173913,
+      "bias": -0.346968686521739,
+      "baseline_mae": null,
+      "paired_model_mae": null,
+      "advantage": null,
+      "advantage_ci": null,
+      "coverage": {
+        "50": 0.5978260869565217,
+        "80": 0.9021739130434783,
+        "90": 0.9347826086956522
+      },
+      "interval_width": {
+        "50": 5.476622215853376,
+        "80": 11.21335649362585,
+        "90": 13.69424971015114
+      },
+      "candidate": "recent_beds"
+    }
+  ]
+}

@@ -925,3 +925,504 @@ INFO:     192.168.1.63:53353 - "GET /static/fonts/et-book/et-book-bold-line-figu
 INFO:     127.0.0.1:54650 - "GET /resultater/rapporter/1395 HTTP/1.1" 401 Unauthorized
 INFO:     127.0.0.1:54656 - "GET /resultater/oekonomi HTTP/1.1" 401 Unauthorized
 INFO:     127.0.0.1:54656 - "GET /events HTTP/1.1" 401 Unauthorized
+INFO:     192.168.1.63:56827 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.63:56828 - "GET /static/vendor/katex/katex.min.css HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:56827 - "GET /static/fonts/et-book/et-book-roman-line-figures.woff HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:56829 - "GET /static/academic.css?v=et-book-notes-14 HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:56830 - "GET /static/academic.js?v=space-mono-article-4 HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:56832 - "GET /static/notes.js?v=1 HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:56831 - "GET /static/vendor/katex/katex.min.js HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:56831 - "GET /static/fonts/et-book/et-book-bold-line-figures.woff HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:56831 - "GET /static/fonts/space-mono/SpaceMono-Regular.ttf HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:56833 - "GET /daglig-koersel HTTP/1.1" 200 OK
+INFO:     192.168.1.63:56967 - "GET /to-do HTTP/1.1" 200 OK
+INFO:     192.168.1.63:56967 - "GET /daglig-koersel HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57087 - "GET /daglig-koersel HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57095 - "GET /data HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57116 - "POST /data/upload HTTP/1.1" 303 See Other
+INFO:     192.168.1.63:57116 - "GET /data?message=121%20datoer%20med%20bel%C3%A6gning%20importeret%20fra%20Arrivals_on_18-09-2026_to_15-02-202710.pdf%20%E2%80%94%20151%20nye%20PDF-observationer%20gemt%20i%20resultatloggen%20%E2%80%94%20Ikke%20medregnet%3A%20177%20enheder%20p%C3%A5%20tentative/forel%C3%B8bige/venteliste-bookinger. HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57116 - "GET /daglig-koersel HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57119 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57121 - "POST /run HTTP/1.1" 303 See Other
+INFO:     192.168.1.63:57121 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57129 - "GET /daglig-koersel HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57131 - "GET /data HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57136 - "POST /data/upload HTTP/1.1" 303 See Other
+INFO:     192.168.1.63:57136 - "GET /data?message=32%20datoer%20med%20konkurrentpriser%20importeret%20fra%20konkurrentpriser_2026-10-17.csv HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57140 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57140 - "POST /run HTTP/1.1" 303 See Other
+INFO:     192.168.1.63:57140 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57151 - "POST /decide HTTP/1.1" 303 See Other
+INFO:     192.168.1.63:57151 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57155 - "GET /daglig-koersel HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57160 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57170 - "POST /resultater/rapporter HTTP/1.1" 303 See Other
+INFO:     192.168.1.63:57170 - "GET /resultater?error=Bogf%C3%B8ringsrapporten%20skal%20d%C3%A6kke%20pr%C3%A6cis%20%C3%A9n%20dato HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57172 - "POST /resultater/rapporter HTTP/1.1" 303 See Other
+INFO:     192.168.1.63:57172 - "GET /resultater?error=Alle%20rapporter%20skal%20g%C3%A6lde%20samme%20dato HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57232 - "POST /resultater/rapporter HTTP/1.1" 303 See Other
+INFO:     192.168.1.63:57232 - "GET /resultater?error=Alle%20rapporter%20skal%20g%C3%A6lde%20samme%20dato HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57238 - "GET /daglig-koersel HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57244 - "GET /resultater/oekonomi HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57244 - "GET /static/fonts/et-book/et-book-italic.woff2 HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:57244 - "GET /static/vendor/katex/fonts/KaTeX_Main-Regular.woff2 HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:57255 - "GET /data HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57255 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57255 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57263 - "POST /resultater/rapporter HTTP/1.1" 303 See Other
+INFO:     192.168.1.63:57263 - "GET /resultater?error=Alle%20rapporter%20skal%20g%C3%A6lde%20samme%20dato HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57292 - "POST /resultater/rapporter HTTP/1.1" 303 See Other
+INFO:     192.168.1.63:57292 - "GET /resultater?error=Bogf%C3%B8ringsrapporten%20skal%20d%C3%A6kke%20pr%C3%A6cis%20%C3%A9n%20dato HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57301 - "POST /resultater/rapporter HTTP/1.1" 303 See Other
+INFO:     192.168.1.63:57301 - "GET /resultater/rapporter/1672 HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57315 - "POST /resultater/rapporter/1672/bekraeft HTTP/1.1" 303 See Other
+INFO:     192.168.1.63:57315 - "GET /resultater/rapporter/1672?message=Kontrolleret%20resultat%20gemt HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57316 - "GET /resultater/oekonomi HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57316 - "GET /resultater/prognoser HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57322 - "GET /daglig-koersel HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57323 - "GET /data HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57325 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57329 - "POST /data/upload HTTP/1.1" 303 See Other
+INFO:     192.168.1.63:57329 - "GET /resultater?message=121%20datoer%20med%20bel%C3%A6gning%20importeret%20fra%20Arrivals_on_18-09-2026_to_15-02-202710.pdf%20%E2%80%94%200%20nye%20PDF-observationer%20gemt%20i%20resultatloggen%20%E2%80%94%20Ikke%20medregnet%3A%20177%20enheder%20p%C3%A5%20tentative/forel%C3%B8bige/venteliste-bookinger. HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57333 - "GET /resultater/afvigelser HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57333 - "GET /static/vendor/katex/fonts/KaTeX_Size2-Regular.woff2 HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:57334 - "GET /static/vendor/katex/fonts/KaTeX_Math-Italic.woff2 HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:57339 - "GET /resultater/prognoser HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57343 - "GET /resultater/oekonomi HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57355 - "GET /resultater/export.csv?start=2026-09-18&end=2027-02-15 HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57510 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     192.168.1.63:57856 - "POST /resultater/rapporter HTTP/1.1" 303 See Other
+INFO:     192.168.1.63:57856 - "GET /resultater?error=Brug%20Hotelmanager%20eksklusive%20moms%2C%20pakker%2C%20kredit%20og%20ude%20af%20drift%20som%20i%20den%20aftalte%20ops%C3%A6tning HTTP/1.1" 200 OK
+INFO:     192.168.1.63:58181 - "GET /resultater/afvigelser HTTP/1.1" 200 OK
+INFO:     192.168.1.63:58284 - "GET /resultater/afvigelser HTTP/1.1" 200 OK
+INFO:     192.168.1.63:58284 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     192.168.1.63:58292 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     192.168.1.63:58294 - "POST /resultater/rapporter HTTP/1.1" 303 See Other
+INFO:     192.168.1.63:58294 - "GET /resultater?error=Brug%20Hotelmanager%20eksklusive%20moms%2C%20pakker%2C%20kredit%20og%20ude%20af%20drift%20som%20i%20den%20aftalte%20ops%C3%A6tning HTTP/1.1" 200 OK
+INFO:     192.168.1.63:58296 - "POST /resultater/rapporter HTTP/1.1" 303 See Other
+INFO:     192.168.1.63:58296 - "GET /resultater/rapporter/1672 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58365 - "GET /resultater HTTP/1.1" 401 Unauthorized
+INFO:     192.168.1.63:58383 - "GET /resultater/rapporter/1672 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58484 - "GET /resultater HTTP/1.1" 401 Unauthorized
+INFO:     192.168.1.63:58511 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.63:58511 - "GET /data HTTP/1.1" 200 OK
+INFO:     192.168.1.63:58511 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     192.168.1.63:58513 - "POST /resultater/rapporter HTTP/1.1" 303 See Other
+INFO:     192.168.1.63:58513 - "GET /resultater/rapporter/1674 HTTP/1.1" 200 OK
+INFO:     192.168.1.63:58517 - "POST /resultater/rapporter/1674/enkelt HTTP/1.1" 303 See Other
+INFO:     192.168.1.63:58517 - "GET /resultater/rapporter/1674?message=Salgstal%20gemt%20til%20prognosevalidering HTTP/1.1" 200 OK
+INFO:     192.168.1.63:58517 - "GET /resultater/afvigelser?source=live HTTP/1.1" 200 OK
+INFO:     192.168.1.63:58523 - "GET /resultater/oekonomi HTTP/1.1" 200 OK
+INFO:     192.168.1.63:58553 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.63:58555 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     192.168.1.63:58561 - "GET /resultater/oekonomi HTTP/1.1" 200 OK
+INFO:     192.168.1.63:58565 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     192.168.1.63:58576 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.63:58628 - "GET /daglig-koersel HTTP/1.1" 200 OK
+INFO:     192.168.1.63:65281 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.63:65286 - "GET /static/notes.js?v=1 HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:65281 - "GET /static/fonts/et-book/et-book-roman-line-figures.woff HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:65285 - "GET /static/vendor/katex/katex.min.js HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:65284 - "GET /static/academic.js?v=space-mono-article-4 HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:65283 - "GET /static/academic.css?v=et-book-notes-14 HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:65282 - "GET /static/vendor/katex/katex.min.css HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:65285 - "GET /static/fonts/et-book/et-book-bold-line-figures.woff HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:65285 - "GET /static/fonts/space-mono/SpaceMono-Regular.ttf HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:65285 - "GET /data HTTP/1.1" 200 OK
+INFO:     192.168.1.63:65285 - "GET /grupper HTTP/1.1" 200 OK
+INFO:     192.168.1.63:65285 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     192.168.1.63:65285 - "GET /events HTTP/1.1" 200 OK
+INFO:     192.168.1.63:65285 - "GET /static/fonts/et-book/et-book-italic.woff2 HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:65285 - "GET /settings HTTP/1.1" 200 OK
+INFO:     192.168.1.63:65289 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     192.168.1.63:65289 - "GET /data HTTP/1.1" 200 OK
+INFO:     192.168.1.63:65289 - "GET /grupper HTTP/1.1" 200 OK
+INFO:     192.168.1.63:55933 - "GET / HTTP/1.1" 401 Unauthorized
+INFO:     192.168.1.63:55933 - "GET / HTTP/1.1" 401 Unauthorized
+INFO:     192.168.1.63:55933 - "GET / HTTP/1.1" 401 Unauthorized
+INFO:     192.168.1.63:55967 - "GET / HTTP/1.1" 401 Unauthorized
+INFO:     192.168.1.22:49563 - "GET / HTTP/1.1" 401 Unauthorized
+INFO:     192.168.1.22:49563 - "GET / HTTP/1.1" 401 Unauthorized
+INFO:     192.168.1.22:49564 - "GET / HTTP/1.1" 401 Unauthorized
+INFO:     192.168.1.22:49579 - "GET / HTTP/1.1" 401 Unauthorized
+INFO:     192.168.1.22:49580 - "GET / HTTP/1.1" 401 Unauthorized
+INFO:     192.168.1.22:49580 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.22:49580 - "GET /static/fonts/et-book/et-book-roman-line-figures.woff HTTP/1.1" 200 OK
+INFO:     192.168.1.22:49581 - "GET /static/vendor/katex/katex.min.css HTTP/1.1" 200 OK
+INFO:     192.168.1.22:49582 - "GET /static/academic.css?v=et-book-notes-14 HTTP/1.1" 200 OK
+INFO:     192.168.1.22:49583 - "GET /static/vendor/katex/katex.min.js HTTP/1.1" 200 OK
+INFO:     192.168.1.22:49584 - "GET /static/academic.js?v=space-mono-article-4 HTTP/1.1" 200 OK
+INFO:     192.168.1.22:49585 - "GET /static/notes.js?v=1 HTTP/1.1" 200 OK
+INFO:     192.168.1.22:49580 - "GET /static/fonts/et-book/et-book-bold-line-figures.woff HTTP/1.1" 200 OK
+INFO:     192.168.1.22:49582 - "GET /static/fonts/space-mono/SpaceMono-Regular.ttf HTTP/1.1" 200 OK
+INFO:     192.168.1.22:49581 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     192.168.1.22:49723 - "GET /data HTTP/1.1" 200 OK
+INFO:     192.168.1.22:49724 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.22:49804 - "GET / HTTP/1.1" 401 Unauthorized
+INFO:     192.168.1.22:49804 - "GET / HTTP/1.1" 401 Unauthorized
+INFO:     192.168.1.22:49804 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.22:49804 - "GET /static/fonts/et-book/et-book-roman-line-figures.woff HTTP/1.1" 200 OK
+INFO:     192.168.1.22:49809 - "GET /static/academic.css?v=et-book-notes-14 HTTP/1.1" 200 OK
+INFO:     192.168.1.22:49808 - "GET /static/vendor/katex/katex.min.css HTTP/1.1" 200 OK
+INFO:     192.168.1.22:49808 - "GET /static/vendor/katex/katex.min.js HTTP/1.1" 200 OK
+INFO:     192.168.1.22:49804 - "GET /static/academic.js?v=space-mono-article-4 HTTP/1.1" 200 OK
+INFO:     192.168.1.22:49809 - "GET /static/notes.js?v=1 HTTP/1.1" 200 OK
+INFO:     192.168.1.22:49808 - "GET /static/fonts/et-book/et-book-bold-line-figures.woff HTTP/1.1" 200 OK
+INFO:     192.168.1.22:49808 - "GET /static/fonts/space-mono/SpaceMono-Regular.ttf HTTP/1.1" 200 OK
+INFO:     192.168.1.22:49808 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     192.168.1.22:49810 - "GET /data HTTP/1.1" 200 OK
+INFO:     192.168.1.22:49823 - "POST /data/upload HTTP/1.1" 303 See Other
+INFO:     192.168.1.22:49823 - "GET /data?message=1%20datoer%20med%20bel%C3%A6gning%20importeret%20fra%20Arrivals_on_21-10-2026_to_21-10-202610.pdf%20%E2%80%94%201%20nye%20PDF-observationer%20gemt%20i%20resultatloggen%20%E2%80%94%20Rapporten%20er%20fra%2018-10-2026%20%281%20dag%20gammel%29%3B%20bookinger%20siden%20da%20er%20ikke%20med.%20Perioden%20starter%20mindre%20end%2014%20dage%20tilbage%3B%20g%C3%A6ster%20der%20ankom%20f%C3%B8r%20og%20stadig%20bor%20der%2C%20mangler%20i%20de%20f%C3%B8rste%20n%C3%A6tter. HTTP/1.1" 200 OK
+INFO:     192.168.1.22:49878 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     192.168.1.22:49887 - "GET /data HTTP/1.1" 200 OK
+INFO:     192.168.1.22:49887 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     192.168.1.22:49889 - "POST /resultater/rapporter HTTP/1.1" 303 See Other
+INFO:     192.168.1.22:49889 - "GET /resultater?error=Alle%20rapporter%20skal%20v%C3%A6re%20udskrevet%20efter%20opholdsdatoen%20er%20afsluttet HTTP/1.1" 200 OK
+INFO:     192.168.1.22:50007 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.22:50007 - "POST /run HTTP/1.1" 303 See Other
+INFO:     192.168.1.22:50007 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.22:50017 - "POST /decide HTTP/1.1" 303 See Other
+INFO:     192.168.1.22:50017 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.63:51634 - "GET / HTTP/1.1" 401 Unauthorized
+INFO:     192.168.1.63:51653 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.63:51653 - "GET /static/fonts/et-book/et-book-roman-line-figures.woff HTTP/1.1" 200 OK
+INFO:     192.168.1.63:51654 - "GET /static/vendor/katex/katex.min.css HTTP/1.1" 200 OK
+INFO:     192.168.1.63:51655 - "GET /static/academic.css?v=et-book-notes-14 HTTP/1.1" 200 OK
+INFO:     192.168.1.63:51656 - "GET /static/vendor/katex/katex.min.js HTTP/1.1" 200 OK
+INFO:     192.168.1.63:51657 - "GET /static/academic.js?v=space-mono-article-4 HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:51658 - "GET /static/notes.js?v=1 HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.63:51656 - "GET /static/fonts/et-book/et-book-bold-line-figures.woff HTTP/1.1" 200 OK
+INFO:     192.168.1.63:51656 - "GET /static/fonts/space-mono/SpaceMono-Regular.ttf HTTP/1.1" 200 OK
+INFO:     192.168.1.63:51656 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     192.168.1.12:59911 - "GET / HTTP/1.1" 401 Unauthorized
+INFO:     192.168.1.12:59916 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     192.168.1.36:53524 - "GET / HTTP/1.1" 401 Unauthorized
+INFO:     192.168.1.36:55389 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.36:55389 - "GET /static/fonts/et-book/et-book-roman-line-figures.woff HTTP/1.1" 200 OK
+INFO:     192.168.1.36:54767 - "GET /static/vendor/katex/katex.min.css HTTP/1.1" 200 OK
+INFO:     192.168.1.36:55389 - "GET /static/academic.css?v=et-book-notes-14 HTTP/1.1" 200 OK
+INFO:     192.168.1.36:50321 - "GET /static/vendor/katex/katex.min.js HTTP/1.1" 200 OK
+INFO:     192.168.1.36:51212 - "GET /static/notes.js?v=1 HTTP/1.1" 200 OK
+INFO:     192.168.1.36:51988 - "GET /static/academic.js?v=space-mono-article-4 HTTP/1.1" 200 OK
+INFO:     192.168.1.36:50321 - "GET /static/fonts/et-book/et-book-bold-line-figures.woff HTTP/1.1" 200 OK
+INFO:     192.168.1.36:50321 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     192.168.1.36:50321 - "GET /static/fonts/space-mono/SpaceMono-Regular.ttf HTTP/1.1" 200 OK
+INFO:     192.168.1.36:50321 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.36:61539 - "GET /data HTTP/1.1" 200 OK
+INFO:     192.168.1.63:51909 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.63:52227 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.63:52231 - "GET /data HTTP/1.1" 200 OK
+INFO:     192.168.1.63:52249 - "POST /data/upload HTTP/1.1" 303 See Other
+INFO:     192.168.1.63:52249 - "GET /data?message=120%20datoer%20med%20bel%C3%A6gning%20importeret%20fra%20Arrivals_on_20-09-2026_to_17-02-202710.pdf%20%E2%80%94%20151%20nye%20PDF-observationer%20gemt%20i%20resultatloggen%20%E2%80%94%20Rapporten%20er%20fra%2020-10-2026%20%281%20dag%20gammel%29%3B%20bookinger%20siden%20da%20er%20ikke%20med.%20Ikke%20medregnet%3A%20185%20enheder%20p%C3%A5%20tentative/forel%C3%B8bige/venteliste-bookinger. HTTP/1.1" 200 OK
+INFO:     192.168.1.63:52254 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.63:52260 - "POST /decide HTTP/1.1" 303 See Other
+INFO:     192.168.1.63:52260 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.63:52279 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     192.168.1.63:52287 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.63:52287 - "GET /data HTTP/1.1" 200 OK
+INFO:     192.168.1.63:52287 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     192.168.1.63:52299 - "POST /resultater/rapporter HTTP/1.1" 303 See Other
+INFO:     192.168.1.63:52299 - "GET /resultater/rapporter/1949 HTTP/1.1" 200 OK
+INFO:     192.168.1.63:52301 - "POST /resultater/rapporter/1949/enkelt HTTP/1.1" 303 See Other
+INFO:     192.168.1.63:52301 - "GET /resultater/rapporter/1949?message=Salgstal%20gemt%20til%20prognosevalidering HTTP/1.1" 200 OK
+INFO:     192.168.1.63:52309 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.63:52317 - "GET /export.csv HTTP/1.1" 409 Conflict
+INFO:     192.168.1.63:52318 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.63:52322 - "GET /export.csv HTTP/1.1" 409 Conflict
+INFO:     192.168.1.63:52325 - "POST /decide HTTP/1.1" 303 See Other
+INFO:     192.168.1.63:52325 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.63:52325 - "GET /export.csv HTTP/1.1" 409 Conflict
+INFO:     192.168.1.63:52325 - "POST /run HTTP/1.1" 303 See Other
+INFO:     192.168.1.63:52325 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.63:52325 - "POST /decide HTTP/1.1" 303 See Other
+INFO:     192.168.1.63:52325 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.63:52325 - "GET /export.csv HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57366 - "GET / HTTP/1.1" 401 Unauthorized
+INFO:     192.168.1.22:57366 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57366 - "GET /static/fonts/et-book/et-book-roman-line-figures.woff HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57367 - "GET /static/vendor/katex/katex.min.css HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57369 - "GET /static/vendor/katex/katex.min.js HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57368 - "GET /static/academic.css?v=et-book-notes-14 HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57370 - "GET /static/academic.js?v=space-mono-article-4 HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.22:57371 - "GET /static/notes.js?v=1 HTTP/1.1" 304 Not Modified
+INFO:     192.168.1.22:57369 - "GET /static/fonts/et-book/et-book-bold-line-figures.woff HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57369 - "GET /static/fonts/space-mono/SpaceMono-Regular.ttf HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57369 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     192.168.1.22:57376 - "GET /data HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57397 - "POST /data/upload HTTP/1.1" 303 See Other
+INFO:     192.168.1.22:57397 - "GET /data?message=121%20datoer%20med%20bel%C3%A6gning%20importeret%20fra%20Arrivals_on_23-10-2026_to_20-02-202710.pdf%20%E2%80%94%20121%20nye%20PDF-observationer%20gemt%20i%20resultatloggen%20%E2%80%94%20Perioden%20starter%20mindre%20end%2014%20dage%20tilbage%3B%20g%C3%A6ster%20der%20ankom%20f%C3%B8r%20og%20stadig%20bor%20der%2C%20mangler%20i%20de%20f%C3%B8rste%20n%C3%A6tter.%20Ikke%20medregnet%3A%20163%20enheder%20p%C3%A5%20tentative/forel%C3%B8bige/venteliste-bookinger. HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57407 - "GET /daglig-koersel HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57742 - "POST /data/upload HTTP/1.1" 303 See Other
+INFO:     192.168.1.22:57742 - "GET /data?message=32%20datoer%20med%20konkurrentpriser%20importeret%20fra%20konkurrentpriser_2026-10-23.csv HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57743 - "GET /daglig-koersel HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57745 - "GET /events HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57745 - "GET /static/fonts/et-book/et-book-italic.woff2 HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57745 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57745 - "GET /settings HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57753 - "GET /daglig-koersel HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57755 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57757 - "GET /data HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57764 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57765 - "POST /run HTTP/1.1" 303 See Other
+INFO:     192.168.1.22:57765 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57775 - "POST /decide HTTP/1.1" 303 See Other
+INFO:     192.168.1.22:57775 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57780 - "GET /to-do HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57780 - "GET /daglig-koersel HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57782 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57788 - "POST /resultater/rapporter HTTP/1.1" 303 See Other
+INFO:     192.168.1.22:57788 - "GET /resultater/rapporter/2193 HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57798 - "POST /resultater/rapporter/2193/enkelt HTTP/1.1" 303 See Other
+INFO:     192.168.1.22:57798 - "GET /resultater/rapporter/2193?message=Salgstal%20gemt%20til%20prognosevalidering HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57800 - "GET /resultater/afvigelser?source=live HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57800 - "GET /static/vendor/katex/fonts/KaTeX_Main-Regular.woff2 HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57802 - "GET /static/vendor/katex/fonts/KaTeX_Size2-Regular.woff2 HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57801 - "GET /static/vendor/katex/fonts/KaTeX_Math-Italic.woff2 HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57801 - "GET /resultater/afvigelser?source=live&measure=rum&lead=7&start=2026-09-23&end=2027-02-20 HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57805 - "GET /daglig-koersel HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57814 - "GET /resultater/afvigelser HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57820 - "GET /resultater/afvigelser?source=live&measure=rum&lead=7&start=2026-09-23&end=2027-02-20 HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57823 - "GET /resultater/afvigelser?source=live&measure=revenue&lead=1&start=2026-09-23&end=2027-02-20 HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57833 - "GET /resultater/afvigelser?source=live&measure=rum&lead=30&start=2026-09-23&end=2027-02-20 HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57835 - "GET /resultater/afvigelser?source=historical&measure=rum&lead=7 HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57835 - "GET /resultater/afvigelser?source=historical&measure=rum&lead=7&start=2025-03-08&end=2025-12-31 HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57844 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57844 - "GET /resultater/afvigelser HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57851 - "GET /resultater/afvigelser?source=live&measure=rum&lead=1&start=2026-09-23&end=2027-02-20 HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57859 - "GET /resultater/afvigelser?source=live&measure=rum&lead=7&start=2026-09-23&end=2027-02-20 HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57863 - "GET /resultater/afvigelser?source=historical&measure=rum&lead=7 HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57863 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57863 - "GET /data HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57863 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57863 - "GET /resultater/oekonomi HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57880 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57880 - "GET /grupper HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57880 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57880 - "GET /settings HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57880 - "GET /grupper HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57880 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.22:57885 - "GET /export.csv HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58663 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58737 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58788 - "GET /health HTTP/1.1" 200 OK
+INFO:     192.168.1.22:62973 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.22:62973 - "GET /data HTTP/1.1" 200 OK
+INFO:     192.168.1.22:62975 - "GET /daglig-koersel HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64780 - "GET / HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:64787 - "GET / HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:64801 - "GET / HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:64818 - "GET / HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:64828 - "GET / HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:64828 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64828 - "GET /static/fonts/et-book/et-book-roman-line-figures.woff HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64831 - "GET /static/academic.css?v=et-book-notes-14 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64830 - "GET /static/vendor/katex/katex.min.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64834 - "GET /static/notes.js?v=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64832 - "GET /static/vendor/katex/katex.min.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64833 - "GET /static/academic.js?v=space-mono-article-4 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64832 - "GET /static/fonts/et-book/et-book-bold-line-figures.woff HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64832 - "GET /static/fonts/space-mono/SpaceMono-Regular.ttf HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64832 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:64839 - "POST /decide HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:64839 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64839 - "GET /export.csv HTTP/1.1" 200 OK
+INFO:     192.168.1.36:59784 - "GET / HTTP/1.1" 401 Unauthorized
+INFO:     192.168.1.36:63718 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.36:63718 - "GET /static/fonts/et-book/et-book-roman-line-figures.woff HTTP/1.1" 200 OK
+INFO:     192.168.1.36:65429 - "GET /static/vendor/katex/katex.min.css HTTP/1.1" 200 OK
+INFO:     192.168.1.36:57435 - "GET /static/academic.css?v=et-book-notes-14 HTTP/1.1" 200 OK
+INFO:     192.168.1.36:51768 - "GET /static/vendor/katex/katex.min.js HTTP/1.1" 200 OK
+INFO:     192.168.1.36:62590 - "GET /static/academic.js?v=space-mono-article-4 HTTP/1.1" 200 OK
+INFO:     192.168.1.36:58142 - "GET /static/notes.js?v=1 HTTP/1.1" 200 OK
+INFO:     192.168.1.36:51768 - "GET /static/fonts/et-book/et-book-bold-line-figures.woff HTTP/1.1" 200 OK
+INFO:     192.168.1.36:51768 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     192.168.1.36:51768 - "GET /static/fonts/space-mono/SpaceMono-Regular.ttf HTTP/1.1" 200 OK
+INFO:     192.168.1.36:57874 - "GET /data HTTP/1.1" 200 OK
+INFO:     192.168.1.36:62885 - "POST /data/upload HTTP/1.1" 303 See Other
+INFO:     192.168.1.36:62885 - "GET /data?message=121%20datoer%20med%20bel%C3%A6gning%20importeret%20fra%20Arrivals_on_23-09-2026_to_20-02-202710.pdf%20%E2%80%94%20151%20nye%20PDF-observationer%20gemt%20i%20resultatloggen%20%E2%80%94%20Ikke%20medregnet%3A%20163%20enheder%20p%C3%A5%20tentative/forel%C3%B8bige/venteliste-bookinger. HTTP/1.1" 200 OK
+INFO:     192.168.1.36:49704 - "POST /data/upload HTTP/1.1" 303 See Other
+INFO:     192.168.1.36:49704 - "GET /data?message=121%20datoer%20med%20bel%C3%A6gning%20importeret%20fra%20Arrivals_on_23-09-2026_to_20-02-202710.pdf%20%E2%80%94%200%20nye%20PDF-observationer%20gemt%20i%20resultatloggen%20%E2%80%94%20Ikke%20medregnet%3A%20163%20enheder%20p%C3%A5%20tentative/forel%C3%B8bige/venteliste-bookinger. HTTP/1.1" 200 OK
+INFO:     192.168.1.36:52270 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     192.168.1.36:58448 - "POST /resultater/registrer HTTP/1.1" 303 See Other
+INFO:     192.168.1.36:58448 - "GET /resultater?error=Angiv%20mindst%20%C3%A9n%20pris%2C%20der%20faktisk%20er%20lagt%20ind HTTP/1.1" 200 OK
+INFO:     192.168.1.36:61136 - "POST /resultater/rapporter HTTP/1.1" 303 See Other
+INFO:     192.168.1.36:61136 - "GET /resultater/rapporter/2467 HTTP/1.1" 200 OK
+INFO:     192.168.1.36:64327 - "GET /resultater/afvigelser?source=live HTTP/1.1" 200 OK
+INFO:     192.168.1.36:64327 - "GET /static/fonts/et-book/et-book-italic.woff2 HTTP/1.1" 200 OK
+INFO:     192.168.1.36:59967 - "GET /static/vendor/katex/fonts/KaTeX_Main-Regular.woff2 HTTP/1.1" 200 OK
+INFO:     192.168.1.36:52499 - "GET /static/vendor/katex/fonts/KaTeX_Math-Italic.woff2 HTTP/1.1" 200 OK
+INFO:     192.168.1.36:50980 - "GET /static/vendor/katex/fonts/KaTeX_Size2-Regular.woff2 HTTP/1.1" 200 OK
+INFO:     192.168.1.36:55017 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     192.168.1.36:49182 - "POST /data/upload HTTP/1.1" 303 See Other
+INFO:     192.168.1.36:49182 - "GET /resultater?message=121%20datoer%20med%20bel%C3%A6gning%20importeret%20fra%20Arrivals_on_23-09-2026_to_20-02-202710.pdf%20%E2%80%94%200%20nye%20PDF-observationer%20gemt%20i%20resultatloggen%20%E2%80%94%20Ikke%20medregnet%3A%20163%20enheder%20p%C3%A5%20tentative/forel%C3%B8bige/venteliste-bookinger. HTTP/1.1" 200 OK
+INFO:     192.168.1.36:58651 - "GET /events HTTP/1.1" 200 OK
+INFO:     192.168.1.36:58672 - "GET /settings HTTP/1.1" 200 OK
+INFO:     192.168.1.36:60706 - "POST /settings/competitors HTTP/1.1" 303 See Other
+INFO:     192.168.1.36:60706 - "GET /settings HTTP/1.1" 200 OK
+INFO:     192.168.1.36:56294 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.36:56465 - "POST /run HTTP/1.1" 303 See Other
+INFO:     192.168.1.36:56465 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.36:56522 - "GET /resultater/oekonomi HTTP/1.1" 200 OK
+INFO:     192.168.1.36:62047 - "GET /resultater/export.csv?start=2026-09-23&end=2027-02-20 HTTP/1.1" 200 OK
+INFO:     192.168.1.36:65418 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     192.168.1.36:61744 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     192.168.1.36:62244 - "GET /resultater/export.csv?start=2026-09-23&end=2027-02-20 HTTP/1.1" 200 OK
+INFO:     192.168.1.36:55897 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.36:64740 - "POST /decide HTTP/1.1" 303 See Other
+INFO:     192.168.1.36:64740 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.1.36:49355 - "GET /export.csv HTTP/1.1" 200 OK
+INFO:     192.168.1.36:50239 - "GET /data HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50774 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50778 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50778 - "POST /run HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:50778 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50778 - "GET /api/prices?days=121 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50778 - "GET /resultater/oekonomi HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50793 - "GET /resultater/oekonomi HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:50793 - "GET /resultater/oekonomi HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50795 - "GET /static/academic.css?v=et-book-notes-14 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50793 - "GET /static/fonts/et-book/et-book-roman-line-figures.woff HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50794 - "GET /static/vendor/katex/katex.min.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50797 - "GET /static/academic.js?v=space-mono-article-4 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50798 - "GET /static/notes.js?v=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50796 - "GET /static/vendor/katex/katex.min.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50798 - "GET /static/fonts/et-book/et-book-italic.woff2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50796 - "GET /static/fonts/et-book/et-book-bold-line-figures.woff HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50798 - "GET /static/vendor/katex/fonts/KaTeX_Main-Regular.woff2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50799 - "GET /resultater/oekonomi HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:50799 - "GET /resultater/oekonomi HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50799 - "GET /static/fonts/et-book/et-book-roman-line-figures.woff HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50800 - "GET /static/vendor/katex/katex.min.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50801 - "GET /static/academic.css?v=et-book-notes-14 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50803 - "GET /static/academic.js?v=space-mono-article-4 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50804 - "GET /static/notes.js?v=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50802 - "GET /static/vendor/katex/katex.min.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50802 - "GET /static/fonts/et-book/et-book-bold-line-figures.woff HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50804 - "GET /static/fonts/et-book/et-book-italic.woff2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50804 - "GET /static/vendor/katex/fonts/KaTeX_Main-Regular.woff2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50810 - "GET /resultater/oekonomi HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:50810 - "GET /resultater/oekonomi HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50810 - "GET /static/fonts/et-book/et-book-roman-line-figures.woff HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50812 - "GET /static/academic.css?v=et-book-notes-14 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50811 - "GET /static/vendor/katex/katex.min.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50815 - "GET /static/notes.js?v=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50813 - "GET /static/vendor/katex/katex.min.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50814 - "GET /static/academic.js?v=space-mono-article-4 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50813 - "GET /static/fonts/et-book/et-book-bold-line-figures.woff HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50810 - "GET /static/fonts/et-book/et-book-italic.woff2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50810 - "GET /static/vendor/katex/fonts/KaTeX_Main-Regular.woff2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50816 - "GET /resultater/oekonomi HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:50816 - "GET /resultater/oekonomi HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50816 - "GET /static/fonts/et-book/et-book-roman-line-figures.woff HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50818 - "GET /static/academic.css?v=et-book-notes-14 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50821 - "GET /static/notes.js?v=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50820 - "GET /static/academic.js?v=space-mono-article-4 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50819 - "GET /static/vendor/katex/katex.min.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50817 - "GET /static/vendor/katex/katex.min.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50819 - "GET /static/fonts/et-book/et-book-italic.woff2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50817 - "GET /static/fonts/et-book/et-book-bold-line-figures.woff HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50820 - "GET /static/vendor/katex/fonts/KaTeX_Main-Regular.woff2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50829 - "GET /resultater/oekonomi HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:50829 - "GET /resultater/oekonomi HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50830 - "GET /static/vendor/katex/katex.min.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50829 - "GET /static/fonts/et-book/et-book-roman-line-figures.woff HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50831 - "GET /static/academic.css?v=et-book-notes-14 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50834 - "GET /static/notes.js?v=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50833 - "GET /static/academic.js?v=space-mono-article-4 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50832 - "GET /static/vendor/katex/katex.min.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50833 - "GET /static/fonts/et-book/et-book-italic.woff2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50829 - "GET /static/fonts/et-book/et-book-bold-line-figures.woff HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50832 - "GET /static/vendor/katex/fonts/KaTeX_Main-Regular.woff2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50836 - "GET /resultater/oekonomi HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:50836 - "GET /resultater/oekonomi HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50838 - "GET /static/academic.css?v=et-book-notes-14 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50837 - "GET /static/vendor/katex/katex.min.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50836 - "GET /static/fonts/et-book/et-book-roman-line-figures.woff HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50840 - "GET /static/academic.js?v=space-mono-article-4 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50841 - "GET /static/notes.js?v=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50839 - "GET /static/vendor/katex/katex.min.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50841 - "GET /static/fonts/et-book/et-book-italic.woff2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50839 - "GET /static/fonts/et-book/et-book-bold-line-figures.woff HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50841 - "GET /static/vendor/katex/fonts/KaTeX_Main-Regular.woff2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50851 - "GET /resultater/oekonomi HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:50851 - "GET /resultater/oekonomi HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50851 - "GET /static/fonts/et-book/et-book-roman-line-figures.woff HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50852 - "GET /static/vendor/katex/katex.min.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50853 - "GET /static/academic.css?v=et-book-notes-14 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50854 - "GET /static/vendor/katex/katex.min.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50855 - "GET /static/academic.js?v=space-mono-article-4 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50856 - "GET /static/notes.js?v=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50856 - "GET /static/fonts/et-book/et-book-italic.woff2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50854 - "GET /static/fonts/et-book/et-book-bold-line-figures.woff HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50856 - "GET /static/vendor/katex/fonts/KaTeX_Main-Regular.woff2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50857 - "GET /resultater/oekonomi HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:50857 - "GET /resultater/oekonomi HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50859 - "GET /static/academic.css?v=et-book-notes-14 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50858 - "GET /static/vendor/katex/katex.min.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50860 - "GET /static/vendor/katex/katex.min.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50857 - "GET /static/fonts/et-book/et-book-roman-line-figures.woff HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50861 - "GET /static/academic.js?v=space-mono-article-4 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50862 - "GET /static/notes.js?v=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50860 - "GET /static/fonts/et-book/et-book-italic.woff2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50857 - "GET /static/fonts/et-book/et-book-bold-line-figures.woff HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50862 - "GET /static/vendor/katex/fonts/KaTeX_Main-Regular.woff2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50882 - "GET /resultater/oekonomi HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:50882 - "GET /resultater/oekonomi HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50884 - "GET /static/academic.css?v=et-book-notes-14 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50882 - "GET /static/fonts/et-book/et-book-roman-line-figures.woff HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50883 - "GET /static/vendor/katex/katex.min.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50885 - "GET /static/vendor/katex/katex.min.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50886 - "GET /static/academic.js?v=space-mono-article-4 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50887 - "GET /static/notes.js?v=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50884 - "GET /static/fonts/et-book/et-book-italic.woff2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50885 - "GET /static/fonts/et-book/et-book-bold-line-figures.woff HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50883 - "GET /static/vendor/katex/fonts/KaTeX_Main-Regular.woff2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50888 - "GET /resultater/oekonomi HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:50888 - "GET /resultater/oekonomi HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50890 - "GET /static/academic.css?v=et-book-notes-14 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50888 - "GET /static/fonts/et-book/et-book-roman-line-figures.woff HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50889 - "GET /static/vendor/katex/katex.min.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50893 - "GET /static/notes.js?v=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50892 - "GET /static/academic.js?v=space-mono-article-4 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50891 - "GET /static/vendor/katex/katex.min.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50892 - "GET /static/vendor/katex/fonts/KaTeX_Main-Regular.woff2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50893 - "GET /static/fonts/et-book/et-book-bold-line-figures.woff HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50891 - "GET /static/fonts/et-book/et-book-italic.woff2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50904 - "GET /resultater/oekonomi HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:50904 - "GET /resultater/oekonomi HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50904 - "GET /static/fonts/et-book/et-book-roman-line-figures.woff HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50905 - "GET /static/vendor/katex/katex.min.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50906 - "GET /static/academic.css?v=et-book-notes-14 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50907 - "GET /static/vendor/katex/katex.min.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50908 - "GET /static/academic.js?v=space-mono-article-4 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50909 - "GET /static/notes.js?v=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50907 - "GET /static/fonts/et-book/et-book-bold-line-figures.woff HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50908 - "GET /static/fonts/et-book/et-book-italic.woff2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50906 - "GET /static/vendor/katex/fonts/KaTeX_Main-Regular.woff2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50910 - "GET /resultater/oekonomi HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:50910 - "GET /resultater/oekonomi HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50915 - "GET /static/notes.js?v=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50912 - "GET /static/academic.css?v=et-book-notes-14 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50913 - "GET /static/vendor/katex/katex.min.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50910 - "GET /static/fonts/et-book/et-book-roman-line-figures.woff HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50911 - "GET /static/vendor/katex/katex.min.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50914 - "GET /static/academic.js?v=space-mono-article-4 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50913 - "GET /static/fonts/et-book/et-book-italic.woff2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50912 - "GET /static/fonts/et-book/et-book-bold-line-figures.woff HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50914 - "GET /static/vendor/katex/fonts/KaTeX_Main-Regular.woff2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50965 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50967 - "GET /events HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50967 - "GET /static/fonts/et-book/et-book-italic.woff2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50967 - "GET /grupper HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50967 - "GET /data HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50984 - "GET / HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:50986 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50986 - "GET /resultater/oekonomi HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50986 - "GET /static/vendor/katex/fonts/KaTeX_Main-Regular.woff2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50997 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51001 - "POST /decide HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:51001 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51027 - "GET /export.csv HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51033 - "GET /resultater HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51033 - "GET /resultater/oekonomi HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51101 - "GET / HTTP/1.1" 200 OK
